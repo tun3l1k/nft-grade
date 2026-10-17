@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NFT GRADE</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="top"><button class="sq" id="gb" onclick="tab(6)"></button><div class="lvb" id="lv" onclick="lvt()"></div><div style="flex:1"></div><div class="pill" id="bal"></div></div>
+
+<div id="p0" class="pg on"><button class="bpb" id="bpb" onclick="tab(9)"></button><button class="dlb" id="dlb" onclick="dlOpen()"></button><div class="livh"><i></i>Live · выпало сейчас</div><div class="hs" id="feed"></div><div class="chips" id="hch" style="margin-top:8px"></div><div id="cases"></div></div>
+
+<div id="p1" class="pg">
+ <div class="ihead"><div><div class="mu">Стоимость коллекции</div><div class="h" id="itv"></div></div><div class="ihs"><div><b id="itn">0</b><small>всего</small></div><div><b id="itnf">0</b><small>NFT</small></div></div></div>
+ <div class="seg" id="itabs" style="margin:0 12px 10px"><button onclick="itf(0)">Все</button><button onclick="itf(1)">NFT</button><button onclick="itf(2)">Подарки</button></div>
+ <div class="chips" id="isort"><button class="chip" onclick="isr(0)">Дороже</button><button class="chip" onclick="isr(1)">Дешевле</button><button class="chip" onclick="isr(2)">Новые</button><button class="chip" onclick="isr(3)">По номеру</button><button class="chip" onclick="selAll()">Выбрать все</button><button class="chip" onclick="tab(10)">📜 Контракт</button></div>
+ <div class="grid" id="igrid"></div>
+ <div class="iact" id="iact"><div class="srow" style="justify-content:center"><span id="isum"></span></div><div class="bar"><button class="go" onclick="sellSel()">Продать</button><button class="go gh" id="iup" onclick="toUp()">В апгрейд</button></div></div>
+</div>
+
+<div id="p2" class="pg">
+ <div class="chips" id="umx" style="padding-bottom:8px"></div>
+ <div class="wheel" id="wh"><svg viewBox="0 0 300 300"><defs>
+ <linearGradient id="gs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fd068"/><stop offset="1" stop-color="#2aabee"/></linearGradient>
+ <linearGradient id="gf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7b7b"/><stop offset="1" stop-color="#a33a6a"/></linearGradient>
+ <radialGradient id="gd" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#22324a"/><stop offset="1" stop-color="#0b121b"/></radialGradient>
+ <filter id="gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+ <circle cx="150" cy="150" r="146" fill="none" stroke="#2b3a4b"/>
+ <circle cx="150" cy="150" r="130" fill="none" stroke="url(#gf)" stroke-opacity=".35" stroke-width="14"/>
+ <circle class="tk" cx="150" cy="150" r="112" fill="none" stroke="#3a4d63" stroke-width="6" stroke-dasharray="2 9.73"/>
+ <circle cx="150" cy="150" r="101" fill="url(#gd)" stroke="#2b3a4b"/>
+ <path id="arc" fill="none" stroke="url(#gs)" stroke-width="14" stroke-linecap="round" filter="url(#gl)"/>
+ <g id="ptr" filter="url(#gl)"><polygon points="141,0 159,0 150,27" fill="#fff"/></g></svg>
+  <div class="mid"><div class="pct" id="pct">0 %</div><div class="sub s" id="sub"></div></div><div class="res" id="res"></div></div>
+ <button class="go" id="ugo" onclick="spin()"></button><div class="sbox" id="uinfo"></div>
+ <h3 class="sec">Ваши подарки <span class="mu">— выберите, что вложить</span></h3><div class="grid" id="umine"></div><h3 class="sec">Хочу получить <span class="mu">— шанс на каждом</span></h3><div class="grid" id="utgt"></div><h3 class="sec">История попыток</h3><div id="uhist"></div>
+</div>
+
+<div id="p3" class="pg">
+ <div class="si"><svg class="i" width="18" height="18" viewBox="0 0 24 24" id="s1"></svg><input id="mq" placeholder="Поиск лота" oninput="mqs(this.value)"></div>
+ <div class="chips" id="mch"></div><div id="mflt"><div class="chips" id="mrar"></div><div class="fl"><input id="fmin" placeholder="от" inputmode="numeric" oninput="mfs()"><input id="fmax" placeholder="до" inputmode="numeric" oninput="mfs()"><select id="fser" onchange="mfs()"></select><select id="fsort" onchange="mfs()"><option value="0">Цена ↑</option><option value="1">Цена ↓</option><option value="2">Скоро конец</option></select></div></div>
+ <div id="mlist"></div><p class="note">Лоты, ставки и игроки пока тестовые. Чтобы выставить подарок, запустить аукцион или подарить по юзернейму, откройте вкладку «Продать».</p>
+</div>
+
+<div id="p4" class="pg">
+ <div class="pro"><div class="av" id="av" onclick="frameSheet()">И</div><div><div class="h" style="font-size:20px" id="pnm">Игрок</div><div class="mu" id="ptt"></div></div></div>
+ <div class="stats" id="pst"></div>
+ <div class="mrow" onclick="tab(7)" style="cursor:pointer;margin:8px 12px"><span class="e">🎁</span><div class="tt">Подарки<small id="pgc"></small></div><span class="mu" style="font-size:24px">›</span></div><details class="dt"><summary><span>Коллекции<span class="dot" id="cdot" style="display:none"></span></span></summary><div id="cols"></div></details><details class="dt"><summary>Титулы</summary><div class="chips" id="ttl" style="flex-wrap:wrap"></div></details><details class="dt"><summary><span>Достижения<span class="dot" id="adot" style="display:none"></span></span></summary><div id="pac"></div></details>
+ <h3 class="sec">Рейтинг</h3><div class="chips" id="rch"><button class="chip on" onclick="rts(1)">Коллекция</button><button class="chip" onclick="rts(2)">Уровень</button><button class="chip" onclick="rts(3)">Топ-находки</button></div><div id="rl"></div>
+</div>
+
+<div id="p5" class="pg">
+ <div class="rowb"><button class="b off" onclick="tab(0)">Назад</button><span class="h" style="font-size:18px">Каталог</span><span style="width:60px"></span></div>
+ <div class="si"><svg class="i" width="18" height="18" viewBox="0 0 24 24" id="s2"></svg><input placeholder="Поиск по названию" oninput="cqs(this.value)"></div>
+ <div class="chips" id="cch"></div><div class="grid g2" id="cgrid"></div>
+</div>
+
+<div id="p6" class="pg"><div class="rowb"><span class="h" style="font-size:18px">Настройки</span><button class="b off" onclick="tab(0)">Готово</button></div>
+<div class="sbox"><div class="lab">Размер кнопок</div><div class="seg" id="bseg"><button onclick="setS('bs',.9)">Маленькие</button><button onclick="setS('bs',1)">Средние</button><button onclick="setS('bs',1.15)">Большие</button></div></div>
+<div class="sbox"><div class="lab">Подарков в ряду (инвентарь)</div><div class="seg" id="cseg"><button onclick="setS('cols',3)">3</button><button onclick="setS('cols',4)">4</button></div></div>
+<div class="sbox srow"><span>Звук</span><button class="sw" data-k="snd" onclick="tgS('snd')"><i></i></button></div>
+<div class="sbox"><button class="go gh" style="width:100%;margin:0" onclick="tab(0);tutStep(0)">Показать обучение</button></div>
+<div class="sbox srow"><span>Вибрация</span><button class="sw" data-k="vib" onclick="tgS('vib')"><i></i></button></div>
+<div class="sbox srow"><span>Быстрое открытие кейсов<small>без анимации прокрутки</small></span><button class="sw" data-k="fast" onclick="tgS('fast')"><i></i></button></div>
+<div class="sbox srow"><span>Показывать шансы кейсов</span><button class="sw" data-k="odds" onclick="tgS('odds')"><i></i></button></div>
+<div class="sbox"><button class="go gh" id="rst" onclick="rst()" style="width:100%;margin:0">Сбросить прогресс</button></div>
+<div class="sbox" id="adm"></div><p class="note">На iPhone в обычном браузере вибрация не работает. Она заработает внутри Telegram.</p></div>
+<div id="p8" class="pg"><div class="rowb"><button class="b off" onclick="tab(0)">Назад</button><span class="h" style="font-size:18px">Магазин</span><span style="width:60px"></span></div><div id="shp8"></div></div>
+<div id="p10" class="pg"><div class="rowb"><button class="b off" onclick="tab(1)">Назад</button><span class="h" style="font-size:18px">Контракт</span><span style="width:60px"></span></div><p class="note" style="padding-top:0">Выберите от 3 до 10 подарков. Вы получите один подарок: чаще дешевле суммы, реже дороже, иногда намного дороже. Подарки событий не участвуют.</p><div class="grid" id="ctg"></div><div class="iact" id="ctact"></div></div>
+<div id="p9" class="pg bpt"><div class="rowb"><button class="b off" onclick="tab(0)">Назад</button><span class="h" style="font-size:18px">BATTLE PASS</span><span style="width:60px"></span></div><div id="bph"></div></div>
+<div id="p7" class="pg"><div class="rowb"><button class="b off" onclick="tab(4)">Назад</button><span class="h" style="font-size:18px">Мои подарки</span><span style="width:60px"></span></div><div class="grid" id="pgf"></div></div>
+<div class="ov" id="rev"><div class="box" id="rv"></div></div>
+<div class="ov end" id="sheet" onclick="if(event.target==this)this.className='ov end'"><button class="xcl" onclick="closeSh()">✕</button><div class="box" id="sh"></div></div>
+<div class="toast" id="toast"></div><div id="fx"></div>
+<div class="nav" id="nav"></div>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="shop.js"></script>
+<script src="battlepass.js"></script>
+<script src="effects.js"></script>
+<script src="collections.js"></script>
+<script src="cases.js"></script>
+<script src="inventory.js"></script>
+<script src="upgrade.js"></script>
+<script src="market.js"></script>
+<script src="profile.js"></script>
+<script src="main.js"></script></body></html>
