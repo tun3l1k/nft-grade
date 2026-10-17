@@ -17,7 +17,7 @@ function rUp(){var s=usum();if(mx&&s>0)T=near(s*mx,s);else if(T!=null&&!cchance(
  var inf='<div class="lab">Как считается шанс</div><div class="mu" style="line-height:1.5">Шанс = вложенное ÷ цена цели × 95%. Выберите ставку ×2, ×3… или конкретную цель ниже. Улучшать можно только NFT.</div>';
  if(T!=null&&s)inf+='<div class="srow" style="margin-top:10px"><span>Вложено</span><b>'+f(s)+'</b></div><div class="srow"><span>Цель: '+G[T][1]+' '+G[T][0]+'</span><b>≈ '+f(G[T][3])+'</b></div><div class="srow"><span>Шанс успеха</span><b style="color:var(--gr)">'+ch.toFixed(2)+' %</b></div><div class="srow"><span>Шанс неудачи</span><b style="color:var(--rd)">'+(100-ch).toFixed(2)+' %</b></div>';
  $("uinfo").innerHTML=inf;
- $("umine").innerHTML=S.inv.filter(function(x){return G[x.g][4]}).sort(function(x,y){return pr(y)-pr(x)}).map(function(x){return tile(x,U[x.u]?" on":"","tu("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет NFT-подарков. Обычные подарки в апгрейде не участвуют.</p>';
+ $("umine").innerHTML=S.inv.filter(function(x){return x.up}).sort(function(x,y){return pr(y)-pr(x)}).map(function(x){return tile(x,U[x.u]?" on":"","tu("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет NFT-подарков. Обычные подарки в апгрейде не участвуют.</p>';
  $("utgt").innerHTML=G.map(function(x,i){if(!x[4])return"";var c=cchance(i,s);return gtile(i,(T==i?" on":"")+(c?"":" dm"),"tt("+i+")").replace("<b>",'<span class="bd'+(c>=50?' ok':'')+'">'+(c?c.toFixed(2)+" %":"—")+"</span><b>")}).join("");
  $("uhist").innerHTML=(S.uh||[]).map(function(h){return '<div class="mrow"><span class="e">'+(h.w?"✅":"❌")+'</span><div class="tt">'+h.a+' → '+G[h.t][1]+' '+G[h.t][0]+'<small>шанс '+h.c.toFixed(1)+' % · '+new Date(h.ts).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})+'</small></div></div>'}).join("")||'<p class="note">Попыток пока нет</p>'}
 function tu(u){if(busy)return;U[u]=!U[u];rUp()}
@@ -28,7 +28,7 @@ function spin(){if(busy||!ch)return;busy=1;rUp();
  var base=cur-((cur%360)+360)%360;cur=base+1800+a;var p=$("ptr");p.style.transition="transform 4.2s cubic-bezier(.12,.6,.1,1)";p.style.transform="rotate("+cur+"deg)";
  var used=Object.keys(U).filter(function(k){return U[k]}).map(Number),tg2=T,vs=usum(),chs=ch,em=S.inv.filter(function(x){return U[x.u]}).map(function(x){return G[x.g][1]}).join("");
  setTimeout(function(){S.inv=S.inv.filter(function(x){return used.indexOf(x.u)<0});S.st.ups++;bpAdd("ups",1);S.uh=S.uh||[];S.uh.unshift({w:win?1:0,c:chs,a:em,t:tg2,ts:Date.now()});S.uh=S.uh.slice(0,15);
-  if(win){S.inv.push(mkItem(tg2));S.st.wins++;bpAdd("upw",1);bpAdd("nft",1);var l1=lvl();S.xp+=10;if(lvl()>l1)toast("Новый уровень: "+lvl())}
+  if(win){S.inv.push(mkItem(tg2,1));S.st.wins++;bpAdd("upw",1);bpAdd("nft",1);var l1=lvl();S.xp+=10;if(lvl()>l1)toast("Новый уровень: "+lvl())}
   var r=$("res"),w=$("wh");r.className="res "+(win?"w":"l");sfx(win?"win":"lose");if(win)burst(40,["#5fd068","#2aabee","#fff"]);r.textContent=win?"Успех! "+G[tg2][1]:"Неудача";r.style.display="block";w.classList.add(win?"fw":"wfl");
   U={};T=null;busy=0;save();render();
   setTimeout(function(){r.style.display="none";w.classList.remove("fw","wfl")},2200)},4400)}

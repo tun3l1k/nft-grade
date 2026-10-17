@@ -1,20 +1,19 @@
-<!DOCTYPE html>
-<html lang="ru"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><script src="https://telegram.org/js/telegram-web-app.js"></script><link rel="stylesheet" href="style1.css"></head><body>
 <title>NFT GRADE</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="style.css"></head><body>
+<link rel="stylesheet" href="style2.css">
 <div class="top"><button class="sq" id="gb" onclick="tab(6)"></button><div class="lvb" id="lv" onclick="lvt()"></div><div style="flex:1"></div><div class="pill" id="bal"></div></div>
 
-<div id="p0" class="pg on"><button class="bpb" id="bpb" onclick="tab(9)"></button><button class="dlb" id="dlb" onclick="dlOpen()"></button><div class="livh"><i></i>Live · выпало сейчас</div><div class="hs" id="feed"></div><div class="chips" id="hch" style="margin-top:8px"></div><div id="cases"></div></div>
+<div id="p0" class="pg on"><button class="bpb" id="bpb" onclick="bpOpen()"></button><button class="dlb" id="dlb" onclick="dlOpen()"></button><div class="livh"><i></i>Live · выпало сейчас</div><div class="hs" id="feed"></div><div class="chips" id="hch" style="margin-top:8px"></div><div id="cases"></div></div>
 
-<div id="p1" class="pg">
+<div id="p1" class="pg"><div class="seg" id="ptabs" style="margin:0 12px 12px"><button onclick="ptab(1)">Прогресс</button><button onclick="ptab(2)">Рейтинг</button></div>
+ <div id="pt1" style="display:none"><div class="stats" id="pst"></div><button class="nb" id="pnb" onclick="pnGo()" style="display:none"></button><details class="dt" id="dtc"><summary><span>Коллекции<span class="dot" id="cdot" style="display:none"></span></span></summary><div id="cols"></div></details><details class="dt"><summary>Титулы</summary><div class="chips" id="ttl" style="flex-wrap:wrap"></div></details><details class="dt" id="dta"><summary><span>Достижения<span class="dot" id="adot" style="display:none"></span></span></summary><div id="pac"></div></details></div>
+ <div id="pt2" style="display:none"><div class="chips" id="rch"><button class="chip on" onclick="rts(1)">Коллекция</button><button class="chip" onclick="rts(2)">Уровень</button><button class="chip" onclick="rts(3)">Топ-находки</button></div><div id="rl"></div></div><details class="dt"><summary>Управление подарками</summary><div>
  <div class="ihead"><div><div class="mu">Стоимость коллекции</div><div class="h" id="itv"></div></div><div class="ihs"><div><b id="itn">0</b><small>всего</small></div><div><b id="itnf">0</b><small>NFT</small></div></div></div>
  <div class="seg" id="itabs" style="margin:0 12px 10px"><button onclick="itf(0)">Все</button><button onclick="itf(1)">NFT</button><button onclick="itf(2)">Подарки</button></div>
- <div class="chips" id="isort"><button class="chip" onclick="isr(0)">Дороже</button><button class="chip" onclick="isr(1)">Дешевле</button><button class="chip" onclick="isr(2)">Новые</button><button class="chip" onclick="isr(3)">По номеру</button><button class="chip" onclick="selAll()">Выбрать все</button><button class="chip" onclick="tab(10)">📜 Контракт</button></div>
+ <div class="chips" id="isort"><button class="chip" onclick="isr(0)">Дороже</button><button class="chip" onclick="isr(1)">Дешевле</button><button class="chip" onclick="isr(2)">Новые</button><button class="chip" onclick="isr(3)">По номеру</button><button class="chip" id="isb" onclick="ism()">Выбрать</button><button class="chip" onclick="selAll()">Выбрать все</button><button class="chip" onclick="tab(10)">📜 Контракт</button></div>
  <div class="grid" id="igrid"></div>
- <div class="iact" id="iact"><div class="srow" style="justify-content:center"><span id="isum"></span></div><div class="bar"><button class="go" onclick="sellSel()">Продать</button><button class="go gh" id="iup" onclick="toUp()">В апгрейд</button></div></div>
+ <div class="iact" id="iact"><div class="srow" style="justify-content:center"><span id="isum"></span></div><div class="bar"><button class="go" onclick="sellSel()">Продать</button><button class="go gh" id="iup" onclick="toUp()">В апгрейд</button></div></div></div></details>
 </div>
 
 <div id="p2" class="pg">
@@ -38,14 +37,13 @@
 <div id="p3" class="pg">
  <div class="si"><svg class="i" width="18" height="18" viewBox="0 0 24 24" id="s1"></svg><input id="mq" placeholder="Поиск лота" oninput="mqs(this.value)"></div>
  <div class="chips" id="mch"></div><div id="mflt"><div class="chips" id="mrar"></div><div class="fl"><input id="fmin" placeholder="от" inputmode="numeric" oninput="mfs()"><input id="fmax" placeholder="до" inputmode="numeric" oninput="mfs()"><select id="fser" onchange="mfs()"></select><select id="fsort" onchange="mfs()"><option value="0">Цена ↑</option><option value="1">Цена ↓</option><option value="2">Скоро конец</option></select></div></div>
- <div id="mlist"></div><p class="note">Лоты, ставки и игроки пока тестовые. Чтобы выставить подарок, запустить аукцион или подарить по юзернейму, откройте вкладку «Продать».</p>
+ <div id="mlist"></div><button class="sendb" id="msb" onclick="mtb(5)">Продать</button><p class="note">Лоты, ставки и игроки пока тестовые. Чтобы выставить подарок, запустить аукцион или подарить по юзернейму, нажмите «Продать» внизу.</p>
 </div>
 
 <div id="p4" class="pg">
- <div class="pro"><div class="av" id="av" onclick="frameSheet()">И</div><div><div class="h" style="font-size:20px" id="pnm">Игрок</div><div class="mu" id="ptt"></div></div></div>
- <div class="stats" id="pst"></div>
- <div class="mrow" onclick="tab(7)" style="cursor:pointer;margin:8px 12px"><span class="e">🎁</span><div class="tt">Подарки<small id="pgc"></small></div><span class="mu" style="font-size:24px">›</span></div><details class="dt"><summary><span>Коллекции<span class="dot" id="cdot" style="display:none"></span></span></summary><div id="cols"></div></details><details class="dt"><summary>Титулы</summary><div class="chips" id="ttl" style="flex-wrap:wrap"></div></details><details class="dt"><summary><span>Достижения<span class="dot" id="adot" style="display:none"></span></span></summary><div id="pac"></div></details>
- <h3 class="sec">Рейтинг</h3><div class="chips" id="rch"><button class="chip on" onclick="rts(1)">Коллекция</button><button class="chip" onclick="rts(2)">Уровень</button><button class="chip" onclick="rts(3)">Топ-находки</button></div><div id="rl"></div>
+ <div class="pf"><button class="pfb" onclick="frameSheet()">Изм.</button><div class="av" id="av" onclick="frameSheet()">И</div><div class="h pfn" id="pnm">Игрок</div><div class="pfs"><span class="shd" id="plv">1</span><span id="ptt"></span></div></div>
+ <div class="pfc"><div class="r"><div class="k">имя пользователя</div><div class="vv bl" id="pfu">—</div></div><div class="r"><div class="k">подарков</div><div class="vv" id="pfl"></div></div><div class="r"><div class="k">стоимость коллекции</div><div class="vv" id="pfv"></div></div><div class="r"><div class="k">о себе</div><div class="vv"><input id="bio" maxlength="70" placeholder="Расскажите о себе" onchange="S.bio=this.value;save()"></div></div></div>
+ <button class="sendb" onclick="sendSheet()">Отправить подарки друзьям</button><div id="pt0"><div class="gh2"><span class="h" style="font-size:18px">Подарки</span><span class="mu" id="pgc"></span></div><div class="grid" id="pgf"></div><div style="height:150px"></div></div>
 </div>
 
 <div id="p5" class="pg">
@@ -55,19 +53,12 @@
 </div>
 
 <div id="p6" class="pg"><div class="rowb"><span class="h" style="font-size:18px">Настройки</span><button class="b off" onclick="tab(0)">Готово</button></div>
-<div class="sbox"><div class="lab">Размер кнопок</div><div class="seg" id="bseg"><button onclick="setS('bs',.9)">Маленькие</button><button onclick="setS('bs',1)">Средние</button><button onclick="setS('bs',1.15)">Большие</button></div></div>
-<div class="sbox"><div class="lab">Подарков в ряду (инвентарь)</div><div class="seg" id="cseg"><button onclick="setS('cols',3)">3</button><button onclick="setS('cols',4)">4</button></div></div>
-<div class="sbox srow"><span>Звук</span><button class="sw" data-k="snd" onclick="tgS('snd')"><i></i></button></div>
-<div class="sbox"><button class="go gh" style="width:100%;margin:0" onclick="tab(0);tutStep(0)">Показать обучение</button></div>
-<div class="sbox srow"><span>Вибрация</span><button class="sw" data-k="vib" onclick="tgS('vib')"><i></i></button></div>
-<div class="sbox srow"><span>Быстрое открытие кейсов<small>без анимации прокрутки</small></span><button class="sw" data-k="fast" onclick="tgS('fast')"><i></i></button></div>
-<div class="sbox srow"><span>Показывать шансы кейсов</span><button class="sw" data-k="odds" onclick="tgS('odds')"><i></i></button></div>
-<div class="sbox"><button class="go gh" id="rst" onclick="rst()" style="width:100%;margin:0">Сбросить прогресс</button></div>
-<div class="sbox" id="adm"></div><p class="note">На iPhone в обычном браузере вибрация не работает. Она заработает внутри Telegram.</p></div>
+<div id="sbody"></div>
+</div>
 <div id="p8" class="pg"><div class="rowb"><button class="b off" onclick="tab(0)">Назад</button><span class="h" style="font-size:18px">Магазин</span><span style="width:60px"></span></div><div id="shp8"></div></div>
 <div id="p10" class="pg"><div class="rowb"><button class="b off" onclick="tab(1)">Назад</button><span class="h" style="font-size:18px">Контракт</span><span style="width:60px"></span></div><p class="note" style="padding-top:0">Выберите от 3 до 10 подарков. Вы получите один подарок: чаще дешевле суммы, реже дороже, иногда намного дороже. Подарки событий не участвуют.</p><div class="grid" id="ctg"></div><div class="iact" id="ctact"></div></div>
 <div id="p9" class="pg bpt"><div class="rowb"><button class="b off" onclick="tab(0)">Назад</button><span class="h" style="font-size:18px">BATTLE PASS</span><span style="width:60px"></span></div><div id="bph"></div></div>
-<div id="p7" class="pg"><div class="rowb"><button class="b off" onclick="tab(4)">Назад</button><span class="h" style="font-size:18px">Мои подарки</span><span style="width:60px"></span></div><div class="grid" id="pgf"></div></div>
+<div id="p7" class="pg"><div class="rowb"><button class="b off" onclick="tab(4)">Назад</button><span class="h" style="font-size:18px">Мои подарки</span><span style="width:60px"></span></div><div class="grid" id="pgf7"></div></div>
 <div class="ov" id="rev"><div class="box" id="rv"></div></div>
 <div class="ov end" id="sheet" onclick="if(event.target==this)this.className='ov end'"><button class="xcl" onclick="closeSh()">✕</button><div class="box" id="sh"></div></div>
 <div class="toast" id="toast"></div><div id="fx"></div>
@@ -81,7 +72,12 @@
 <script src="collections.js"></script>
 <script src="cases.js"></script>
 <script src="inventory.js"></script>
+
+<script src="cards.js"></script>
 <script src="upgrade.js"></script>
 <script src="market.js"></script>
 <script src="profile.js"></script>
-<script src="main.js"></script></body></html>
+<script src="boot.js"></script>
+
+<script src="roll.js"></script>
+</body></html>

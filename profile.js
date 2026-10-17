@@ -2,14 +2,15 @@
 var rt=1;
 var RL=null,lbT=0;
 function rareN(){return S.st.leg+S.inv.filter(function(x){return G[x.g][2]>=2}).length}
-function lbSync(){if(CFG.DEMO||Date.now()-lbT<8000)return;lbT=Date.now();api("/score",{v:cv(),l:lvl(),t:rareN()}).then(function(){return api("/top",{m:rt})}).then(function(d){if(d&&d.list){RL=d.list.map(function(x){return[x.me?"Вы":x.n,x.v,x.l,x.t]});rPro()}}).catch(function(){})}
+function lbSync(){if(Date.now()-lbT<8000)return;lbT=Date.now();api("/score",{v:cv(),l:lvl(),t:rareN()}).then(function(){return api("/top",{m:rt})}).then(function(d){if(d&&d.list){RL=d.list.map(function(x){return[x.me?"Вы":x.n,x.v,x.l,x.t]});rPro()}}).catch(function(){})}
 setInterval(lbSync,60000);
 function rts(n){rt=n;lbT=0;lbSync();rPro()}
-function rPro(){var v=cv(),rare=S.st.leg+S.inv.filter(function(x){return G[x.g][2]>=2}).length;
+function rPro(){try{rGifts()}catch(e){}rPf();var v=cv(),rare=S.st.leg+S.inv.filter(function(x){return G[x.g][2]>=2}).length;
  var A=[["Первый кейс","Откройте кейс",S.st.cases>=1],["Коллекционер","10 подарков в инвентаре",S.inv.length>=10],["Богач","Коллекция дороже 20 000",v>=20000],["Топ-находка","Выбейте NFT из топ-класса",S.st.leg>=1],["Удачливый","Выиграйте апгрейд",S.st.wins>=1],["Торговец","Совершите сделку",S.hist.length>=1]];
- $("ptt").textContent="Титул: "+TL[S.tt||0][0]+" · Ур. "+lvl();rAv();$("ttl").innerHTML=TL.map(function(t,i){var ok=t[2]();return '<button class="chip'+((S.tt||0)==i?" on":"")+'" style="'+(ok?"":"opacity:.45")+'" onclick="setTl('+i+')">'+(ok?"":"🔒 ")+t[0]+"</button>"}).join("");
+ $("ptt").textContent="в сети · "+TL[S.tt||0][0];$("plv").textContent=lvl();rAv();$("ttl").innerHTML=TL.map(function(t,i){var ok=t[2]();return '<button class="chip'+((S.tt||0)==i?" on":"")+'" style="'+(ok?"":"opacity:.45")+'" onclick="setTl('+i+')">'+(ok?"":"🔒 ")+t[0]+"</button>"}).join("");
  $("pst").innerHTML=[[f(v),"Коллекция"],[S.inv.length,"Подарков"],[S.st.cases,"Кейсов"]].map(function(x){return '<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("");
- $("pgc").textContent=S.inv.length+" шт. · "+f(cv())+" GRADE";$("pgf").innerHTML=S.inv.map(function(x){return tile(x,"","sheet("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Подарков пока нет</p>';rAch();rCols();
+ try{rAch();rCols()}catch(e){}
+ var pp=profPending(),nb=$("pnb");nb.style.display=pp?"flex":"none";nb.innerHTML=pp?'<span>Можно забрать: '+[achPend()?achPend()+' '+pl(achPend(),'достижение','достижения','достижений'):'',setPend()?setPend()+' '+pl(setPend(),'коллекция','коллекции','коллекций'):''].filter(Boolean).join(' · ')+'</span><span>›</span>':'';
  document.querySelectorAll("#rch .chip").forEach(function(b,i){b.classList.toggle("on",i+1==rt)});
  var L=(RL||BT.concat([["Вы",v,lvl(),rare]])).slice().sort(function(a,b){return b[rt]-a[rt]});
  $("rl").innerHTML=L.map(function(x,i){return '<div class="rk'+(x[0]=="Вы"?' me':'')+'"><span>'+(i+1)+'</span><span>'+x[0]+'</span><span>'+f(x[rt])+'</span></div>'}).join("")}
@@ -23,26 +24,47 @@ function rAv(){var a=$("av"),n=TGU?(TGU.first_name||TGU.username||"Игрок"):
 var LF=[];
 function lfRand(){return[BT[rnd(BT.length)][0],pickG(pickRar([55,30,12,3]))]}
 for(var q=0;q<14;q++)LF.push(lfRand());
-function rLive(an){$("feed").innerHTML=LF.slice(0,20).map(function(d,i){var g=G[d[1]];return '<div class="t sm'+(an&&!i?" nw":"")+'" style="--rc:'+(g[4]?BG[d[1]%5]:"#7f91a4")+';--bg2:'+BG[d[1]%5]+'"><b>'+g[1]+'</b><small>'+g[0]+'</small><em style="font-size:10px;color:var(--mu)">'+(d[0]=="вы"?"вы":"@"+d[0])+'</em></div>'}).join("")}
+function rLive(an){$("feed").innerHTML=LF.slice(0,20).map(function(d,i){var g=G[d[1]];return '<div class="t sm'+(an&&!i?" nw":"")+'" style="--rc:'+(g[4]?BG[d[1]%5]:"#7f91a4")+';--bg2:'+BG[d[1]%5]+'"><b>'+gimg(d[1],34)+'</b><small>'+g[0]+'</small><em style="font-size:10px;color:var(--mu)">'+(d[0]=="вы"?"вы":"@"+d[0])+'</em></div>'}).join("")}
 function livePush(u,g){LF.unshift([u,g]);if(LF.length>30)LF.pop();rLive(1)}
 setInterval(function(){var d=lfRand();livePush(d[0],d[1])},3500);
-var adm=0;
-function rAdm(){var b=$("adm");if(!CFG.DEMO){b.style.display="none";return}if(!adm){b.innerHTML='<div class="lab">Админ-меню</div><div class="srow"><input class="gi" id="apw" type="password" inputmode="numeric" placeholder="Пароль"><button class="b" onclick="adIn()">Войти</button></div>';return}
- var B=[["+10 000 монет","coin"],["+100 XP","xp"],["Сброс таймера «Подарок дня»","free"],["Обновить маркет","mkt"],["Очистить инвентарь","inv"],["Выйти из админки","out"]];
- b.innerHTML='<div class="lab">Админ-меню</div><div class="grid g2" style="padding:0">'+B.map(function(x){return '<button class="go gh" style="width:auto;margin:0;height:44px;font-size:12px" onclick="ad(\''+x[1]+'\')">'+x[0]+'</button>'}).join("")+'</div><div class="lab" style="margin:14px 0 8px">Выдать подарок себе</div><div class="grid" style="padding:0">'+G.map(function(g,i){return gtile(i,"","adGift("+i+")")}).join("")+'</div>'}
-function adIn(){if($("apw").value=="6121"){adm=1;rAdm()}else toast("Неверный пароль")}
-function ad(k){if(k=="coin")S.bal+=10000;else if(k=="xp")S.xp+=100;else if(k=="free")S.free=0;else if(k=="inv")S.inv=[];else if(k=="mkt"){S.mkt=S.mkt.filter(function(l){return l.s=="you"});for(var q=0;q<8;q++)S.mkt.push(bl())}else if(k=="out")adm=0;
- save();render();rAdm();if(k!="out")toast("Готово")}
-function adGift(i){S.inv.push(mkItem(i));save();render();toast("Выдано: "+G[i][0])}
 function lvt(){var I=lvInfo();toast("Опыт: "+I[1]+" / "+I[2])}
 function topup(){shopGo()}
-function rTop(){var I=lvInfo(),p=I[1]/I[2]*100;$("lv").innerHTML='<div class="lvt">Ур. '+lvl()+'</div><div class="lvl"><i style="width:'+p+'%"></i></div>';$("bal").innerHTML=ic("coin",18)+" "+f(S.bal)+'<button class="pl" onclick="topup()">+</button>'}
+function rTop(){var I=lvInfo(),p=I[1]/I[2]*100;$("lv").innerHTML='<span class="shd" style="height:28px;min-width:26px;font-size:14px">'+lvl()+'</span><div style="flex:1;min-width:0"><div class="lvt">Уровень · '+I[1]+' / '+I[2]+' XP</div><div class="lvl"><i style="width:'+p+'%"></i></div></div>';$("bal").innerHTML=ic("coin",18)+" "+f(S.bal)+'<button class="pl" onclick="topup()">+</button>'}
 function render(){rCt();updSeen();rBp();rDl();rShop();rTop();rHome();rInv();rUp();rMk();rPro();rCat();rNav()}
-function applySet(){var t=S.set,d=document.documentElement.style;d.setProperty("--bs",t.bs);d.setProperty("--cols",t.cols);
- [.9,1,1.15].forEach(function(v,i){document.querySelectorAll("#bseg button")[i].classList.toggle("on",t.bs==v)});[3,4].forEach(function(v,i){document.querySelectorAll("#cseg button")[i].classList.toggle("on",t.cols==v)});
- document.querySelectorAll(".sw").forEach(function(b){b.classList.toggle("on",!!t[b.dataset.k])})}
-function setS(k,v){S.set[k]=v;applySet();save()}
-function tgS(k){S.set[k]=S.set[k]?0:1;applySet();save();rHome();vib()}
-var rs=0;
-function rst(){var b=$("rst");if(!rs){rs=1;b.textContent="Нажмите ещё раз, чтобы сбросить";setTimeout(function(){rs=0;b.textContent="Сбросить прогресс"},3000);return}
- rs=0;b.textContent="Сбросить прогресс";S={bal:1000,xp:0,inv:[],nu:1,mkt:[],nl:1,hist:[],fav:[],drops:[],st:{cases:0,ups:0,wins:0,leg:0},set:S.set};for(var q=0;q<8;q++)S.mkt.push(bl());isel={};U={};T=null;save();render();toast("Прогресс сброшен")}
+var ACC=[["Синий","#2aabee","#1d8fd6"],["Фиолетовый","#8b7bff","#6a4fe0"],["Мятный","#1fb99d","#13866f"],["Розовый","#ec5f9e","#c93a7c"],["Оранжевый","#f08a24","#cf6a0c"]];
+function applySet(){var t=S.set,d=document.documentElement.style,a=ACC[t.acc]||ACC[0];d.setProperty("--bs",t.bs);d.setProperty("--cols",t.cols);d.setProperty("--bl",a[1]);d.setProperty("--bl2",a[2]);
+ $("p0").classList.toggle("nolive",!t.live);document.body.classList.toggle("nofx",!t.fx);rSet()}
+function setS(k,v){S.set[k]=v;if(k=="sort"){sortm=v;rInv()}applySet();save()}
+function tgS(k){S.set[k]=S.set[k]?0:1;applySet();save();rHome();vib();if(k=="snd"&&S.set.snd)sfx("ok")}
+function setAcc(i){S.set.acc=i;applySet();save()}
+function setVol(v){S.set.vol=+v;var e=$("vv");if(e)e.textContent=v+"%";save()}
+function vTest(){sfx("ok")}
+function sGrp(t){return '<div class="sg">'+t+'</div>'}
+function sRow(ico,t,sub,ctl,cls,oc){return '<div class="sr'+(cls?' '+cls:'')+'"'+(oc?' onclick="'+oc+'"':'')+'><span class="ib">'+ico+'</span><div class="st2">'+t+(sub?'<small>'+sub+'</small>':'')+'</div>'+(ctl||'')+'</div>'}
+function sSw(k){return '<button class="sw'+(S.set[k]?' on':'')+'" onclick="tgS(\''+k+'\')"><i></i></button>'}
+function sSeg(k,o){return '<div class="seg">'+o.map(function(x){return '<button class="'+(S.set[k]==x[1]?'on':'')+'" onclick="setS(\''+k+'\','+x[1]+')">'+x[0]+'</button>'}).join("")+'</div>'}
+function rSet(){var b=$("sbody");if(!b)return;var B=bpEns(),el=Math.min(1,Math.max(0,1-(B.end-Date.now())/(BPSD*864e5))),h='';
+ h+='<div class="sn"><div class="r1"><span>Сезон '+B.s+'</span><span>осталось '+bpLeft(B)+'</span></div><div class="pb"><i style="width:'+Math.round(el*100)+'%"></i></div><div class="mu">Сезон длится 14 дней. После него баланс, инвентарь, уровень, маркет, достижения и Battle Pass обнуляются. Остаются рамки, титулы наград, GRADE Pass и настройки.</div></div>';
+ if((S.sh||[]).length)h+=sGrp("Прошлые сезоны")+'<div class="sc">'+S.sh.map(function(x){return sRow("🏁","Сезон "+x.s,"Коллекция "+f(x.v)+" · ур. "+x.l+" · кейсов "+x.c)}).join("")+'</div>';
+ h+=sGrp("Интерфейс")+'<div class="sc">'+
+  sRow("🔘","Размер кнопок","","","wrap")+sSeg("bs",[["Малые",.9],["Средние",1],["Большие",1.15]]).replace('<div class="seg">','<div class="seg sx">')+
+  sRow("▦","Подарков в ряду","в инвентаре и контрактах","","wrap")+sSeg("cols",[["3",3],["4",4],["5",5]]).replace('<div class="seg">','<div class="seg sx">')+
+  sRow("🎨","Цвет акцента","",'<div class="acs">'+ACC.map(function(a,i){return '<button class="ac'+(S.set.acc==i?' on':'')+'" title="'+a[0]+'" style="background:linear-gradient(135deg,'+a[1]+','+a[2]+')" onclick="setAcc('+i+')"></button>'}).join("")+'</div>')+
+  sRow("📡","Лента «Live» на главной","последние выпадения игроков",sSw("live"))+'</div>';
+ h+=sGrp("Инвентарь")+'<div class="sc">'+
+  sRow("↕️","Сортировка по умолчанию","","","wrap")+sSeg("sort",[["Дороже",0],["Дешевле",1],["Новые",2],["№",3]]).replace('<div class="seg">','<div class="seg sx">')+
+  sRow("🛡️","Подтверждать продажу","спросим перед продажей подарков",sSw("cfm"))+'</div>';
+ h+=sGrp("Звук и отклик")+'<div class="sc">'+
+  sRow("🔊","Звук","",sSw("snd"))+
+  sRow("🎚️","Громкость",'<span id="vv">'+(S.set.vol==null?80:S.set.vol)+'%</span>','<input class="rg" type="range" min="0" max="100" step="5" value="'+(S.set.vol==null?80:S.set.vol)+'" oninput="setVol(this.value)" onchange="vTest()">',"wrap rgw")+
+  sRow("📳","Вибрация","в Telegram, на iPhone в браузере не работает",sSw("vib"))+
+  sRow("✨","Эффекты и анимации","конфетти и мигающие подсказки",sSw("fx"))+'</div>';
+ h+=sGrp("Игра")+'<div class="sc">'+
+  sRow("📊","Показывать шансы кейсов","",sSw("odds"))+'</div>';
+ h+=sGrp("Помощь")+'<div class="sc">'+
+  sRow("📖","Показать обучение","",'<span class="mu" style="font-size:22px">›</span>',"tap","tab(0);tutStep(0)")+
+  sRow("🤝","Пригласить друга","300 GRADE вам и другу",'<span class="mu" style="font-size:22px">›</span>',"tap","invite()")+'</div>';
+ h+='<p class="note">NFT GRADE · игровая валюта и подарки не имеют денежной стоимости. Только 18+.'+'</p>';
+ b.innerHTML=h}
+
+function pnGo(){ptb=1;rPro();var a=achPend(),c=setPend();$("dtc").open=!!c;$("dta").open=!!a;var e=$(c?"dtc":"dta");e.scrollIntoView({behavior:"smooth",block:"start"})}

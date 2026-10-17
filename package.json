@@ -1,10 +1,7 @@
 {
   "name": "nft-grade",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "scripts": {
-    "start": "node server.js",
-    "start:env": "node --env-file=.env server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "engines": { "node": ">=18" }
 }

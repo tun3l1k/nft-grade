@@ -1,15 +1,15 @@
 /* маркет */
 var mqv="",mtab=0,shown=null,shp=0,shd=300,mp=null;
 function stp(g){return Math.max(1,Math.round(G[g][3]*.05))}
-function bl(){var g=NI[rnd(NI.length)],au=Math.random()<.35,l={id:S.nl++,it:mkItem(g),s:BT[rnd(BT.length)][0],type:au?"auc":"fix"};
+function bl(){var g=NI[rnd(NI.length)],au=Math.random()<.35,l={id:S.nl++,it:mkItem(g,1),s:BT[rnd(BT.length)][0],type:au?"auc":"fix"};
  var v=pr(l.it);if(au){l.p=Math.max(1,Math.round(v*.9));l.by=null;l.end=Date.now()+(60+rnd(240))*1000}else l.p=Math.max(1,Math.round(v*(1+Math.random()*.4)));return l}
 if(!S.mkt.length)for(var q=0;q<8;q++)S.mkt.push(bl());
 function mqs(v){mqv=v.toLowerCase();rMk()}
 function mtb(n){mtab=n;rMk()}
 function minBid(l){return l.by?l.p+stp(l.it.g):l.p}
-function rMk(){$("mch").innerHTML=["Все","Аукционы","Мои","Избранное","История","Продать"].map(function(t,i){return '<button class="chip'+(mtab==i?' on':'')+'" onclick="mtb('+i+')">'+t+'</button>'}).join("");
+function rMk(){$("mch").innerHTML=["Все","Аукционы","Мои","Избранное","История"].map(function(t,i){return '<button class="chip'+(mtab==i?' on':'')+'" onclick="mtb('+i+')">'+t+'</button>'}).join("");
  $("mflt").style.display=mtab<4?"":"none";$("mrar").innerHTML=[["Любой фон",-1]].concat(BN.map(function(r,i){return[r,i]})).map(function(x){return '<button class="chip'+(mf.r==x[1]?" on":"")+'" onclick="mrs('+x[1]+')">'+x[0]+"</button>"}).join("")+(mf.sel?'<button class="chip on" onclick="msl(\'\')">@'+mf.sel+" ✕</button>":"");
- if(mtab==5){rSell();return}
+ $("msb").style.display=mtab==5?"none":"";if(mtab==5){rSell();return}
  if(mtab==4){$("mlist").innerHTML=S.hist.map(function(h){return '<div class="mrow"><div class="tt">'+h.t+': '+h.n+'<small>'+(h.p>0?f(h.p)+' GRADE':'Подарок')+'</small></div></div>'}).join("")||'<p class="note">Сделок пока нет</p>';return}
  var now=Date.now(),a=S.mkt.filter(function(l){var me=l.s=="you";if(mqv&&G[l.it.g][0].toLowerCase().indexOf(mqv)<0)return false;if(mf.r>=0&&l.it.b!=mf.r)return false;if(mf.min&&l.p<mf.min)return false;if(mf.max&&l.p>mf.max)return false;if(mf.ser>=0&&l.it.m!=mf.ser)return false;if(mf.sel&&l.s!=mf.sel)return false;return mtab==0?!me:mtab==1?(l.type=="auc"&&!me):mtab==2?me:S.fav.indexOf(l.id)>=0}).sort(function(x,y){return mf.sort==1?y.p-x.p:mf.sort==2?(x.type=="auc"?x.end:9e15)-(y.type=="auc"?y.end:9e15):x.p-y.p});
  $("mlist").innerHTML=a.map(function(l){var g=G[l.it.g],au=l.type=="auc",me=l.s=="you",fv=S.fav.indexOf(l.id)>=0,btn;
@@ -17,7 +17,7 @@ function rMk(){$("mch").innerHTML=["Все","Аукционы","Мои","Изб�
   if(me)btn=(au&&l.by)?'<button class="b" disabled>Идут торги</button>':'<button class="b off" onclick="unl('+l.id+')">'+f(l.p)+' · Снять</button>';
   else if(au)btn=l.by=="you"?'<button class="b" disabled>Вы лидируете</button>':'<button class="b" '+(S.bal<minBid(l)?'disabled ':'')+'onclick="bid('+l.id+')">Ставка '+f(minBid(l))+'</button>';
   else btn='<button class="b" '+(S.bal<l.p?'disabled ':'')+'onclick="buy('+l.id+')">'+f(l.p)+' '+ic("coin",14)+'</button>';
-  return '<div class="mrow"><span class="e">'+g[1]+'</span><div class="tt" onclick="lotSheet('+l.id+')">'+g[0]+' #'+l.it.n+'<small>'+sub+'</small></div>'+(me?'':'<button class="st'+(fv?' fv':'')+'" onclick="fav('+l.id+')">'+ic("star",20)+'</button>')+btn+'</div>'}).join("")||'<p class="note">Ничего не найдено</p>'}
+  return '<div class="mrow"><span class="e">'+gimg(l.it.g,30)+'</span><div class="tt" onclick="lotSheet('+l.id+')">'+g[0]+' #'+l.it.n+'<small>'+sub+'</small></div>'+(me?'':'<button class="st'+(fv?' fv':'')+'" onclick="fav('+l.id+')">'+ic("star",20)+'</button>')+btn+'</div>'}).join("")||'<p class="note">Ничего не найдено</p>'}
 function lot(id){return S.mkt.filter(function(y){return y.id==id})[0]}
 function fav(id){var i=S.fav.indexOf(id);if(i<0)S.fav.push(id);else S.fav.splice(i,1);save();rMk()}
 function buy(id){var l=lot(id);if(!l||S.bal<l.p)return;S.bal-=l.p;l.it.u=S.nu++;S.inv.push(l.it);S.mkt=S.mkt.filter(function(y){return y.id!=id});phAdd(l.it.g,l.p);bpAdd("buys",1);S.hist.unshift({t:"Куплено",n:G[l.it.g][0]+" #"+l.it.n,p:l.p});toast("Куплено: "+G[l.it.g][0]);save();render()}
@@ -46,14 +46,15 @@ function ph(g){S.ph=S.ph||{};if(!S.ph[g]){var p=G[g][3],a=[];for(var i=0;i<24;i+
 function phAdd(g,p){var a=ph(g);a.push(Math.round(p));if(a.length>40)a.shift()}
 function spark(a){var mn=Math.min.apply(0,a),mx=Math.max.apply(0,a),d=mx-mn||1;return '<svg viewBox="0 0 300 90" style="width:100%;height:90px"><polyline points="'+a.map(function(v,i){return(i*300/(a.length-1)).toFixed(1)+","+(80-(v-mn)/d*70).toFixed(1)}).join(" ")+'" fill="none" stroke="#2aabee" stroke-width="2.5" stroke-linejoin="round"/></svg>'}
 function lotSheet(id){var l=lot(id);if(!l)return;var a=ph(l.it.g),av=a.reduce(function(x,y){return x+y},0)/a.length,me=l.s=="you",au=l.type=="auc";
- $("sh").innerHTML=big(l.it)+'<div class="at">№'+l.it.n+' · Серия: '+MD[l.it.m]+' · Символ: '+SY[l.it.s]+'<br>'+(me?"Ваш лот":'Продавец: <u style="color:var(--bl)" onclick="sellerCard(\''+l.s+'\')">@'+l.s+'</u>')+'</div><div class="sbox"><div class="lab">История цен · '+a.length+' сделок</div>'+spark(a)+'<div class="srow"><small>мин '+f(Math.min.apply(0,a))+'</small><small>сред. '+f(av)+'</small><small>макс '+f(Math.max.apply(0,a))+'</small></div></div>'+(me?'':'<button class="go" onclick="lotAct('+id+')">'+(au?"Ставка "+f(minBid(l)):"Купить за "+f(l.p))+'</button>');$("sheet").className="ov end on"}
+ var sel=me?ownerH():'<span class="oav">'+l.s.charAt(0).toUpperCase()+'</span><u style="color:var(--bl)" onclick="sellerCard(\''+l.s+'\')">@'+l.s+'</u>';
+ $("sh").innerHTML=nftHead(l.it)+'<div class="tbl">'+nftRows(l.it,sel)+'</div><div class="sbox" style="margin:0 0 12px;text-align:left"><div class="lab">История цен · '+a.length+' сделок</div>'+spark(a)+'<div class="srow"><small>мин '+f(Math.min.apply(0,a))+'</small><small>сред. '+f(av)+'</small><small>макс '+f(Math.max.apply(0,a))+'</small></div></div>'+(me?'':'<button class="go" style="margin:0;width:100%" onclick="lotAct('+id+')">'+(au?"Ставка "+f(minBid(l)):"Купить за "+f(l.p))+'</button>');$("sheet").className="ov end on"}
 function lotAct(id){var l=lot(id);if(!l)return;if(l.type=="auc")bid(id);else buy(id);closeSh()}
 function sellerCard(n){var b=BT.filter(function(x){return x[0]==n})[0];if(!b)return;var c=S.mkt.filter(function(l){return l.s==n}).length;
  $("sh").innerHTML='<div class="av" style="margin:0 auto 8px;width:72px;height:72px">'+n.charAt(0).toUpperCase()+'</div><div class="h" style="font-size:20px">@'+n+'</div><div class="mu" style="margin:4px 0 12px">Уровень '+b[2]+'</div><div class="stats" style="padding:0 0 12px">'+[[f(b[1]),"Коллекция"],[b[3],"Топ"],[c,"Лотов"]].map(function(x){return'<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("")+'</div><button class="go" onclick="msl(\''+n+'\')">Показать лоты продавца</button>';$("sheet").className="ov end on"}
 function msel(u){mp=mp==u?null:u;var x=S.inv.filter(function(y){return y.u==mp})[0];if(x){shp=pr(x);shd=300}shown=mp;rSell()}
 function rSell(){if(document.activeElement&&document.activeElement.id=="gu")return;
  var x=mp!=null?S.inv.filter(function(y){return y.u==mp})[0]:null;if(!x)mp=null;
- var a=S.inv.filter(function(y){return G[y.g][4]}).sort(function(p,q){return pr(q)-pr(p)});
+ var a=S.inv.filter(function(y){return y.up}).sort(function(p,q){return pr(q)-pr(p)});
  var h='<h3 class="sec" style="margin-top:4px">Выберите подарок</h3><div class="grid">'+(a.map(function(y){return tile(y,y.u==mp?" on":"","msel("+y.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет подарков. Откройте кейс.</p>')+'</div>';
  if(x){var g=G[x.g];h+='<div class="sbox" style="margin-top:12px"><div class="lab">'+g[1]+' '+g[0]+' #'+x.n+' · рынок '+f(pr(x))+' · комиссия '+Math.round(feeR()*100)+'%</div>'+
   '<div class="rowb" style="margin:0 0 10px"><span>Цена: <b id="shp">'+f(shp)+'</b></span><span style="display:flex;gap:6px"><button class="b off" onclick="shA(-1)">−</button><button class="b off" onclick="shA(1)">+</button></span></div>'+
@@ -64,14 +65,14 @@ function rSell(){if(document.activeElement&&document.activeElement.id=="gu")retu
  $("mlist").innerHTML=h}
 
 /* карточка подарка */
-function sheet(u,gi){var it=u!=null?S.inv.filter(function(x){return x.u==u})[0]:null;if(u!=null&&!it)return;
+function sheet(u,gi){var it=u!=null?S.inv.filter(function(x){return x.u==u})[0]:null;if(u!=null&&!it)return;if(it){itemSheet(it);return}
  var g=it?it.g:gi,gg=G[g],h=big(it||{g:g,b:g%5,n:0,m:0,s:0});shown=it?u:null;
- if(it){h+='<div class="at">'+atxt(it)+'</div>'+(gg[4]?atb(it):'')+'<button class="go" onclick="sellOne2('+u+')">Продать за '+f(pr(it))+'</button>'+(gg[4]?'<button class="go gh" onclick="upOne('+u+')">В апгрейд</button><button class="go gh" onclick="closeSh();tab(3);mtb(5);msel('+u+')">Выставить на маркет</button>':'')}
- else{var cs=CS.filter(function(c){return csVis(c)&&drops(c).indexOf(g)>=0}).map(function(c){return c.n}).join(", ");h+='<div class="at">'+(gg[4]?"NFT: цена зависит от модели, фона, узора и номера":"Обычный подарок: без номера, фона и узора")+'<br>База: '+f(gg[3])+' GRADE<br>Выпадает из кейсов: '+cs+'</div>'}
+ if(it){h+='<div class="at">'+atxt(it)+'</div>'+(gg[4]?atb(it):'')+'<button class="go" onclick="sellOne2('+u+')">Продать за '+f(sv(it))+'</button>'+(gg[4]?'<button class="go" style="background:linear-gradient(90deg,#a78bfa,#2aabee)" onclick="upgSheet('+u+')">⚡ Улучшить NFT'+((it.lv||0)?' · Ур. '+it.lv:'')+'</button><button class="go gh" onclick="upOne('+u+')">В апгрейд</button><button class="go gh" onclick="closeSh();tab(3);mtb(5);msel('+u+')">Выставить на маркет</button>':'')}
+ else{var cs=CS.filter(function(c){return csVis(c)&&drops(c).indexOf(g)>=0}).map(function(c){return c.n}).join(", ");h+='<div class="at">'+(gg[4]?"Подарок можно улучшить: он получит случайные модель, фон, узор и номер, цена зависит от них.":"Обычный подарок: улучшить нельзя.")+'<br>База: '+f(gg[3])+' GRADE<br>Выпадает из кейсов: '+cs+'</div>'}
  $("sh").innerHTML=h;$("sheet").className="ov end on"}
 function shA(d){var x=S.inv.filter(function(y){return y.u==shown})[0];shp=Math.max(1,shp+d*stp(x.g));$("shp").textContent=f(shp)}
 function shD(d){shd=d;document.querySelectorAll("#dseg button").forEach(function(b,i){b.classList.toggle("on",[60,300,3600][i]==d)})}
-function sellOne2(u){sellOne(u);$("sheet").className="ov end";isel={}}
+function sellOne2(u){sellOne(u,function(){closeSh();isel={}})}
 function upOne(u){U={};U[u]=1;T=null;$("sheet").className="ov end";isel={};tab(2)}
 function takeIt(u){var x=S.inv.filter(function(y){return y.u==u})[0];if(x)S.inv=S.inv.filter(function(y){return y.u!=u});isel={};mp=null;$("sheet").className="ov end";return x}
 function listIt(u){var x=takeIt(u);if(!x)return;S.mkt.push({id:S.nl++,it:x,p:shp,s:"you",type:"fix"});bpAdd("lists",1);toast("Лот выставлен");save();render()}
@@ -83,6 +84,6 @@ function giftIt(u){var nm=($("gu").value||"").trim().replace(/^@/,"");if(!/^[A-Z
 var cq="",cr=-1;
 function cqs(v){cq=v.toLowerCase();rCat()}
 function crs(n){cr=n;rCat()}
-function rCat(){var c=[["Все",-1],["Обычные",0],["NFT",1]];
+function rCat(){var c=[["Все",-1],["Обычные",0],["Можно улучшить",1]];
  $("cch").innerHTML=c.map(function(x){return '<button class="chip'+(cr==x[1]?' on':'')+'" onclick="crs('+x[1]+')">'+x[0]+'</button>'}).join("");
- var h="";G.forEach(function(g,i){if((cr<0||g[4]==cr)&&(!cq||g[0].toLowerCase().indexOf(cq)>=0))h+=gtile(i,"","sheet(null,"+i+")")});$("cgrid").innerHTML=h||'<p class="note" style="grid-column:1/3">Ничего не найдено</p>'}
+ var h="";G.forEach(function(g,i){if(!g[6]&&(cr<0||g[4]==cr)&&(!cq||g[0].toLowerCase().indexOf(cq)>=0))h+=gtile(i,"","sheet(null,"+i+")")});$("cgrid").innerHTML=h||'<p class="note" style="grid-column:1/3">Ничего не найдено</p>'}
