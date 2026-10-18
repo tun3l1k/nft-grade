@@ -14,7 +14,7 @@ function pcb(p){return '<span class="pc">'+p+'%</span>'}
 function fdt(t){return t?new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(","," в"):"—"}
 function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(SY[it.s]+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs">Коллекционный подарок #'+it.n+'</div></div>'}
 function nftRows(it,owner){var sp=supply(it.g);return tbr("Владелец",owner)+tbr("Модель",MD[it.m]+pcb(MP[it.m]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Узор",SN[it.s]+pcb(SP[it.s]))+tbr("Стоимость",ic("coin",14)+f(pr(it)))+tbr("Количество",f(sp[0])+", выпущено "+f(sp[1]))}
-function ownerH(){var nm=TGU?(TGU.first_name||TGU.username||"Игрок"):"Игрок";return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
+function ownerH(){var nm=tgName();return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
 var UPI='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(255,255,255,.2)"/><path d="M8 11l4-4 4 4M8 16l4-4 4 4"/></svg>';
 function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
  if(it.up){

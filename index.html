@@ -1,4 +1,19 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}.top{position:fixed!important;top:env(safe-area-inset-top,0px)!important;left:50%;transform:translateX(-50%);width:100%;max-width:480px;box-sizing:border-box;background:var(--bg)!important;z-index:8}.top::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:env(safe-area-inset-top,0px);background:var(--bg)}body{padding-top:58px!important}.lvb{background:var(--p2);border-radius:14px;padding:6px 10px}
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><script src="https://telegram.org/js/telegram-web-app.js"></script><script>
+/* Запасной вариант, если SDK Telegram не загрузился: берём данные игрока из адреса (tgWebAppData).
+   Подключается сразу после telegram-web-app.js, до остальных скриптов. */
+(function(){try{
+ var W=window.Telegram&&Telegram.WebApp;
+ if(W&&W.initData)return;
+ var d=new URLSearchParams((location.hash||"").replace(/^#/,"")).get("tgWebAppData");
+ if(!d){try{var s=JSON.parse(sessionStorage.getItem("__telegram__initParams")||"null");d=s&&s.tgWebAppData}catch(e){}}
+ if(!d)return;
+ var u=null;try{u=JSON.parse(new URLSearchParams(d).get("user"))}catch(e){}
+ var T=window.Telegram=window.Telegram||{};W=T.WebApp=T.WebApp||{};
+ W.initData=d;W.initDataUnsafe=W.initDataUnsafe||{};W.initDataUnsafe.user=u;
+ ["ready","expand","close","enableClosingConfirmation"].forEach(function(k){if(!W[k])W[k]=function(){}});
+ if(!W.HapticFeedback)W.HapticFeedback=null;
+}catch(e){}})();
+</script><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}.top{position:fixed!important;top:env(safe-area-inset-top,0px)!important;left:50%;transform:translateX(-50%);width:100%;max-width:480px;box-sizing:border-box;background:var(--bg)!important;z-index:8}.top::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:env(safe-area-inset-top,0px);background:var(--bg)}body{padding-top:58px!important}.lvb{background:var(--p2);border-radius:14px;padding:6px 10px}
 .pf{background:linear-gradient(180deg,rgba(42,171,238,.22),rgba(167,139,250,.08) 70%,transparent);border-radius:0 0 30px 30px;padding-top:14px!important;padding-bottom:14px!important}.pf .av{box-shadow:0 0 0 4px rgba(255,255,255,.08),0 10px 30px rgba(42,171,238,.35)}
 .gh2{display:flex;justify-content:space-between;align-items:baseline;padding:4px 16px 10px}
 .gc{position:relative;aspect-ratio:1;border-radius:22px;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--rc) 30%,#1c1c1e),#1c1c1e 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}.gc svg{margin-bottom:12px}.gc small{position:absolute;bottom:7px;font-size:11px;color:var(--mu);font-weight:700}
@@ -407,7 +422,8 @@ function buyStars(it){
   tgW().openInvoice(d.link,function(st){if(st=="paid"){setTimeout(claim,800)}else if(st=="failed")toast("Оплата не прошла")})
  }).catch(function(){toast("Сервер недоступен")})}
 function claim(){ /* забрать подтверждённые сервером покупки (идемпотентно) */
- api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).filter(function(r){return (r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])});gs.forEach(function(r){bpApply(r)});if(gs.length){toast("Подарок от администрации");save();render()}}).catch(function(){})}
+ api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).filter(function(r){return (r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])});gs.forEach(function(r){bpApply(r)});if(gs.length){toast("От администрации: "+gs.map(function(r){return r[0]=="coin"?"+"+f(r[1])+" GRADE":r[0]=="gift"?G[r[1]][0]:"кейс «"+CS[r[1]].n+"»"}).join(", "));save();render()}}).catch(function(){})}
+setInterval(claim,30000);document.addEventListener("visibilitychange",function(){if(!document.hidden)claim()});
 function shopGo(){tab(8)}
 function rShop(){var b=$("shp8");if(!b)return;
  var fp=!S.fp,h='';
@@ -728,7 +744,7 @@ function pcb(p){return '<span class="pc">'+p+'%</span>'}
 function fdt(t){return t?new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(","," в"):"—"}
 function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(SY[it.s]+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs">Коллекционный подарок #'+it.n+'</div></div>'}
 function nftRows(it,owner){var sp=supply(it.g);return tbr("Владелец",owner)+tbr("Модель",MD[it.m]+pcb(MP[it.m]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Узор",SN[it.s]+pcb(SP[it.s]))+tbr("Стоимость",ic("coin",14)+f(pr(it)))+tbr("Количество",f(sp[0])+", выпущено "+f(sp[1]))}
-function ownerH(){var nm=TGU?(TGU.first_name||TGU.username||"Игрок"):"Игрок";return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
+function ownerH(){var nm=tgName();return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
 var UPI='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(255,255,255,.2)"/><path d="M8 11l4-4 4 4M8 16l4-4 4 4"/></svg>';
 function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
  if(it.up){
@@ -929,9 +945,11 @@ function rPro(){try{rGifts()}catch(e){}rPf();var v=cv(),rare=S.st.leg+S.inv.filt
 var TL=[["Новичок","стартовый",function(){return 1}],["Везунчик","достигните 3 уровня",function(){return lvl()>=3}],["Коллекционер","коллекция от 5 000",function(){return cv()>=5000}],["Магнат","коллекция от 20 000",function(){return cv()>=20000}],["Торговец","3 сделки на маркете",function(){return S.hist.length>=3}],["Легенда","выбейте NFT из топ-класса",function(){return S.st.leg>=1}],["Ветеран BP","награда Battle Pass (FREE, ур. 15)",function(){return !!(S.ttu&&S.ttu.v)}],["Элита BP","награда Battle Pass VIP (ур. 14)",function(){return !!(S.ttu&&S.ttu.e)}],["Чемпион сезона","награда Battle Pass VIP (ур. 24)",function(){return !!(S.ttu&&S.ttu.c)}],["Охотник за NFT","достижение «Топ-находка»",function(){return !!(S.ttu&&S.ttu.t1)}],["Постоянный игрок","достижение «Неделя подряд»",function(){return !!(S.ttu&&S.ttu.t2)}],["Коллектор","коллекция «Топ NFT»",function(){return !!(S.ttu&&S.ttu.s1)}]];
 function setTl(i){if(TL[i][2]()){S.tt=i;save();rPro()}else toast("Откроется: "+TL[i][1])}
 var TGU=null;try{var WA=window.Telegram&&Telegram.WebApp;if(WA){WA.ready();WA.expand();TGU=(WA.initDataUnsafe&&WA.initDataUnsafe.user)||null}}catch(e){}
-function me(){return TGU?(TGU.username||TGU.first_name):"вы"}
-function rAv(){var a=$("av"),n=TGU?(TGU.first_name||TGU.username||"Игрок"):"Игрок";$("pnm").textContent=n+(isPass()?" ✦":"");var fr=FR.filter(function(x){return x.id==S.frame})[0];a.style.border=fr?"3px solid transparent":"";a.style.background=fr?"linear-gradient(#202b38,#202b38) padding-box,linear-gradient(135deg,"+fr.c+") border-box":"";if(a.dataset.ok){return}a.textContent=n.charAt(0).toUpperCase();
- if(TGU&&TGU.photo_url){var im=new Image();im.onload=function(){a.textContent="";a.appendChild(im);a.dataset.ok=1};im.src=TGU.photo_url}}
+function tgUser(){try{var w=window.Telegram&&Telegram.WebApp;return(w&&w.initDataUnsafe&&w.initDataUnsafe.user)||TGU}catch(e){return TGU}}
+function tgName(){var u=tgUser()||{};return((u.first_name||"")+" "+(u.last_name||"")).trim()||u.username||"Игрок"}
+function me(){var u=tgUser();return u?(u.username||u.first_name):"вы"}
+function rAv(){TGU=tgUser();var a=$("av"),n=tgName();$("pnm").textContent=n+(isPass()?" ✦":"");var fr=FR.filter(function(x){return x.id==S.frame})[0];a.style.border=fr?"3px solid transparent":"";a.style.background=fr?"linear-gradient(#202b38,#202b38) padding-box,linear-gradient(135deg,"+fr.c+") border-box":"";var ph=(TGU&&TGU.photo_url)||"";if(a.dataset.ph===ph&&a.firstChild)return;a.dataset.ph=ph;a.textContent=n.charAt(0).toUpperCase();
+ if(ph){var im=new Image();im.onload=function(){if(a.dataset.ph===ph){a.textContent="";a.appendChild(im)}};im.src=ph}}
 var LF=[];
 function lfRand(){return[BT[rnd(BT.length)][0],pickG(pickRar([55,30,12,3]))]}
 for(var q=0;q<14;q++)LF.push(lfRand());
