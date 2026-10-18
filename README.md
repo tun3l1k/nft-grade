@@ -9,7 +9,14 @@ Telegram Mini App + маленький сервер (Node 18+, без завис
 - shop.js, battlepass.js, effects.js, collections.js, cases.js, inventory.js, cards.js, upgrade.js, market.js, profile.js, boot.js, roll.js: части игры (порядок подключения в index.html менять нельзя)
 - tg.js: запасное чтение данных игрока из Telegram (подключается в head после telegram-web-app.js)
 - live.css, live.js: профиль игрока из ленты live (тап по подарку, свайп назад, отправка подарка). Подключаются в index.html последними
+- Image/: оригиналы картинок подарков (сюда кладите новые, как есть)
+- img/: оптимизированные копии 256px, которые реально грузит игра. Делаются командой `python3 tools/make_images.py` (нужен Pillow), имя файла = название подарка маленькими буквами через дефис
 - server.js: раздача игры, оплата Stars, рейтинг, команды бота и админ-команды
+
+## Как добавить подарок с картинкой
+1. Положите картинку в Image/, запустите `python3 tools/make_images.py`.
+2. В data.js допишите подарок в конец через `G.push([...])` и строку `IM[...]` с `img/имя.webp` (порядок G менять нельзя).
+3. Цену впишите в `ECO.floor` в config.js. Затем скопируйте обновлённые data.js и config.js в соответствующие блоки index.html.
 
 ## Переменные на хостинге
 - BOT_TOKEN: токен от BotFather
