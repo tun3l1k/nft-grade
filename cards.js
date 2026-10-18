@@ -29,7 +29,7 @@ function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
   +tbr("Наличие",f(sp[0]-sp[1])+" из "+f(sp[0]))
   +tbr("Статус","Неуникальный")+'</div>'
   +'<div class="hv">'+(it.hid?'Подарок скрыт из профиля. ':'Подарок виден в профиле. ')+'<a href="#" onclick="hideG('+u+');return false">'+(it.hid?'Показать':'Скрыть')+' ›</a></div>'
-  +(can?'<button class="go bigb" onclick="gUp('+u+')">Улучшить '+UPI+'</button>':'<button class="go gh" style="margin:0;width:100%" onclick="closeSh()">Закрыть</button>')}
+  +(can?'<button class="go bigb" onclick="gUp('+u+')">Улучшить '+UPI+'</button><button class="go gh" style="margin:8px 0 0;width:100%" onclick="upOne('+u+')">В апгрейд</button>':'<button class="go gh" style="margin:0;width:100%" onclick="closeSh()">Закрыть</button>')}
  $("sh").innerHTML=h;$("sheet").className="ov end on"}
 function hideG(u){var x=S.inv.filter(function(y){return y.u==u})[0];if(!x)return;x.hid=!x.hid;save();render();itemSheet(x)}
 function upCost(it){return Math.max(10,Math.round(G[it.g][3]*.25))}

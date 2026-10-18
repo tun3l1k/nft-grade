@@ -7,6 +7,7 @@ Telegram Mini App + маленький сервер (Node 18+, без завис
 - config.js: адрес сервера, имя бота и параметры экономики (ECO)
 - data.js: подарки, картинки, кейсы, события, состояние игры
 - shop.js, battlepass.js, effects.js, collections.js, cases.js, inventory.js, cards.js, upgrade.js, market.js, profile.js, boot.js, roll.js: части игры (порядок подключения в index.html менять нельзя)
+- live.css, live.js: профиль игрока из ленты live (тап по подарку, свайп назад, отправка подарка). Подключаются в index.html последними
 - server.js: раздача игры, оплата Stars, рейтинг, команды бота и админ-команды
 
 ## Переменные на хостинге
