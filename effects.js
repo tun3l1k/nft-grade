@@ -16,7 +16,7 @@ function burst(n,cols){if(!S.set.fx)return;try{if(window.matchMedia&&matchMedia(
 function updSeen(){S.seen=S.seen||{};S.inv.forEach(function(x){S.seen[x.g]=1})}
 
 /* ===== ежедневная награда ===== */
-var DLR=[["coin",100],["case",1],["coin",200],["case",2],["coin",400],["case",3],["gift",12]];
+var DLR=[["coin",100],["case",12],["coin",200],["case",10],["coin",400],["case",16],["gift",32]];
 function dlNext(){var d=S.dl||{n:0,last:-9},k=dkey();if(d.last==k)return null;return d.last==k-1?d.n+1:1}
 function rDl(){var b=$("dlb"),nx=dlNext(),d=S.dl||{n:0};b.className="dlb"+(nx?" rd":"");
  b.innerHTML=nx?'<span>🎁 Ежедневная награда · день '+((nx-1)%7+1)+'</span><span class="dot">1</span>':'<span>✓ Серия: '+d.n+' дн.</span><span class="mu">завтра новая награда ›</span>'}

@@ -32,7 +32,7 @@ function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
   +(can?'<button class="go bigb" onclick="gUp('+u+')">Улучшить '+UPI+'</button><button class="go gh" style="margin:8px 0 0;width:100%" onclick="upOne('+u+')">В апгрейд</button>':'<button class="go gh" style="margin:0;width:100%" onclick="closeSh()">Закрыть</button>')}
  $("sh").innerHTML=h;$("sheet").className="ov end on"}
 function hideG(u){var x=S.inv.filter(function(y){return y.u==u})[0];if(!x)return;x.hid=!x.hid;save();render();itemSheet(x)}
-function upCost(it){return Math.max(10,Math.round(G[it.g][3]*.25))}
+function upCost(it){return Math.max(10,Math.round(G[it.g][3]*.15))}
 function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;var c=upCost(it),ok=S.bal>=c;
  var fe=function(ic2,t,d){return '<div class="feat">'+ic2+'<div><b>'+t+'</b><span>'+d+'</span></div></div>'};
  var I1='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-6M12 21L9 9M12 21l3-12"/></svg>';

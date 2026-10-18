@@ -27,7 +27,7 @@ function claim(){ /* забрать подтверждённые серверо�
 setInterval(claim,30000);document.addEventListener("visibilitychange",function(){if(!document.hidden)claim()});
 function shopGo(){tab(8)}
 function rShop(){var b=$("shp8");if(!b)return;
- var fp=!S.fp,h='';
+ var fp=!S.fp,h='<div class="dnote">Покупки за Stars дают игровую валюту. Вывод из игры невозможен. Только 18+.</div>';
  if(fp)h+='<div class="ihead" style="background:linear-gradient(135deg,#b7791f,#ff9f1c)"><div><div class="mu" style="color:#fff3d0">Первая покупка</div><div class="h" style="font-size:22px">×2 монет</div></div><div style="font-size:42px">🎁</div></div>';
  h+='<div class="mrow" onclick="bpOpen()" style="cursor:pointer"><span class="e">🏆</span><div class="tt">Battle Pass · сезон '+bpEns().s+(bpPending()?'<span class="dot">'+bpPending()+'</span>':'')+'<small>'+(bpPending()?'К получению: '+bpHint():bpEns().vip?'VIP активен':'Задания, награды и VIP-дорожка')+'</small></div><span class="mu" style="font-size:24px">›</span></div>'+'<h3 class="sec">Монеты GRADE</h3>'+PACKS.map(function(k){return '<div class="mrow"><span class="e">🪙</span><div class="tt">'+f(k.g*(fp?2:1))+' GRADE<small>'+k.t+(fp?' · с бонусом ×2':'')+'</small></div><button class="b" onclick="buyStars(PACKS['+PACKS.indexOf(k)+'])">'+k.st+' ⭐</button></div>'}).join("");
  h+='<h3 class="sec">GRADE Pass · 30 дней</h3><div class="sbox"><div class="srow"><span>'+(isPass()?'Активен до '+new Date(S.pass).toLocaleDateString("ru-RU"):'Не активен')+'</span><button class="b" onclick="buyStars(PASS)">'+PASS.st+' ⭐</button></div><div class="mu" style="margin-top:10px;line-height:1.6">• «Подарок дня» раз в 12 часов вместо 24<br>• +10% к опыту<br>• комиссия маркета 3% вместо 7%<br>• значок Pass в профиле</div></div>';

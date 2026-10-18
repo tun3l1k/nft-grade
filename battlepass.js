@@ -5,8 +5,8 @@ var DT=[["cases",3,"Открыть 3 кейса","📦",30],["sells",2,"Прод
 var WT=[["cases",20,"Открыть 20 кейсов","📦",120],["upw",2,"Выиграть 2 апгрейда","🏆",100],["rare",2,"Выбить 2 дорогих NFT","👑",100]];
 var VN={12:"Astral Shard"};
 /* награды: [тип,значение]; coin=монеты, gift=индекс подарка, frame=id рамки */
-var BFR={3:["case",1],5:["gift",5],7:["case",1],10:["gift",9],12:["case",2],15:["title","v"],18:["gift",8],20:["gift",10],22:["case",2],25:["case",3],28:["gift",11],30:["gift",12]};
-var BVP={2:["case",2],5:["gift",10],8:["case",3],10:["gift",11],12:["case",3],14:["title","e"],15:["gift",12],18:["case",3],20:["gift",13],22:["case",4],24:["title","c"],25:["gift",14],27:["case",4],28:["frame","f4"],30:["gift",17]};
+var BFR={3:["case",12],5:["gift",5],7:["case",12],10:["gift",32],12:["case",10],15:["title","v"],18:["gift",8],20:["gift",81],22:["case",1],25:["case",16],28:["gift",11],30:["gift",32]};
+var BVP={2:["case",10],5:["gift",32],8:["case",16],10:["gift",11],12:["case",16],14:["title","e"],15:["gift",81],18:["case",11],20:["gift",9],22:["case",3],24:["title","c"],25:["gift",36],27:["case",3],28:["frame","f4"],30:["gift",83]};
 var BTN={v:"Ветеран BP",e:"Элита BP",c:"Чемпион сезона",t1:"Охотник за NFT",t2:"Постоянный игрок",s1:"Коллектор"};
 function bpFree(l){return BFR[l]||["coin",40+l*5]}
 function bpVip(l){return BVP[l]||["coin",30+l*4]}
@@ -83,7 +83,7 @@ function pickFrame(id){S.frame=id||null;save();render();frameSheet()}
 function seasonReset(old){
  var sm={s:old.s,v:cv(),l:lvl(),c:S.st.cases,t:S.st.leg},tt0=S.tt||0;
  S={bal:1000,xp:0,inv:[],nu:S.nu||1,mkt:[],nl:S.nl||1,hist:[],fav:[],drops:[],st:{cases:0,ups:0,wins:0,leg:0},vib:1,
-  set:S.set,bp:S.bp,own:S.own,frame:S.frame,pass:S.pass,fp:S.fp,spent:S.spent,tut:S.tut,tutg:S.tutg,ttu:S.ttu,ph:S.ph,
+  set:S.set,bp:S.bp,own:S.own,frame:S.frame,pass:S.pass,fp:S.fp,spent:S.spent,ack:S.ack,tut:S.tut,tutg:S.tutg,ttu:S.ttu,ph:S.ph,
   sh:[sm].concat(S.sh||[]).slice(0,12),sn:sm};
  for(var q=0;q<8;q++)S.mkt.push(bl());
  isel={};U={};T=null;CT={};mp=null;shown=null;
