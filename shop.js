@@ -23,7 +23,8 @@ function buyStars(it){
   tgW().openInvoice(d.link,function(st){if(st=="paid"){setTimeout(claim,800)}else if(st=="failed")toast("Оплата не прошла")})
  }).catch(function(){toast("Сервер недоступен")})}
 function claim(){ /* забрать подтверждённые сервером покупки (идемпотентно) */
- api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).filter(function(r){return (r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])});gs.forEach(function(r){bpApply(r)});if(gs.length){toast("Подарок от администрации");save();render()}}).catch(function(){})}
+ api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).filter(function(r){return (r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])});gs.forEach(function(r){bpApply(r)});if(gs.length){toast("От администрации: "+gs.map(function(r){return r[0]=="coin"?"+"+f(r[1])+" GRADE":r[0]=="gift"?G[r[1]][0]:"кейс «"+CS[r[1]].n+"»"}).join(", "));save();render()}}).catch(function(){})}
+setInterval(claim,30000);document.addEventListener("visibilitychange",function(){if(!document.hidden)claim()});
 function shopGo(){tab(8)}
 function rShop(){var b=$("shp8");if(!b)return;
  var fp=!S.fp,h='';

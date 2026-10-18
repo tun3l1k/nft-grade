@@ -5,6 +5,7 @@ const { BOT_TOKEN, WEBHOOK_SECRET, PUBLIC_URL, SUPPORT, PORT = 3000 } = process.
 // Администраторы: числовые Telegram ID через запятую. Свой ID покажет команда /id в боте.
 const ADMINS = (process.env.ADMIN_IDS || '').split(',').map(x => Number(x.trim())).filter(Boolean);
 if (!BOT_TOKEN || !WEBHOOK_SECRET) { console.error('Нужны BOT_TOKEN и WEBHOOK_SECRET'); process.exit(1); }
+if (!ADMINS.length) console.warn('ADMIN_IDS не задан: админ-команды никому не доступны. Свой ID покажет /id в боте.');
 
 // Каталог. Цены (Stars) задаются ТОЛЬКО здесь: клиенту доверять нельзя.
 const ITEMS = {
@@ -73,10 +74,12 @@ async function admin(m, cmd) {
   }
   if (cmd === '/give') {
     const f = findUser(a[0]), kind = a[1], v = Number(a[2]);
-    if (!f || !['coin', 'gift', 'case'].includes(kind) || !Number.isInteger(v) || v < 0 || (kind === 'coin' && (v < 1 || v > 1e6))) return say('Формат: /give @ник|id coin|gift|case число');
+    if (!a[0] || !['coin', 'gift', 'case'].includes(kind) || !Number.isInteger(v) || v < 0 || (kind === 'coin' && (v < 1 || v > 1e6))) return say('Формат: /give @ник|id coin|gift|case число\nПример: /give @nick coin 1000');
+    if (!f) return say('Игрок не найден. Он должен хотя бы раз написать боту или открыть игру.');
     (db.grants[f.id] = db.grants[f.id] || []).push([kind, v]); saveDb();
-    tg('sendMessage', { chat_id: f.id, text: 'Вам начислен подарок от администрации. Откройте игру, чтобы забрать.' });
-    return say('Готово. ' + esc(f.n) + ' получит ' + kind + ' ' + v + ' при следующем входе в игру.');
+    const what = kind === 'coin' ? v + ' GRADE' : (kind === 'gift' ? 'подарок №' : 'кейс №') + v;
+    tg('sendMessage', { chat_id: f.id, text: '🎁 Вам начислено от администрации: ' + what + '. Откройте игру, начисление придёт само.' });
+    return say('Готово. ' + esc(f.n) + ' (' + f.id + ') получит ' + what + ': сразу, если игра открыта (до 30 сек), или при следующем входе.');
   }
   if (cmd === '/ban' || cmd === '/unban') {
     const f = findUser(a[0]); if (!f) return say('Игрок не найден.');
@@ -104,6 +107,21 @@ async function admin(m, cmd) {
     (async () => { let ok = 0; for (const id of Object.keys(db.users)) { if (db.banned[id]) continue; const r = await tg('sendMessage', { chat_id: id, text }); if (r.ok) ok++; await new Promise(r2 => setTimeout(r2, 60)); } say('Рассылка завершена. Доставлено: ' + ok + '.'); })();
   }
 }
+
+// Приветствие по /start: имя игрока, коротко что в игре и кнопки.
+const welcome = (m, firstVisit) => {
+  const name = esc(m.from && m.from.first_name || 'друг'), sup = SUPPORT ? String(SUPPORT).trim().replace(/^@/, '').replace(/^https?:\/\/t\.me\//, '') : '';
+  const text = (firstVisit ? '👋 Привет, <b>' + name + '</b>!\n\nДобро пожаловать в <b>NFT GRADE</b>.' : '🔥 С возвращением, <b>' + name + '</b>!\n\n<b>NFT GRADE</b> ждёт тебя.')
+    + '\nОткрывай кейсы, выбивай редкие подарки и собирай коллекцию, которой позавидуют все.\n\n'
+    + '🎁 Бесплатный подарок каждый день\n'
+    + '💎 Улучшай подарки до уникальных NFT\n'
+    + '🛒 Маркет: покупай и продавай другим игрокам\n'
+    + '🏆 Рейтинг, Battle Pass и награды за задания\n\n'
+    + (firstVisit ? 'Стартовые монеты уже на балансе. Жми <b>«Играть»</b> и открывай первый кейс 👇' : 'Жми <b>«Играть»</b> и забирай подарок дня 👇');
+  const kb = [[{ text: '🎮 Играть', web_app: { url: PUBLIC_URL } }]];
+  if (sup) kb.push([{ text: 'Поддержка', url: 'https://t.me/' + sup }]);
+  return tg('sendMessage', { chat_id: m.chat.id, text, parse_mode: 'HTML', link_preview_options: { is_disabled: true }, reply_markup: { inline_keyboard: kb } });
+};
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml' };
 
@@ -147,11 +165,16 @@ http.createServer(async (req, res) => {
     // Команды бота: /start открывает игру, /paysupport нужен для вопросов по оплате
     const m = u.message;
     if (m && m.text && m.chat) {
-      const cmd = m.text.split(/[\s@]/)[0];
+      const cmd = m.text.split(/[\s@]/)[0], reply = t => tg('sendMessage', { chat_id: m.chat.id, text: t, parse_mode: 'HTML' });
+      const firstVisit = !!m.from && !db.users[m.from.id];
       if (m.from) touch(m.from);
       if (cmd === '/id' && m.from) await tg('sendMessage', { chat_id: m.chat.id, text: 'Ваш Telegram ID: ' + m.from.id });
-      if (m.from && ADMINS.includes(m.from.id) && m.chat.type === 'private') await admin(m, cmd);
-      if (cmd === '/start' && PUBLIC_URL) await tg('sendMessage', { chat_id: m.chat.id, text: 'NFT GRADE: открывай кейсы и собирай коллекцию.', reply_markup: { inline_keyboard: [[{ text: 'Играть', web_app: { url: PUBLIC_URL } }]] } });
+      if (ADMIN_CMDS.includes(cmd)) {
+        if (!m.from || !ADMINS.includes(m.from.id)) await reply('⛔ Эта команда доступна только администраторам.');
+        else if (m.chat.type !== 'private') await reply('Админ-команды работают только в личке с ботом.');
+        else await admin(m, cmd);
+      }
+      if (cmd === '/start' && PUBLIC_URL) await welcome(m, firstVisit);
       if (cmd === '/paysupport') await tg('sendMessage', { chat_id: m.chat.id, text: 'Проблема с оплатой? Напишите ' + (SUPPORT || 'в поддержку') + ' и укажите, что покупали и когда.' });
     }
     const sp = u.message && u.message.successful_payment;

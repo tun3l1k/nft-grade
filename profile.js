@@ -18,9 +18,11 @@ function rPro(){try{rGifts()}catch(e){}rPf();var v=cv(),rare=S.st.leg+S.inv.filt
 var TL=[["Новичок","стартовый",function(){return 1}],["Везунчик","достигните 3 уровня",function(){return lvl()>=3}],["Коллекционер","коллекция от 5 000",function(){return cv()>=5000}],["Магнат","коллекция от 20 000",function(){return cv()>=20000}],["Торговец","3 сделки на маркете",function(){return S.hist.length>=3}],["Легенда","выбейте NFT из топ-класса",function(){return S.st.leg>=1}],["Ветеран BP","награда Battle Pass (FREE, ур. 15)",function(){return !!(S.ttu&&S.ttu.v)}],["Элита BP","награда Battle Pass VIP (ур. 14)",function(){return !!(S.ttu&&S.ttu.e)}],["Чемпион сезона","награда Battle Pass VIP (ур. 24)",function(){return !!(S.ttu&&S.ttu.c)}],["Охотник за NFT","достижение «Топ-находка»",function(){return !!(S.ttu&&S.ttu.t1)}],["Постоянный игрок","достижение «Неделя подряд»",function(){return !!(S.ttu&&S.ttu.t2)}],["Коллектор","коллекция «Топ NFT»",function(){return !!(S.ttu&&S.ttu.s1)}]];
 function setTl(i){if(TL[i][2]()){S.tt=i;save();rPro()}else toast("Откроется: "+TL[i][1])}
 var TGU=null;try{var WA=window.Telegram&&Telegram.WebApp;if(WA){WA.ready();WA.expand();TGU=(WA.initDataUnsafe&&WA.initDataUnsafe.user)||null}}catch(e){}
-function me(){return TGU?(TGU.username||TGU.first_name):"вы"}
-function rAv(){var a=$("av"),n=TGU?(TGU.first_name||TGU.username||"Игрок"):"Игрок";$("pnm").textContent=n+(isPass()?" ✦":"");var fr=FR.filter(function(x){return x.id==S.frame})[0];a.style.border=fr?"3px solid transparent":"";a.style.background=fr?"linear-gradient(#202b38,#202b38) padding-box,linear-gradient(135deg,"+fr.c+") border-box":"";if(a.dataset.ok){return}a.textContent=n.charAt(0).toUpperCase();
- if(TGU&&TGU.photo_url){var im=new Image();im.onload=function(){a.textContent="";a.appendChild(im);a.dataset.ok=1};im.src=TGU.photo_url}}
+function tgUser(){try{var w=window.Telegram&&Telegram.WebApp;return(w&&w.initDataUnsafe&&w.initDataUnsafe.user)||TGU}catch(e){return TGU}}
+function tgName(){var u=tgUser()||{};return((u.first_name||"")+" "+(u.last_name||"")).trim()||u.username||"Игрок"}
+function me(){var u=tgUser();return u?(u.username||u.first_name):"вы"}
+function rAv(){TGU=tgUser();var a=$("av"),n=tgName();$("pnm").textContent=n+(isPass()?" ✦":"");var fr=FR.filter(function(x){return x.id==S.frame})[0];a.style.border=fr?"3px solid transparent":"";a.style.background=fr?"linear-gradient(#202b38,#202b38) padding-box,linear-gradient(135deg,"+fr.c+") border-box":"";var ph=(TGU&&TGU.photo_url)||"";if(a.dataset.ph===ph&&a.firstChild)return;a.dataset.ph=ph;a.textContent=n.charAt(0).toUpperCase();
+ if(ph){var im=new Image();im.onload=function(){if(a.dataset.ph===ph){a.textContent="";a.appendChild(im)}};im.src=ph}}
 var LF=[];
 function lfRand(){return[BT[rnd(BT.length)][0],pickG(pickRar([55,30,12,3]))]}
 for(var q=0;q<14;q++)LF.push(lfRand());
