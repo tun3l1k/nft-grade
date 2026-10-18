@@ -295,7 +295,12 @@ var CFG={API:"",BOT:"nftgrade_game_bot",GROUP:"https://t.me/NFTGRADEGAME",SUPPOR
    floor: название -> [редкость (0 = оставить), цена в GRADE]. Подарки не из списка: старая цена * k (но от min до cap).
    Цены - ориентиры, их нужно сверять с Fragment, Getgems и tgsupergift и обновлять здесь.
    sell: сколько платит система при быстрой продаже (маркет игроков выгоднее). */
-var ECO={sell:.85,k:4,min:250,cap:30000,t1:1500,t2:10000,floor:{"Chill Flame":[1,250],"Candy Cane":[1,500],"Fresh Socks":[1,600],"Mood Pack":[1,1000],"Snoop Cigar":[2,1360],"Light Sword":[2,1680],"Jelly Bunny":[2,1990],"Love Potion":[2,2280],"Loot Bag":[2,4300],"Astral Shard":[2,4760],"Ion Gem":[2,6640],"Mini Oscar":[3,10300],"Durov's Cap":[3,12000],"Heroic Helmet":[3,17300],"Plush Pepe":[3,89400],"Ginger Cookie":[0,400],"Spy Agaric":[0,600],"Snow Mittens":[0,750],"Scared Cat":[0,1180],"Jingle Bells":[0,1360],"Santa Hat":[0,1840],"Witch Hat":[0,2280],"Hex Pot":[0,3090],"Snow Globe":[0,4530],"Skull Flower":[0,9460]}};
+/* ЦЕНА УЛУЧШЕННОГО ПОДАРКА (NFT) = floor × (1+надбавка модели) × (1+надбавка фона) × (1+надбавка узора) × надбавка номера.
+   Надбавка растёт с редкостью признака: индекс 0 самый частый, 4 самый редкий (шансы в MP, BP, SP в data.js).
+   Улучшенный подарок никогда не дешевле неулучшенного. max: потолок общего множителя.
+   upk: цена улучшения в долях от цены подарка. Вместе с надбавками подобрана так, чтобы цепочка кейс → улучшение → продажа не давала выигрыш. */
+var PRM={m:[0,.03,.09,.3,1.5],b:[0,.015,.05,.18,.6],s:[0,.008,.03,.09,.3],max:12};
+var ECO={sell:.85,upk:.2,k:4,min:250,cap:30000,t1:1500,t2:10000,floor:{"Chill Flame":[1,250],"Candy Cane":[1,500],"Fresh Socks":[1,600],"Mood Pack":[1,1000],"Snoop Cigar":[2,1360],"Light Sword":[2,1680],"Jelly Bunny":[2,1990],"Love Potion":[2,2280],"Loot Bag":[2,4300],"Astral Shard":[2,4760],"Ion Gem":[2,6640],"Mini Oscar":[3,10300],"Durov's Cap":[3,12000],"Heroic Helmet":[3,17300],"Plush Pepe":[3,89400],"Ginger Cookie":[0,400],"Spy Agaric":[0,600],"Snow Mittens":[0,750],"Scared Cat":[0,1180],"Jingle Bells":[0,1360],"Santa Hat":[0,1840],"Witch Hat":[0,2280],"Hex Pot":[0,3090],"Snow Globe":[0,4530],"Skull Flower":[0,9460]}};
 </script>
 <script>var R=[["Обычные","#7f91a4"],["NFT · базовые","#2aabee"],["NFT · дорогие","#a78bfa"],["NFT · топ","#ffd54a"]];
 var G=[["Сердце","❤️",0,15,0,0,1],["Мишка","🧸",0,15,0],["Роза","🌹",0,25,0],["Торт","🎂",0,50,0],["Букет","💐",0,50,0],["Ракета","🚀",0,50,0],["Кубок","🏆",0,100,0],["Кольцо","💍",0,100,0],["Алмаз","💎",0,100,0],["Candy Cane","🍭",1,120,1],["Jelly Bunny","🐰",1,150,1],["Heart Locket","💝",0,100,0],["Astral Shard","🔷",1,250,1],["Love Potion","🧪",1,350,1],["Durov's Cap","🧢",2,700,1],["Loot Bag","🎒",2,1000,1],["Ion Gem","🔮",2,1400,1],["Mini Oscar","🥇",3,3500,1],["Plush Pepe","🐸",3,8000,1,0,0,1],["Heroic Helmet","⛑️",3,15000,1],["Spy Agaric","🍄",1,280,1,1],["Scared Cat","🐈‍⬛",1,450,1,1],["Witch Hat","🎩",2,1100,1,1],["Hex Pot","🍲",2,1900,1,1],["Skull Flower","💀",3,9000,1,1],["Ginger Cookie","🍪",1,260,1,2],["Snow Mittens","🧤",1,480,1,2],["Jingle Bells","🔔",2,1200,1,2],["Santa Hat","🎅",2,2000,1,2],["Snow Globe","🔮",3,9500,1,2],["Fresh Socks","🧦",1,140,1],["Mood Pack","🎭",1,220,1],["Chill Flame","🔥",1,300,1],["Snoop Cigar","🚬",2,900,1],["Light Sword","🗡️",2,1600,1]];
@@ -457,9 +462,13 @@ function lvInfo(){var x=S.xp,l=1;while(x>=need(l)){x-=need(l);l++}return[l,x,nee
 function lvl(){return lvInfo()[0]}
 function cv(){return S.inv.reduce(function(a,x){return a+pr(x)},0)}
 function wp(a){var x=Math.random()*100,t=0;for(var i=0;i<a.length;i++){t+=a[i];if(x<t)return i}return 0}
-function am(p){return Math.max(.85,Math.min(2.5,Math.pow(10/p,.5)))}
-function nbm(n){return n<=100?1.6:n<=1000?1.2:1}
-function pr(it){var g=G[it.g];if(!it.up)return g[3];return Math.round(g[3]*Math.max(1,Math.min(6,am(MP[it.m])*am(BP[it.b])*am(SP[it.s])*nbm(it.n))))}
+function nbm(n){return n<=10?2.5:n<=100?1.5:n<=1000?1.12:1}
+function umul(it){return Math.min(PRM.max,(1+PRM.m[it.m])*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nbm(it.n))}
+function pr(it){var g=G[it.g];return it.up?Math.round(g[3]*umul(it)):g[3]}
+/* средний множитель улучшенного подарка (по шансам модели, фона, узора и номера): нужен для честного шанса в апгрейде */
+var EU=(function(){var N=[[10,2.5],[90,1.5],[900,1.12],[8999,1]],t=0,w=0;
+ for(var m=0;m<5;m++)for(var b=0;b<5;b++)for(var s=0;s<5;s++)N.forEach(function(x){var p=MP[m]*BP[b]*SP[s]*x[0];w+=p;t+=p*Math.min(PRM.max,(1+PRM.m[m])*(1+PRM.b[b])*(1+PRM.s[s])*x[1])});return t/w})();
+function tv(g){return Math.round(G[g][3]*EU)}
 function mkItem(g,up){return up?{u:S.nu++,g:g,n:1+rnd(9999),m:wp(MP),s:wp(SP),b:wp(BP),up:1,d:Date.now()}:{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()}}
 function pickG(r,ev,pool){var a=[];G.forEach(function(x,i){if(!x[6]&&!x[7]&&x[2]==r&&(ev?(x[5]==ev||(!x[5]&&r==0)):!x[5])&&(!pool||pool.indexOf(i)>=0))a.push(i)});return a[rnd(a.length)]}
 function vib(){if(!S.set.vib)return;try{var h=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback;if(h)h.impactOccurred("light");else if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
@@ -467,11 +476,11 @@ document.addEventListener("click",function(e){if(e.target.closest&&e.target.clos
 function toast(t){var d=$("toast");d.textContent=t;d.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){d.style.display="none"},2500)}
 function tile(it,cls,oc,inf){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";
  return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(SY[it.s]+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im">'+gimg(it.g,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
-function gtile(i,cls,oc){var g=G[i],n=g[4],c=n?BG[i%5]:"#7f91a4";return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'"><b class="im">'+gimg(i,52)+'</b><small>'+g[0]+'</small><em>'+(n?"≈ ":"")+f(g[3])+'</em></div>'}
+function gtile(i,cls,oc){var g=G[i],n=g[4],c=n?BG[i%5]:"#7f91a4";return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'"><b class="im">'+gimg(i,52)+'</b><small>'+g[0]+'</small><em>'+(n?"≈ ":"")+f(n?tv(i):g[3])+'</em></div>'}
 function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+gimg(it.g,108)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
 function atxt(it){return it.up?"Номер #"+it.n+" · "+MD[it.m]+" · "+BN[it.b]+" · "+SN[it.s]:"Подарок · можно улучшить"}
 function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6px 0"><span>'+l+'</span><span>'+nm+' · '+p+'% <small style="display:inline;color:var(--mu)">×'+m.toFixed(2)+'</small></span></div>'}
- return '<div class="sbox" style="margin:8px 0">'+r("Модель",MD[it.m],MP[it.m],am(MP[it.m]))+r("Фон",BN[it.b],BP[it.b],am(BP[it.b]))+r("Узор",SN[it.s],SP[it.s],am(SP[it.s]))+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+' <small style="display:inline;color:var(--mu)">×'+nbm(it.n).toFixed(2)+'</small></span></div></div>'}
+ return '<div class="sbox" style="margin:8px 0">'+r("Модель",MD[it.m],MP[it.m],1+PRM.m[it.m])+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",SN[it.s],SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+' <small style="display:inline;color:var(--mu)">×'+nbm(it.n).toFixed(2)+'</small></span></div></div>'}
 
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");
@@ -743,7 +752,7 @@ function tbr(k,v){return '<div class="r"><div class="k">'+k+'</div><div class="v
 function pcb(p){return '<span class="pc">'+p+'%</span>'}
 function fdt(t){return t?new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(","," в"):"—"}
 function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(SY[it.s]+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs">Коллекционный подарок #'+it.n+'</div></div>'}
-function nftRows(it,owner){var sp=supply(it.g);return tbr("Владелец",owner)+tbr("Модель",MD[it.m]+pcb(MP[it.m]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Узор",SN[it.s]+pcb(SP[it.s]))+tbr("Стоимость",ic("coin",14)+f(pr(it)))+tbr("Количество",f(sp[0])+", выпущено "+f(sp[1]))}
+function nftRows(it,owner){var sp=supply(it.g);return tbr("Владелец",owner)+tbr("Модель",MD[it.m]+pcb(MP[it.m]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Узор",SN[it.s]+pcb(SP[it.s]))+tbr("Надбавка за редкость","+"+Math.round((umul(it)-1)*100)+"%")+tbr("Стоимость",ic("coin",14)+f(pr(it)))+tbr("Количество",f(sp[0])+", выпущено "+f(sp[1]))}
 function ownerH(){var nm=tgName();return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
 var UPI='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(255,255,255,.2)"/><path d="M8 11l4-4 4 4M8 16l4-4 4 4"/></svg>';
 function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
@@ -755,14 +764,14 @@ function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
   h+='<div class="nfi" style="height:120px">'+gimg(it.g,112)+'</div><div class="h" style="font-size:22px">Подарок Вам</div>'
   +'<div class="at" style="text-align:center;padding:0 10px">Вы можете хранить этот подарок'+(can?', улучшить его':'')+' или обменять на '+f(pr(it))+' GRADE.</div>'
   +'<div class="tbl">'+tbr("От",'<span class="oav">N</span>NFT GRADE')+tbr("Дата",fdt(it.d))
-  +tbr("Стоимость",ic("coin",14)+f(g[3])+' <button class="lk" onclick="sellOne2('+u+')">продать за '+f(sv(it))+' GRADE</button>')
+  +tbr("Стоимость",ic("coin",14)+f(g[3])+' <button class="lk" onclick="sellOne2('+u+')">продать за '+f(sv(it))+' GRADE</button>')+(can?tbr("После улучшения","≈ "+ic("coin",14)+f(tv(it.g))+' <small class="mu">зависит от модели, фона и узора</small>'):'')
   +tbr("Наличие",f(sp[0]-sp[1])+" из "+f(sp[0]))
   +tbr("Статус","Неуникальный")+'</div>'
   +'<div class="hv">'+(it.hid?'Подарок скрыт из профиля. ':'Подарок виден в профиле. ')+'<a href="#" onclick="hideG('+u+');return false">'+(it.hid?'Показать':'Скрыть')+' ›</a></div>'
   +(can?'<button class="go bigb" onclick="gUp('+u+')">Улучшить '+UPI+'</button><button class="go gh" style="margin:8px 0 0;width:100%" onclick="upOne('+u+')">В апгрейд</button>':'<button class="go gh" style="margin:0;width:100%" onclick="closeSh()">Закрыть</button>')}
  $("sh").innerHTML=h;$("sheet").className="ov end on"}
 function hideG(u){var x=S.inv.filter(function(y){return y.u==u})[0];if(!x)return;x.hid=!x.hid;save();render();itemSheet(x)}
-function upCost(it){return Math.max(10,Math.round(G[it.g][3]*.15))}
+function upCost(it){return Math.max(10,Math.round(G[it.g][3]*ECO.upk))}
 function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;var c=upCost(it),ok=S.bal>=c;
  var fe=function(ic2,t,d){return '<div class="feat">'+ic2+'<div><b>'+t+'</b><span>'+d+'</span></div></div>'};
  var I1='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-6M12 21L9 9M12 21l3-12"/></svg>';
@@ -802,8 +811,8 @@ function arc(c){var r=130,a0=(180-c*180)*Math.PI/180,a1=(180+c*180)*Math.PI/180,
  $("arc").setAttribute("d",c<=0?"":"M"+s[0]+" "+s[1]+" A"+r+" "+r+" 0 "+(c>.5?1:0)+" 1 "+e[0]+" "+e[1])}
 var MX=[1.5,2,3,5,10,20,50,100],mx=2;
 function mxCh(k){return Math.min(90,95/k)}
-function cchance(i,m){var c=G[i][3];if(!G[i][4]||!(m>0&&c>m))return 0;var q=m/c*95;return q<.5?0:Math.min(90,q)}
-function near(v,m){var b=null,d=1e18;G.forEach(function(g,i){if(g[4]&&g[3]>m&&Math.abs(g[3]-v)<d){d=Math.abs(g[3]-v);b=i}});return b}
+function cchance(i,m){var c=tv(i);if(!G[i][4]||!(m>0&&c>m))return 0;var q=m/c*95;return q<.5?0:Math.min(90,q)}
+function near(v,m){var b=null,d=1e18;G.forEach(function(g,i){var t=tv(i);if(g[4]&&t>m&&Math.abs(t-v)<d){d=Math.abs(t-v);b=i}});return b}
 function setMx(k){if(busy)return;if(!usum()){toast("Сначала выберите свои подарки");return}mx=k;rUp()}
 function closeSh(){$("sheet").className="ov end"}
 function rUp(){var s=usum();if(mx&&s>0)T=near(s*mx,s);else if(T!=null&&!cchance(T,s))T=null;
@@ -812,7 +821,7 @@ function rUp(){var s=usum();if(mx&&s>0)T=near(s*mx,s);else if(T!=null&&!cchance(
  $("pct").textContent=ch.toFixed(1)+" %";var sb=$("sub");sb.textContent=!ch?"—":ch>=60?"Высокий шанс":ch>=30?"Средний шанс":"Низкий шанс";sb.className="sub "+(ch>=50?"s":"r");arc(ch/100);
  var g=$("ugo");g.disabled=!!busy||!ch;g.textContent=!s?"Выберите свои подарки":T==null?"Нет подходящей цели":"Улучшить";
  var inf='<div class="lab">Как считается шанс</div><div class="mu" style="line-height:1.5">Шанс = вложенное ÷ цена цели × 95%. Выберите ставку ×2, ×3… или конкретную цель ниже. В апгрейд подходят NFT и неулучшенные подарки, которые можно улучшить. Обычные подарки не участвуют.</div>';
- if(T!=null&&s)inf+='<div class="srow" style="margin-top:10px"><span>Вложено</span><b>'+f(s)+'</b></div><div class="srow"><span>Цель: '+G[T][1]+' '+G[T][0]+'</span><b>≈ '+f(G[T][3])+'</b></div><div class="srow"><span>Шанс успеха</span><b style="color:var(--gr)">'+ch.toFixed(2)+' %</b></div><div class="srow"><span>Шанс неудачи</span><b style="color:var(--rd)">'+(100-ch).toFixed(2)+' %</b></div>';
+ if(T!=null&&s)inf+='<div class="srow" style="margin-top:10px"><span>Вложено</span><b>'+f(s)+'</b></div><div class="srow"><span>Цель: '+G[T][1]+' '+G[T][0]+'</span><b>≈ '+f(tv(T))+'</b></div><div class="srow"><span>Шанс успеха</span><b style="color:var(--gr)">'+ch.toFixed(2)+' %</b></div><div class="srow"><span>Шанс неудачи</span><b style="color:var(--rd)">'+(100-ch).toFixed(2)+' %</b></div>';
  $("uinfo").innerHTML=inf;
  $("umine").innerHTML=S.inv.filter(upOk).sort(function(x,y){return pr(y)-pr(x)}).map(function(x){return tile(x,U[x.u]?" on":"","tu("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет подходящих подарков. В апгрейд идут NFT и неулучшенные подарки, которые можно улучшить. Обычные подарки не участвуют.</p>';
  $("utgt").innerHTML=G.map(function(x,i){if(!x[4])return"";var c=cchance(i,s);return gtile(i,(T==i?" on":"")+(c?"":" dm"),"tt("+i+")").replace("<b>",'<span class="bd'+(c>=50?' ok':'')+'">'+(c?c.toFixed(2)+" %":"—")+"</span><b>")}).join("");
@@ -875,7 +884,7 @@ $("fser").innerHTML='<option value="-1">Все серии</option>'+MD.map(funct
 function mfs(){mf.min=+$("fmin").value||0;mf.max=+$("fmax").value||0;mf.ser=+$("fser").value;mf.sort=+$("fsort").value;rMk()}
 function mrs(n){mf.r=n;rMk()}
 function msl(n){mf.sel=n;closeSh();rMk()}
-function ph(g){S.ph=S.ph||{};if(!S.ph[g]){var p=G[g][3],a=[];for(var i=0;i<24;i++){p=Math.max(1,p*(.94+Math.random()*.12));a.push(Math.round(p))}S.ph[g]=a}return S.ph[g]}
+function ph(g){S.ph=S.ph||{};if(!S.ph[g]){var p=tv(g),a=[];for(var i=0;i<24;i++){p=Math.max(1,p*(.94+Math.random()*.12));a.push(Math.round(p))}S.ph[g]=a}return S.ph[g]}
 function phAdd(g,p){var a=ph(g);a.push(Math.round(p));if(a.length>40)a.shift()}
 function spark(a){var mn=Math.min.apply(0,a),mx=Math.max.apply(0,a),d=mx-mn||1;return '<svg viewBox="0 0 300 90" style="width:100%;height:90px"><polyline points="'+a.map(function(v,i){return(i*300/(a.length-1)).toFixed(1)+","+(80-(v-mn)/d*70).toFixed(1)}).join(" ")+'" fill="none" stroke="#2aabee" stroke-width="2.5" stroke-linejoin="round"/></svg>'}
 function lotSheet(id){var l=lot(id);if(!l)return;var a=ph(l.it.g),av=a.reduce(function(x,y){return x+y},0)/a.length,me=l.s=="you",au=l.type=="auc";
