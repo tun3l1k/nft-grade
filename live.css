@@ -1,0 +1,59 @@
+/* ===== профиль игрока из ленты live (стиль Telegram) ===== */
+.t.sm{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}
+.t.sm:active{transform:scale(.94)}
+#pvw{position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;max-width:480px;z-index:15;overflow:hidden;visibility:hidden;pointer-events:none}
+#pvw.on{visibility:visible;pointer-events:auto}
+#pvs{position:absolute;inset:0;background:#000;opacity:0}
+#pv{position:absolute;inset:0;background:var(--bg);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;transform:translateX(100%);will-change:transform;box-shadow:-14px 0 30px rgba(0,0,0,.45);padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+#pv.anim{transition:transform .42s cubic-bezier(.22,.9,.28,1)}
+#pvs.anim{transition:opacity .42s cubic-bezier(.22,.9,.28,1)}
+.pve{position:absolute;left:0;top:0;bottom:0;width:24px;z-index:5;touch-action:none}
+body.pvon{overflow:hidden}
+.pvh{position:relative;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 0;text-align:center}
+.pvb{position:absolute;left:14px;top:calc(10px + env(safe-area-inset-top,0px));width:36px;height:36px;border-radius:50%;border:0;background:rgba(40,40,44,.9);color:#fff;display:grid;place-items:center;z-index:3}
+.pvav{width:112px;height:112px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;font-size:48px;font-weight:800;color:#fff;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.pvav::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.28),transparent 55%)}
+.pvn{font-size:23px;font-weight:700;letter-spacing:-.3px}
+.pvst{display:flex;justify-content:center;align-items:center;gap:5px;color:var(--mu);font-size:14px;margin-top:3px}
+.pvst.on{color:var(--bl)}
+.pva{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 14px;margin-top:22px}
+.pva button{background:#1c1c1e;border:0;border-radius:18px;height:74px;color:var(--bl);font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}
+.pva button:active{background:#2a2a2d}
+.pvm{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 14px 0;color:var(--bl);font-weight:700;font-size:13px}
+.pvm span{color:var(--mu);font-weight:400}
+.pvc{margin:12px 14px 0;background:#1c1c1e;border-radius:18px;padding:2px 14px}
+.pvc .r{padding:9px 0;border-top:1px solid #2c2c2e;position:relative}
+.pvc .r:first-child{border-top:0}
+.pvc .k{color:#a0a0a8;font-size:12px;margin-bottom:1px}
+.pvc .pvv{font-size:16px;text-align:left;background:none;padding:0;border:0;display:block}
+.pvc .pvv.bl2{color:var(--bl)}
+.pvq{position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--bl)}
+.pvk{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 14px 0}
+.pvk div{background:#1c1c1e;border-radius:14px;padding:9px 4px 8px;text-align:center;font-weight:800;font-size:15px;min-width:0}
+.pvk small{display:block;margin-top:2px;color:#8e8e98;font-weight:500;font-size:11px;white-space:nowrap}
+.pvk .w{grid-column:span 3;display:flex;align-items:center;justify-content:center;gap:6px;font-size:18px;padding:11px}
+.pvk .w small{margin:0 0 0 4px;font-size:13px}
+.pvt{display:flex;margin:12px 14px 10px;border:1px solid #2c2c2e;border-radius:24px;padding:3px;background:#141416}
+.pvt button{flex:1;height:38px;border:0;background:none;color:#fff;font-size:14px;font-weight:600;border-radius:21px;white-space:nowrap}
+.pvt button.on{background:#2c2c2e}
+.pvg .gc{animation:pvin .35s both}
+@keyframes pvin{from{opacity:0;transform:scale(.9)}}
+.gc .gs{position:absolute;left:8px;top:8px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff}
+.gc .gn{position:absolute;right:8px;top:8px;font-size:10px;font-weight:800;padding:2px 6px;border-radius:9px;color:#fff}
+.gc.nw2{box-shadow:0 0 0 2px var(--bl),0 0 22px rgba(42,171,238,.55)}
+.gc.nw2 small{color:var(--bl)}
+.pvd{display:flex;align-items:center;gap:12px;margin:0 14px 8px;background:#1c1c1e;border-radius:18px;padding:10px 14px}
+.pvd b{display:block;font-size:15px}
+.pvd span{color:var(--mu);font-size:12px}
+.pvd em{margin-left:auto;font-style:normal;font-weight:800;font-size:14px;text-align:right}
+.pvd em small{display:block;color:var(--mu);font-weight:500;font-size:11px}
+.pvo{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:800;color:#fff;margin-right:6px;vertical-align:middle}
+
+.pvsend{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 28px);margin:14px 14px 0;height:44px;border:0;border-radius:22px;background:#4a86e8;color:#fff;font-size:15px;font-weight:700}
+.pvsend:active{filter:brightness(.9)}
+.pvg{gap:6px!important}
+.pvg .gc{border-radius:16px}
+.pvg .gc .gs{width:18px;height:18px;font-size:10px;left:6px;top:6px}
+.pvg .gc .gn{font-size:9px;right:6px;top:6px;padding:1px 5px}
+.pvg .gc small{font-size:10px;bottom:5px}
+.pvd{margin:0 14px 6px;padding:8px 12px;border-radius:14px}
