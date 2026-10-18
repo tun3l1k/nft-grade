@@ -13,7 +13,7 @@ function tbr(k,v){return '<div class="r"><div class="k">'+k+'</div><div class="v
 function pcb(p){return '<span class="pc">'+p+'%</span>'}
 function fdt(t){return t?new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(","," в"):"—"}
 function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(SY[it.s]+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs">Коллекционный подарок #'+it.n+'</div></div>'}
-function nftRows(it,owner){var sp=supply(it.g);return tbr("Владелец",owner)+tbr("Модель",MD[it.m]+pcb(MP[it.m]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Узор",SN[it.s]+pcb(SP[it.s]))+tbr("Стоимость",ic("coin",14)+f(pr(it)))+tbr("Количество",f(sp[0])+", выпущено "+f(sp[1]))}
+function nftRows(it,owner){var sp=supply(it.g);return tbr("Владелец",owner)+tbr("Модель",MD[it.m]+pcb(MP[it.m]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Узор",SN[it.s]+pcb(SP[it.s]))+tbr("Надбавка за редкость","+"+Math.round((umul(it)-1)*100)+"%")+tbr("Стоимость",ic("coin",14)+f(pr(it)))+tbr("Количество",f(sp[0])+", выпущено "+f(sp[1]))}
 function ownerH(){var nm=tgName();return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
 var UPI='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(255,255,255,.2)"/><path d="M8 11l4-4 4 4M8 16l4-4 4 4"/></svg>';
 function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
@@ -25,14 +25,14 @@ function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
   h+='<div class="nfi" style="height:120px">'+gimg(it.g,112)+'</div><div class="h" style="font-size:22px">Подарок Вам</div>'
   +'<div class="at" style="text-align:center;padding:0 10px">Вы можете хранить этот подарок'+(can?', улучшить его':'')+' или обменять на '+f(pr(it))+' GRADE.</div>'
   +'<div class="tbl">'+tbr("От",'<span class="oav">N</span>NFT GRADE')+tbr("Дата",fdt(it.d))
-  +tbr("Стоимость",ic("coin",14)+f(g[3])+' <button class="lk" onclick="sellOne2('+u+')">продать за '+f(sv(it))+' GRADE</button>')
+  +tbr("Стоимость",ic("coin",14)+f(g[3])+' <button class="lk" onclick="sellOne2('+u+')">продать за '+f(sv(it))+' GRADE</button>')+(can?tbr("После улучшения","≈ "+ic("coin",14)+f(tv(it.g))+' <small class="mu">зависит от модели, фона и узора</small>'):'')
   +tbr("Наличие",f(sp[0]-sp[1])+" из "+f(sp[0]))
   +tbr("Статус","Неуникальный")+'</div>'
   +'<div class="hv">'+(it.hid?'Подарок скрыт из профиля. ':'Подарок виден в профиле. ')+'<a href="#" onclick="hideG('+u+');return false">'+(it.hid?'Показать':'Скрыть')+' ›</a></div>'
   +(can?'<button class="go bigb" onclick="gUp('+u+')">Улучшить '+UPI+'</button><button class="go gh" style="margin:8px 0 0;width:100%" onclick="upOne('+u+')">В апгрейд</button>':'<button class="go gh" style="margin:0;width:100%" onclick="closeSh()">Закрыть</button>')}
  $("sh").innerHTML=h;$("sheet").className="ov end on"}
 function hideG(u){var x=S.inv.filter(function(y){return y.u==u})[0];if(!x)return;x.hid=!x.hid;save();render();itemSheet(x)}
-function upCost(it){return Math.max(10,Math.round(G[it.g][3]*.25))}
+function upCost(it){return Math.max(10,Math.round(G[it.g][3]*ECO.upk))}
 function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;var c=upCost(it),ok=S.bal>=c;
  var fe=function(ic2,t,d){return '<div class="feat">'+ic2+'<div><b>'+t+'</b><span>'+d+'</span></div></div>'};
  var I1='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-6M12 21L9 9M12 21l3-12"/></svg>';

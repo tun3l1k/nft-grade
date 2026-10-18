@@ -42,7 +42,7 @@ $("fser").innerHTML='<option value="-1">Все серии</option>'+MD.map(funct
 function mfs(){mf.min=+$("fmin").value||0;mf.max=+$("fmax").value||0;mf.ser=+$("fser").value;mf.sort=+$("fsort").value;rMk()}
 function mrs(n){mf.r=n;rMk()}
 function msl(n){mf.sel=n;closeSh();rMk()}
-function ph(g){S.ph=S.ph||{};if(!S.ph[g]){var p=G[g][3],a=[];for(var i=0;i<24;i++){p=Math.max(1,p*(.94+Math.random()*.12));a.push(Math.round(p))}S.ph[g]=a}return S.ph[g]}
+function ph(g){S.ph=S.ph||{};if(!S.ph[g]){var p=tv(g),a=[];for(var i=0;i<24;i++){p=Math.max(1,p*(.94+Math.random()*.12));a.push(Math.round(p))}S.ph[g]=a}return S.ph[g]}
 function phAdd(g,p){var a=ph(g);a.push(Math.round(p));if(a.length>40)a.shift()}
 function spark(a){var mn=Math.min.apply(0,a),mx=Math.max.apply(0,a),d=mx-mn||1;return '<svg viewBox="0 0 300 90" style="width:100%;height:90px"><polyline points="'+a.map(function(v,i){return(i*300/(a.length-1)).toFixed(1)+","+(80-(v-mn)/d*70).toFixed(1)}).join(" ")+'" fill="none" stroke="#2aabee" stroke-width="2.5" stroke-linejoin="round"/></svg>'}
 function lotSheet(id){var l=lot(id);if(!l)return;var a=ph(l.it.g),av=a.reduce(function(x,y){return x+y},0)/a.length,me=l.s=="you",au=l.type=="auc";
