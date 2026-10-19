@@ -22,8 +22,10 @@ function buyStars(it){
   if(!d||!d.link){toast("Не удалось создать счёт");return}
   tgW().openInvoice(d.link,function(st){if(st=="paid"){setTimeout(claim,800)}else if(st=="failed")toast("Оплата не прошла")})
  }).catch(function(){toast("Сервер недоступен")})}
+function gidx(nm){return G.map(function(q){return q[0]}).indexOf(nm)}
+function cidx(nm){return CS.map(function(q){return q.n}).indexOf(nm)}
 function claim(){ /* забрать подтверждённые сервером покупки (идемпотентно) */
- api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).filter(function(r){return (r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])});gs.forEach(function(r){bpApply(r)});if(gs.length){toast("От администрации: "+gs.map(function(r){return r[0]=="coin"?"+"+f(r[1])+" GRADE":r[0]=="gift"?G[r[1]][0]:"кейс «"+CS[r[1]].n+"»"}).join(", "));save();render()}}).catch(function(){})}
+ api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).map(function(r){return r[0]=="gn"?["gift",gidx(r[1])]:r[0]=="cn"?["case",cidx(r[1])]:r[0]=="lim"?["lim",gidx(r[1]),r[2]]:r}).filter(function(r){return (r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])||(r[0]=="lim"&&G[r[1]]&&r[2]>0)});gs.forEach(function(r){if(r[0]=="lim"){var li=mkItem(r[1]);li.sn=r[2];S.inv.push(li)}else bpApply(r)});if(gs.length){toast("От администрации: "+gs.map(function(r){return r[0]=="coin"?"+"+f(r[1])+" GRADE":r[0]=="gift"?G[r[1]][0]:r[0]=="lim"?G[r[1]][0]+" · лимитка #"+r[2]:"кейс «"+CS[r[1]].n+"»"}).join(", "));save();render()}}).catch(function(){})}
 setInterval(claim,30000);document.addEventListener("visibilitychange",function(){if(!document.hidden)claim()});
 function shopGo(){tab(8)}
 function rShop(){var b=$("shp8");if(!b)return;
@@ -69,15 +71,19 @@ function limTaken(g){return Object.keys(limSet(g)).length}
 function limLeft(g){var l=LIM[G[g][0]];return l?l-limTaken(g):1e9}
 function mintN(g){var nm=G[g][0],l=LIM[nm],s=limSet(g),fr=[];for(var i=1;i<=l;i++)if(!s[i])fr.push(i);var n=fr.length?fr[rnd(fr.length)]:1+rnd(l);S.ltk=S.ltk||{};(S.ltk[nm]=S.ltk[nm]||[]).push(n);S.ltp=S.ltp||[];S.ltp.push([nm,n]);return n}
 function limFind(nm,n){var a=S.inv.concat((S.mkt||[]).map(function(l){return l.it}));return a.filter(function(x){return x&&x.up&&G[x.g]&&G[x.g][0]==nm&&x.n==n})[0]}
-function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(function(d){if(!d||!d.lim)return;LTK=d.lim;S.ltp=(S.ltp||[]).filter(function(x){return sent.indexOf(x)<0});
- (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save()}).catch(function(){})}
+/* выпуски лимиток от админа: ED[название] = {total, price, on, taken}; LIM берётся отсюда */
+var ED=S.ed||{};
+function edApply(e){ED=e||{};S.ed=ED;Object.keys(LIM).forEach(function(k){delete LIM[k]});Object.keys(ED).forEach(function(k){LIM[k]=ED[k].total})}
+Object.keys(ED).forEach(function(k){LIM[k]=ED[k].total});
+function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(function(d){if(!d||!d.lim)return;LTK=d.lim;if(d.ed)edApply(d.ed);S.ltp=(S.ltp||[]).filter(function(x){return sent.indexOf(x)<0});
+ (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab==6&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
 /* средний множитель улучшенного подарка по шансам модели, фона, узора и номера (номер зависит от тиража подарка): нужен для честного шанса в апгрейде */
 var EUC={};
 function EUg(g){var D=nmax(g);if(EUC[D])return EUC[D];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
  var t=0,w=0;for(var m=0;m<MP.length;m++)for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=MP[m]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,(1+PRM.m[m])*(1+PRM.b[b])*(1+PRM.s[s])*k)}return EUC[D]=t/w}
 function tv(g){return Math.round(G[g][3]*EUg(g))}
-function mkItem(g,up){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};return{u:S.nu++,g:g,n:LIM[G[g][0]]?mintN(g):1+rnd(nmax(g)),m:wp(MP),s:wp(SP),b:wp(BP),up:1,d:Date.now()}}
-function pickG(r,ev,pool){var a=[];G.forEach(function(x,i){if(!x[6]&&!x[7]&&x[2]==r&&(ev?(x[5]==ev||(!x[5]&&r==0)):!x[5])&&(!pool||pool.indexOf(i)>=0))a.push(i)});return a[rnd(a.length)]}
+function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};return{u:S.nu++,g:g,n:fx||(LIM[G[g][0]]?mintN(g):1+rnd(nmax(g))),m:wp(MP),s:wp(SP),b:wp(BP),up:1,d:Date.now()}}
+function pickG(r,ev,pool){var a=[];G.forEach(function(x,i){if(!x[6]&&!x[7]&&!LIM[x[0]]&&x[2]==r&&(ev?(x[5]==ev||(!x[5]&&r==0)):!x[5])&&(!pool||pool.indexOf(i)>=0))a.push(i)});return a[rnd(a.length)]}
 function vib(){if(!S.set.vib)return;try{var h=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback;if(h)h.impactOccurred("light");else if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("button"))vib()});
 function toast(t){var d=$("toast");d.textContent=t;d.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){d.style.display="none"},2500)}

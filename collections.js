@@ -35,7 +35,7 @@ function ctIds(){return S.inv.filter(function(x){return CT[x.u]})}
 function ctSum(){return ctIds().reduce(function(a,x){return a+pr(x)},0)}
 function evg(g){return G[g][3]}
 function ctRoll(V){var u=Math.random(),k=u<.7?.5+Math.random()*.45:u<.95?.95+Math.random()*.55:1.5+Math.random()*1.5,tv=Math.max(5,V*k),best=0,bd=1e18;
- G.forEach(function(g,i){if(g[5]||g[6])return;var d=Math.abs(Math.log(evg(i)/tv));if(d<bd){bd=d;best=i}});return best}
+ G.forEach(function(g,i){if(g[5]||g[6]||LIM[g[0]])return;var d=Math.abs(Math.log(evg(i)/tv));if(d<bd){bd=d;best=i}});return best}
 function ctTg(u){if(busy)return;var n=ctIds().length;if(!CT[u]&&n>=10){toast("Максимум 10 подарков");return}CT[u]=!CT[u];rCt()}
 function rCt(){var a=S.inv.slice().sort(function(x,y){return pr(y)-pr(x)}),n=ctIds().length,V=ctSum();
  $("ctg").innerHTML=a.map(function(x){return tile(x,CT[x.u]?" on":"","ctTg("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет подарков. Откройте кейс.</p>';

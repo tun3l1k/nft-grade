@@ -2,13 +2,13 @@ function sv(x){return Math.floor(pr(x)*ECO.sell)}
 
 /* кейсы */
 var ci=0,busy=0;
-var cf=-1,CATS=["События","Бесплатные","50/50","Дешёвые","Популярные","Дорогие"];
+var cf=-1,CATS=["События","Бесплатные","50/50","Дешёвые","Популярные","Дорогие","Премиум"];
 function csVis(c){if(!c.ev)return true;var E=EVENTS[c.ev-1],n=Date.now();return n>=E.from&&n<E.until}
 function evEnd(c){return new Date(EVENTS[c.ev-1].until-1).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"})}
 function fmtT(ms){var t=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),c=t%60;return h?h+"ч "+("0"+m).slice(-2)+"м":("0"+m).slice(-2)+":"+("0"+c).slice(-2)}
 function cfs(n){cf=n;rHome()}
 function caseTxt(c){if(c.free){var l=freeCd()-(Date.now()-(S.free||0));return l>0?fmtT(l):"Бесплатно"}return f(c.p)+" "+ic("coin",14)}
-function drops(c){var a=[];G.forEach(function(g,i){if(!g[6]&&!g[7]&&c.w[g[2]]>0&&(c.ev?(g[5]==c.ev||(!g[5]&&g[2]==0)):!g[5])&&(!c.pool||c.pool.indexOf(i)>=0))a.push(i)});return a}
+function drops(c){var a=[];G.forEach(function(g,i){if(!g[6]&&!g[7]&&!LIM[g[0]]&&c.w[g[2]]>0&&(c.ev?(g[5]==c.ev||(!g[5]&&g[2]==0)):!g[5])&&(!c.pool||c.pool.indexOf(i)>=0))a.push(i)});return a}
 function freeRdy(){return freeCd()-(Date.now()-(S.free||0))<=0?1:0}
 function ccard(c,i){var d=drops(c),dc=[0,1,2,3].map(function(k){return '<span class="d d'+(k+1)+'">'+gimg(d[(i*2+k*3)%d.length],26)+'</span>'}).join("");
  return '<div class="cc" onclick="caseSheet('+i+')"><div class="cim" style="background:linear-gradient(135deg,'+c.c+')">'+dc+'<span class="m">'+c.e+'</span>'+(c.ev?'<span class="evb">до '+evEnd(c)+'</span>':'')+(S.tix&&S.tix[i]>0&&!c.free?'<span class="tkb">🎟 '+S.tix[i]+'</span>':'')+(c.free&&freeRdy()?'<span class="nd"></span>':'')+'</div><div class="cf"><span class="cn">'+c.n+'</span><span class="pp">'+caseTxt(c)+'</span></div></div>'}
