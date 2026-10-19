@@ -220,6 +220,24 @@ http.createServer(async (req, res) => {
     saveDb();
     return send(res, 200, { ok: true });
   }
+  // 4b) Лимитированные подарки: каждый номер выдаётся один раз. Клиент присылает занятые номера, сервер отвечает полным списком.
+  if (url === '/lim' && req.method === 'POST') {
+    const b = await readBody(req), user = checkInitData(b.initData);
+    if (!user) return send(res, 401, { error: 'auth' });
+    if (db.banned[user.id]) return send(res, 403, { error: 'banned' });
+    db.lim = db.lim || {};
+    const dup = [], take = Array.isArray(b.take) ? b.take.slice(0, 50) : [];
+    take.forEach(t => {
+      const nm = String(t && t[0] || '').slice(0, 40), n = Math.floor(Number(t && t[1]));
+      if (!nm || !(n >= 1 && n <= 100000)) return;
+      const o = db.lim[nm] = db.lim[nm] || {};
+      if (o[n] && o[n] !== user.id) dup.push([nm, n]); else o[n] = user.id;
+    });
+    if (take.length) saveDb();
+    const lim = {};
+    for (const [k, o] of Object.entries(db.lim)) lim[k] = Object.keys(o).map(Number);
+    return send(res, 200, { lim, dup });
+  }
   if (url === '/top' && req.method === 'POST') {
     const b = await readBody(req), user = checkInitData(b.initData);
     if (!user) return send(res, 401, { error: 'auth' });

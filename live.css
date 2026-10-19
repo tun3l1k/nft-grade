@@ -57,3 +57,5 @@ body.pvon{overflow:hidden}
 .pvg .gc .gn{font-size:9px;right:6px;top:6px;padding:1px 5px}
 .pvg .gc small{font-size:10px;bottom:5px}
 .pvd{margin:0 14px 6px;padding:8px 12px;border-radius:14px}
+/* Монохром: подарок без цвета */
+.mono svg,.mono img{filter:grayscale(1) contrast(1.15)}
