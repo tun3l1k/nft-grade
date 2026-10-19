@@ -88,3 +88,7 @@ body.pvon{overflow:hidden}
 .mc .mb:disabled{opacity:.55}
 .lbar{height:6px;border-radius:4px;background:rgba(0,0,0,.35);margin:4px 4px 0;overflow:hidden}
 .lbar i{display:block;height:100%;background:#ffd54a;border-radius:4px}
+/* Анимация модели (Lottie из .tgs): поверх картинки, пока не загрузилась, остаётся картинка */
+.nfi{position:relative}
+.nfi .tgsb{position:absolute;left:50%;top:50%;width:150px;height:150px;transform:translate(-50%,-50%);pointer-events:none}
+.nfi.tgsOn>svg{visibility:hidden}

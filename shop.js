@@ -55,11 +55,38 @@ function MN(g,i){if(i==5)return"Monochrome";var N=MPOOL.length;return MPOOL[((g*
 function PP(g,i){var N=PPOOL.length;return PPOOL[((g*5+1)%N+[7,11,13,17,19,23,29][g%7]*i)%N]}
 function PN(g,i){return PP(g,i)[0]}
 function PS(g,i){return PP(g,i)[1]}
+/* ---- модели подарков (папка models/, данные GM из models.js, сборка tools/make_models.py) ----
+   У NFT, чей подарок есть в GM, при улучшении выпадает конкретная модель: it.mo = номер в GM[...].m.
+   Шанс охватывает часть коллекции (GM.c %), остаток выпадает по старой системе редкости (it.mo = -1, картинка подарка). */
+function gmOf(g){return typeof GM!="undefined"?GM[G[g][0]]:null}
+function mslug(s){return String(s).toLowerCase().replace(/[’‘']/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+function murl(g,j,ext){var q=gmOf(g),m=q.m[j];return "m/"+q.s+"/"+mslug(m[2])+"."+ext}
+function mpick(g){var q=gmOf(g);if(!q)return -1;var x=Math.random()*100,t=0;for(var j=0;j<q.m.length;j++){t+=q.m[j][1];if(x<t)return j}return -1}
+function hasMo(it){return it.up&&it.mo>=0&&!!gmOf(it.g)&&!!gmOf(it.g).m[it.mo]}
+function mrow(it){return hasMo(it)?gmOf(it.g).m[it.mo]:null}
+function mname(it){var r=mrow(it);return r?r[0]:MN(it.g,it.m)}
+function mpct(it){var r=mrow(it);return r?r[1]:MP[it.m]}
+function mmul(it){var r=mrow(it);return r?r[4]:1+PRM.m[it.m]}
+function ismono(it){return it.up&&!hasMo(it)&&it.m==5}
+function mrare(it){var r=mrow(it);return r?r[4]>=1.5:it.m>=3}
+/* картинка NFT: у модели своя, иначе картинка подарка */
+function mimg(it,z){var r=mrow(it);if(!r||!(r[3]&1))return gimg(it.g,z);
+ return '<svg viewBox="0 0 100 100" width="'+z+'" height="'+z+'" style="display:block;margin:auto;filter:drop-shadow(0 4px 5px rgba(0,0,0,.4))"><image href="'+murl(it.g,it.mo,"webp")+'" width="100" height="100"/></svg>'}
+/* анимация модели (.tgs это сжатый Lottie). Библиотека грузится один раз при первом показе, при любой ошибке остаётся картинка */
+var LOT=null,LOTS=["https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie_light.min.js","https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"];
+function lotLoad(cb,k){k=k|0;if(window.lottie){cb();return}if(LOT){LOT.push(cb);return}if(k>=LOTS.length)return;LOT=[cb];
+ var sc=document.createElement("script");sc.src=LOTS[k];sc.onload=function(){var a=LOT;LOT=null;a.forEach(function(f){f()})};sc.onerror=function(){var a=LOT;LOT=null;sc.remove();if(a&&k+1<LOTS.length)a.forEach(function(f){lotLoad(f,k+1)})};document.head.appendChild(sc)}
+function lotPlay(el,url){if(!window.DecompressionStream||el.dataset.on)return;el.dataset.on=1;
+ fetch(url).then(function(r){if(!r.ok)throw 0;return new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).json()}).then(function(data){
+  lotLoad(function(){if(!document.body.contains(el))return;var box=document.createElement("div");box.className="tgsb";el.appendChild(box);
+   var a=lottie.loadAnimation({container:box,renderer:"svg",loop:true,autoplay:true,animationData:data});a.addEventListener("DOMLoaded",function(){el.classList.add("tgsOn")})})}).catch(function(){el.dataset.on=""})}
+function lotScan(){var a=document.querySelectorAll(".nfi[data-tgs]");for(var i=0;i<a.length;i++)lotPlay(a[i],a[i].dataset.tgs)}
+try{new MutationObserver(lotScan).observe(document.getElementById("sh"),{childList:true})}catch(e){}
 function nbm(n,D){return n<=Math.max(1,Math.round(D*.001))?2.5:n<=Math.max(1,Math.round(D*.01))?1.5:n<=Math.max(1,Math.round(D*.1))?1.12:1}
 /* красивый номер: [название, множитель] или null */
 function nbe(n){var s=String(n);if(n>=11&&/^(\d)\1+$/.test(s))return["Одинаковые цифры",PRM.nb.rep];if(n>=1000&&n%1000==0)return["Круглый номер",PRM.nb.rnd];if(n>=1000&&("0123456789".indexOf(s)>=0||"9876543210".indexOf(s)>=0))return["Лесенка",PRM.nb.seq];if(n>=101&&s==s.split("").reverse().join(""))return["Палиндром",PRM.nb.pal];return null}
 function nmul(n,D){var e=nbe(n);return nbm(n,D)*(e?e[1]:1)}
-function umul(it){return Math.min(PRM.max,(1+PRM.m[it.m])*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
+function umul(it){return Math.min(PRM.max,mmul(it)*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
 function pr(it){var g=G[it.g];return it.up?Math.round(g[3]*umul(it)):g[3]}
 /* тираж: сколько всего подарков и сколько выпущено. Номер улучшенного подарка всегда от 1 до числа выпущенных */
 function supply(g){var q=G[g],l=LIM[q[0]];if(l)return[l,limTaken(g)];var r=q[2],tot=[250000,30000,9000,2000][r]+((g*7919)%900)*(r+1),iss=Math.round(tot*(.55+((g*37)%40)/100));return[tot,iss]}
@@ -79,21 +106,24 @@ function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(fun
  (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab==6&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
 /* средний множитель улучшенного подарка по шансам модели, фона, узора и номера (номер зависит от тиража подарка): нужен для честного шанса в апгрейде */
 var EUC={};
-function EUg(g){var D=nmax(g);if(EUC[D])return EUC[D];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
- var t=0,w=0;for(var m=0;m<MP.length;m++)for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=MP[m]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,(1+PRM.m[m])*(1+PRM.b[b])*(1+PRM.s[s])*k)}return EUC[D]=t/w}
+function EUg(g){var D=nmax(g),q=gmOf(g),key=q?g+":"+D:"d"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
+ /* варианты модели: [шанс, множитель]; у подарков из models/ это реальные модели, остаток охвата идёт по старой системе */
+ var ML=[],cov=0,m;if(q)q.m.forEach(function(x){ML.push([x[1],x[4]]);cov+=x[1]});if(cov>100)cov=100;for(m=0;m<MP.length;m++)ML.push([MP[m]*(100-cov)/100,1+PRM.m[m]]);
+ var t=0,w=0;ML.forEach(function(mm){if(mm[0]<=0)return;for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=mm[0]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,mm[1]*(1+PRM.b[b])*(1+PRM.s[s])*k)}});return EUC[key]=t/w}
 function tv(g){return Math.round(G[g][3]*EUg(g))}
-function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};return{u:S.nu++,g:g,n:fx||(LIM[G[g][0]]?mintN(g):1+rnd(nmax(g))),m:wp(MP),s:wp(SP),b:wp(BP),up:1,d:Date.now()}}
+function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};var mo=mpick(g),it=mkUp(g,fx);it.mo=mo;it.m=mo>=0?0:wp(MP);return it}
+function mkUp(g,fx){return{u:S.nu++,g:g,n:fx||(LIM[G[g][0]]?mintN(g):1+rnd(nmax(g))),m:0,s:wp(SP),b:wp(BP),up:1,d:Date.now()}}
 function pickG(r,ev,pool){var a=[];G.forEach(function(x,i){if(!x[6]&&!x[7]&&!LIM[x[0]]&&x[2]==r&&(ev?(x[5]==ev||(!x[5]&&r==0)):!x[5])&&(!pool||pool.indexOf(i)>=0))a.push(i)});return a[rnd(a.length)]}
 function vib(){if(!S.set.vib)return;try{var h=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback;if(h)h.impactOccurred("light");else if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("button"))vib()});
 function toast(t){var d=$("toast");d.textContent=t;d.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){d.style.display="none"},2500)}
 function tile(it,cls,oc,inf){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";
- return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(n&&it.m==5?' mono':'')+'">'+gimg(it.g,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
+ return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(ismono(it)?' mono':'')+'">'+(n?mimg(it,52):gimg(it.g,52))+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
 function gtile(i,cls,oc){var g=G[i],n=g[4],c=n?BG[i%5]:"#7f91a4";return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'"><b class="im">'+gimg(i,52)+'</b><small>'+g[0]+'</small><em>'+(n?"≈ ":"")+f(n?tv(i):g[3])+'</em></div>'}
-function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+gimg(it.g,108)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
-function atxt(it){return it.up?"Номер #"+it.n+" · "+MN(it.g,it.m)+" · "+BN[it.b]+" · "+PN(it.g,it.s):"Подарок · можно улучшить"}
+function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+(n?mimg(it,108):gimg(it.g,108))+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
+function atxt(it){return it.up?"Номер #"+it.n+" · "+mname(it)+" · "+BN[it.b]+" · "+PN(it.g,it.s):"Подарок · можно улучшить"}
 function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6px 0"><span>'+l+'</span><span>'+nm+' · '+p+'% <small style="display:inline;color:var(--mu)">×'+m.toFixed(2)+'</small></span></div>'}
- return '<div class="sbox" style="margin:8px 0">'+r("Модель",MN(it.g,it.m),MP[it.m],1+PRM.m[it.m])+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",PN(it.g,it.s),SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
+ return '<div class="sbox" style="margin:8px 0">'+r("Модель",mname(it),mpct(it),mmul(it))+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",PN(it.g,it.s),SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
 
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");

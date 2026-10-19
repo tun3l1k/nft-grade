@@ -128,6 +128,17 @@ const welcome = (m, firstVisit) => {
   return tg('sendMessage', { chat_id: m.chat.id, text, parse_mode: 'HTML', link_preview_options: { is_disabled: true }, reply_markup: { inline_keyboard: kb } });
 };
 
+// Карта файлов моделей из models.js (создаётся tools/make_models.py), читается при старте
+const MODEL_MAP = {};
+try {
+  const ctx = {}; require('vm').runInNewContext(fs.readFileSync(path.join(__dirname, 'models.js'), 'utf8') + ';this.GM=GM', ctx);
+  const sl = (x) => String(x).toLowerCase().replace(/[’‘']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  for (const g of Object.values(ctx.GM)) for (const m of g.m) MODEL_MAP[g.s + '/' + sl(m[2])] = [g.d, m[2]];
+} catch (e) { console.log('models.js не загружен:', e.message); }
+function modelFile(gift, model, ext) {
+  const r = MODEL_MAP[gift + '/' + model];
+  return r ? path.join(__dirname, 'models', r[0], r[1] + '.' + ext) : null;
+}
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml' };
 
 http.createServer(async (req, res) => {
@@ -142,6 +153,17 @@ http.createServer(async (req, res) => {
       try {
         const data = fs.readFileSync(path.join(__dirname, p));
         res.writeHead(200, { 'Content-Type': 'image/webp', 'Cache-Control': 'public, max-age=604800' });
+        return res.end(data);
+      } catch { return send(res, 404, { error: 'not found' }); }
+    }
+    // Модели подарков: /m/<подарок>/<модель>.webp|tgs -> models/<папка>/<файл> (соответствие берётся из models.js)
+    const mm = /^\/m\/([a-z0-9\-]+)\/([a-z0-9\-]+)\.(webp|tgs)$/.exec(p);
+    if (mm) {
+      const f = modelFile(mm[1], mm[2], mm[3]);
+      if (!f) return send(res, 404, { error: 'not found' });
+      try {
+        const data = fs.readFileSync(f);
+        res.writeHead(200, { 'Content-Type': mm[3] === 'webp' ? 'image/webp' : 'application/octet-stream', 'Cache-Control': 'public, max-age=604800' });
         return res.end(data);
       } catch { return send(res, 404, { error: 'not found' }); }
     }
