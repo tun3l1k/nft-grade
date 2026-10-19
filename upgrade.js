@@ -5,7 +5,7 @@ function arc(c){var r=130,a0=(180-c*180)*Math.PI/180,a1=(180+c*180)*Math.PI/180,
  $("arc").setAttribute("d",c<=0?"":"M"+s[0]+" "+s[1]+" A"+r+" "+r+" 0 "+(c>.5?1:0)+" 1 "+e[0]+" "+e[1])}
 var MX=[1.5,2,3,5,10,20,50,100],mx=2;
 function mxCh(k){return Math.min(90,95/k)}
-function cchance(i,m){var c=tv(i);if(!G[i][4]||!(m>0&&c>m))return 0;var q=m/c*95;return q<.5?0:Math.min(90,q)}
+function cchance(i,m){var c=tv(i);if(!G[i][4]||limLeft(i)<=0||!(m>0&&c>m))return 0;var q=m/c*95;return q<.5?0:Math.min(90,q)}
 function near(v,m){var b=null,d=1e18;G.forEach(function(g,i){var t=tv(i);if(g[4]&&t>m&&Math.abs(t-v)<d){d=Math.abs(t-v);b=i}});return b}
 function setMx(k){if(busy)return;if(!usum()){toast("Сначала выберите свои подарки");return}mx=k;rUp()}
 function closeSh(){$("sheet").className="ov end"}
