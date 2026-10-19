@@ -55,12 +55,16 @@ const esc = t => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', 
 const iso = ts => new Date(ts).toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
 const spentBy = id => db.sales.filter(x => String(x.u) === String(id) && !x.refunded).reduce((a, x) => a + x.st, 0);
 const pendingBc = {};
-const ADMIN_CMDS = ['/admin', '/stats', '/find', '/give', '/ban', '/unban', '/sales', '/refund', '/broadcast', '/yes'];
+// Админ-меню на кнопках, лимитированные выпуски, промокоды (admin.js)
+const A = require('./admin.js')({ db, tg, saveDb, ADMINS, PUBLIC_URL, SUPPORT, findUser, esc, iso, spentBy });
+const ADMIN_CMDS = ['/admin', '/menu', '/adminhelp', '/cancel', '/stats', '/find', '/give', '/ban', '/unban', '/sales', '/refund', '/broadcast', '/yes'];
 async function admin(m, cmd) {
   if (!ADMIN_CMDS.includes(cmd)) return;
   const a = m.text.trim().split(/\s+/).slice(1), say = t => tg('sendMessage', { chat_id: m.chat.id, text: t, parse_mode: 'HTML' });
   db.audit.push({ ts: Date.now(), a: m.from.id, t: m.text.slice(0, 200) }); db.audit = db.audit.slice(-300); saveDb();
-  if (cmd === '/admin') return say('<b>Админ-команды</b>\n/stats: сводка\n/find @ник или id: карточка игрока\n/give @ник|id coin 1000\n/give @ник|id gift НОМЕР\n/give @ник|id case НОМЕР\n/ban id и /unban id\n/sales: последние покупки\n/refund id charge_id: вернуть Stars\n/broadcast текст: рассылка, затем /yes');
+  if (cmd === '/admin' || cmd === '/menu') return A.openMenu(m);
+  if (cmd === '/cancel') { A.cancel(m.from.id); return say('Отменено.'); }
+  if (cmd === '/adminhelp') return say('<b>Админ-команды</b>\n/stats: сводка\n/find @ник или id: карточка игрока\n/give @ник|id coin 1000\n/give @ник|id gift НОМЕР\n/give @ник|id case НОМЕР\n/ban id и /unban id\n/sales: последние покупки\n/refund id charge_id: вернуть Stars\n/broadcast текст: рассылка, затем /yes\n\nУдобнее через кнопки: /admin');
   if (cmd === '/stats') {
     const now = Date.now(), us = Object.values(db.users), act = d => us.filter(x => now - x.l < d * 864e5).length;
     const rev = db.sales.filter(x => !x.refunded).reduce((t, x) => t + x.st, 0);
@@ -73,11 +77,12 @@ async function admin(m, cmd) {
     return say('<b>' + esc(f.n) + '</b> @' + esc(f.u || '-') + '\nID: ' + f.id + '\nВпервые: ' + iso(f.f) + '\nПоследний вход: ' + iso(f.l) + '\nПотратил: ' + spentBy(f.id) + ' ⭐\nКоллекция: ' + (sc.v ?? '-') + ', уровень ' + (sc.l ?? '-') + '\nБан: ' + (db.banned[f.id] ? 'да' : 'нет'));
   }
   if (cmd === '/give') {
-    const f = findUser(a[0]), kind = a[1], v = Number(a[2]);
-    if (!a[0] || !['coin', 'gift', 'case'].includes(kind) || !Number.isInteger(v) || v < 0 || (kind === 'coin' && (v < 1 || v > 1e6))) return say('Формат: /give @ник|id coin|gift|case число\nПример: /give @nick coin 1000');
+    const f = findUser(a[0]), kind = a[1], v = Number(a[2]), nm = a.slice(2).join(' ');
+    const byName = ['gift', 'case'].includes(kind) && nm && !Number.isInteger(v);
+    if (!a[0] || !['coin', 'gift', 'case'].includes(kind) || (!byName && (!Number.isInteger(v) || v < 0)) || (kind === 'coin' && (v < 1 || v > 1e6))) return say('Формат: /give @ник|id coin|gift|case число или название\nПримеры: /give @nick coin 1000, /give @nick gift Plush Pepe');
     if (!f) return say('Игрок не найден. Он должен хотя бы раз написать боту или открыть игру.');
-    (db.grants[f.id] = db.grants[f.id] || []).push([kind, v]); saveDb();
-    const what = kind === 'coin' ? v + ' GRADE' : (kind === 'gift' ? 'подарок №' : 'кейс №') + v;
+    (db.grants[f.id] = db.grants[f.id] || []).push(byName ? [kind === 'gift' ? 'gn' : 'cn', nm] : [kind, v]); saveDb();
+    const what = kind === 'coin' ? v + ' GRADE' : byName ? (kind === 'gift' ? 'подарок ' : 'кейс ') + nm : (kind === 'gift' ? 'подарок №' : 'кейс №') + v;
     tg('sendMessage', { chat_id: f.id, text: '🎁 Вам начислено от администрации: ' + what + '. Откройте игру, начисление придёт само.' });
     return say('Готово. ' + esc(f.n) + ' (' + f.id + ') получит ' + what + ': сразу, если игра открыта (до 30 сек), или при следующем входе.');
   }
@@ -170,12 +175,15 @@ http.createServer(async (req, res) => {
       try { const pl = JSON.parse(q.invoice_payload), it = ITEMS[pl.i]; ok = !!it && pl.u === q.from.id && q.currency === 'XTR' && q.total_amount === it.st; } catch {}
       await tg('answerPreCheckoutQuery', { pre_checkout_query_id: q.id, ok, ...(ok ? {} : { error_message: 'Товар недоступен' }) });
     }
+    if (u.callback_query) await A.onCallback(u.callback_query);
     // Команды бота: /start открывает игру, /paysupport нужен для вопросов по оплате
     const m = u.message;
     if (m && m.text && m.chat) {
       const cmd = m.text.split(/[\s@]/)[0], reply = t => tg('sendMessage', { chat_id: m.chat.id, text: t, parse_mode: 'HTML' });
       const firstVisit = !!m.from && !db.users[m.from.id];
       if (m.from) touch(m.from);
+      if (m.from && ADMINS.includes(m.from.id) && m.chat.type === 'private' && !m.text.startsWith('/') && A.hasState(m.from.id)) await A.onInput(m);
+      if (cmd === '/promo' && m.from) await reply(esc(A.redeem(m.text.split(/\s+/)[1], m.from.id)));
       if (cmd === '/id' && m.from) await tg('sendMessage', { chat_id: m.chat.id, text: 'Ваш Telegram ID: ' + m.from.id });
       if (ADMIN_CMDS.includes(cmd)) {
         if (!m.from || !ADMINS.includes(m.from.id)) await reply('⛔ Эта команда доступна только администраторам.');
@@ -220,23 +228,20 @@ http.createServer(async (req, res) => {
     saveDb();
     return send(res, 200, { ok: true });
   }
-  // 4b) Лимитированные подарки: каждый номер выдаётся один раз. Клиент присылает занятые номера, сервер отвечает полным списком.
+  // 4b) Лимитированные выпуски: список выпусков (тираж, цена, остаток), занятые номера, покупка. Подробнее в admin.js.
   if (url === '/lim' && req.method === 'POST') {
     const b = await readBody(req), user = checkInitData(b.initData);
     if (!user) return send(res, 401, { error: 'auth' });
     if (db.banned[user.id]) return send(res, 403, { error: 'banned' });
-    db.lim = db.lim || {};
-    const dup = [], take = Array.isArray(b.take) ? b.take.slice(0, 50) : [];
-    take.forEach(t => {
-      const nm = String(t && t[0] || '').slice(0, 40), n = Math.floor(Number(t && t[1]));
-      if (!nm || !(n >= 1 && n <= 100000)) return;
-      const o = db.lim[nm] = db.lim[nm] || {};
-      if (o[n] && o[n] !== user.id) dup.push([nm, n]); else o[n] = user.id;
-    });
-    if (take.length) saveDb();
-    const lim = {};
-    for (const [k, o] of Object.entries(db.lim)) lim[k] = Object.keys(o).map(Number);
-    return send(res, 200, { lim, dup });
+    const dup = A.takeNums(b.take, user.id), out = {};
+    if (b.buy) { const r = A.buyEd(String(b.buy).slice(0, 40), user.id); Object.assign(out, r); }
+    else if (Array.isArray(b.take) && b.take.length) saveDb();
+    return send(res, 200, { ...out, lim: A.limMap(), ed: A.edMap(), dup });
+  }
+  // 4c) Статус игры: технический перерыв включается в админ-меню бота. Админы заходят и во время перерыва.
+  if (url === '/status' && req.method === 'POST') {
+    const b = await readBody(req), user = checkInitData(b.initData);
+    return send(res, 200, { maint: !!db.maint.on, msg: db.maint.msg || '', admin: !!(user && ADMINS.includes(user.id)) });
   }
   if (url === '/top' && req.method === 'POST') {
     const b = await readBody(req), user = checkInitData(b.initData);
@@ -251,5 +256,5 @@ http.createServer(async (req, res) => {
   send(res, 404, { error: 'not found' });
 }).listen(PORT, async () => {
   console.log('listening', PORT);
-  if (PUBLIC_URL) console.log('setWebhook:', await tg('setWebhook', { url: PUBLIC_URL + '/bot', secret_token: WEBHOOK_SECRET, allowed_updates: ['message', 'pre_checkout_query'] }));
+  if (PUBLIC_URL) console.log('setWebhook:', await tg('setWebhook', { url: PUBLIC_URL + '/bot', secret_token: WEBHOOK_SECRET, allowed_updates: ['message', 'pre_checkout_query', 'callback_query'] }));
 });

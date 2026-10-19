@@ -20,10 +20,10 @@ function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
   h+=nftHead(it)+'<div class="tbl">'+nftRows(it,ownerH(),1)+'</div>'
   +'<button class="go" style="margin:0 0 8px;width:100%" onclick="sellOne2('+u+')">Продать за '+f(sv(it))+'</button>'
   +'<div class="bar" style="padding:0;display:flex;gap:8px"><button class="go gh" style="font-size:13px;flex:1" onclick="upOne('+u+')">В апгрейд</button><button class="go gh" style="font-size:13px;flex:1" onclick="closeSh();tab(3);mtb(5);msel('+u+')">На маркет</button></div>'}
- else{var can=!!g[4]&&limLeft(it.g)>0;
+ else{var can=!!g[4]&&(!!it.sn||limLeft(it.g)>0);
   h+='<div class="nfi" style="height:120px">'+gimg(it.g,112)+'</div><div class="h" style="font-size:22px">Подарок Вам</div>'
   +'<div class="at" style="text-align:center;padding:0 10px">Вы можете хранить этот подарок'+(can?', улучшить его':'')+' или обменять на '+f(sv(it))+' GRADE (комиссия '+Math.round((1-ECO.sell)*100)+'%).</div>'
-  +'<div class="tbl">'+tbr("От",'<span class="oav">N</span>NFT GRADE')+tbr("Дата",fdt(it.d))
+  +'<div class="tbl">'+tbr("От",'<span class="oav">N</span>NFT GRADE')+tbr("Дата",fdt(it.d))+(it.sn?tbr("Номер при улучшении","#"+f(it.sn)+' <span class="lmb">ЛИМИТКА</span>'):'')
   +tbr("Рыночная цена",ic("coin",14)+f(g[3])+' <button class="lk" onclick="sellOne2('+u+')">продать за '+f(sv(it))+' GRADE</button>')+(can?tbr("После улучшения","≈ "+ic("coin",14)+f(tv(it.g))+' <small class="mu">зависит от модели, фона и узора</small>'):'')
   +tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(LIM[g[0]]?' <span class="lmb">ЛИМИТКА</span>':''))
   +tbr("Статус","Неуникальный")+'</div>'
@@ -32,7 +32,7 @@ function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
  $("sh").innerHTML=h;$("sheet").className="ov end on"}
 function hideG(u){var x=S.inv.filter(function(y){return y.u==u})[0];if(!x)return;x.hid=!x.hid;save();render();itemSheet(x)}
 function upCost(it){return Math.max(10,Math.round(G[it.g][3]*ECO.upk))}
-function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;if(limLeft(it.g)<=0){toast("Тираж исчерпан");return}var c=upCost(it),ok=S.bal>=c;
+function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;if(!it.sn&&limLeft(it.g)<=0){toast("Тираж исчерпан");return}var c=upCost(it),ok=S.bal>=c;
  var fe=function(ic2,t,d){return '<div class="feat">'+ic2+'<div><b>'+t+'</b><span>'+d+'</span></div></div>'};
  var I1='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-6M12 21L9 9M12 21l3-12"/></svg>';
  var I2='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
@@ -42,8 +42,8 @@ function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up
   +'<div class="tbl">'+tbr("Улучшение",ic("coin",14)+f(c)+" GRADE")+tbr("Ваш баланс",ic("coin",14)+f(S.bal))+'</div>'
   +'<button class="go bigb" '+(ok?'':'disabled')+' onclick="gUpDo('+u+')">'+(ok?'Улучшить за '+f(c)+' '+UPI:'Не хватает GRADE')+'</button><button class="go gh" style="margin:0;width:100%" onclick="sheet('+u+')">Назад</button>';
  $("sheet").className="ov end on"}
-function gUpDo(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;if(limLeft(it.g)<=0){toast("Тираж исчерпан");return}var c=upCost(it);if(S.bal<c){toast("Не хватает GRADE");return}
- S.bal-=c;var n=mkItem(it.g,1);it.n=n.n;it.m=n.m;it.s=n.s;it.b=n.b;it.up=1;it.d=Date.now();bpAdd("nft",1);save();render();upAnim(it)}
+function gUpDo(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;if(!it.sn&&limLeft(it.g)<=0){toast("Тираж исчерпан");return}var c=upCost(it);if(S.bal<c){toast("Не хватает GRADE");return}
+ S.bal-=c;var n=mkItem(it.g,1,it.sn);delete it.sn;it.n=n.n;it.m=n.m;it.s=n.s;it.b=n.b;it.up=1;it.d=Date.now();bpAdd("nft",1);save();render();upAnim(it)}
 var UA=null;
 function upAnim(it){if(UA){clearInterval(UA);UA=null}
  var reduce=false;try{reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches}catch(e){}

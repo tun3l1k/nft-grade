@@ -5,7 +5,7 @@ var PC={},PI={},PID=0,PVU=null,PVT=1,PVF=0;
 function hsh(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 function rngf(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function swp(r,w){var s=0,i;for(i=0;i<w.length;i++)s+=w[i];var x=r()*s;for(i=0;i<w.length;i++){x-=w[i];if(x<0)return i}return 0}
-var GR=null;function gByR(){if(!GR){GR=[[],[],[],[]];G.forEach(function(x,i){if(!x[6]&&!x[7]&&!x[5]&&GR[x[2]])GR[x[2]].push(i)})}return GR}
+var GR=null;function gByR(){if(!GR){GR=[[],[],[],[]];G.forEach(function(x,i){if(!x[6]&&!x[7]&&!x[5]&&!LIM[x[0]]&&GR[x[2]])GR[x[2]].push(i)})}return GR}
 function pvName(u){return PD_NAME[u]||u}
 function pvAv(u,sz,fs){var h=hsh(u)%360;return '<span class="pvo" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+pvName(u).charAt(0).toUpperCase()+'</span>'}
 function pvItemMk(r,g,from,when){var up=G[g][4]&&!LIM[G[g][0]]&&r()<(G[g][2]>=1?.75:.45)?1:0;var it={id:++PID,g:g,up:up,n:up?1+Math.floor(r()*nmax(g)):0,m:up?swp(r,MP):0,s:up?swp(r,SP):0,b:up?swp(r,BP):0,d:when,from:from,u:PID};return it}
