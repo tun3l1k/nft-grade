@@ -11,8 +11,8 @@ function rPf(){
 function tbr(k,v){return '<div class="r"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'}
 function pcb(p){return '<span class="pc">'+p+'%</span>'}
 function fdt(t){return t?new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(","," в"):"—"}
-function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(PS(it.g,it.s)+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi'+(it.m==5?' mono':'')+'">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+' <span class="nno">#'+f(it.n)+'</span></div><div class="nfs">'+MN(it.g,it.m)+'</div></div>'}
-function nftRows(it,owner,own){var sp=supply(it.g),lm=LIM[G[it.g][0]],be=nbe(it.n);return tbr("Владелец",owner)+tbr("Модель",MN(it.g,it.m)+pcb(MP[it.m]))+tbr("Узор",PN(it.g,it.s)+pcb(SP[it.s]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Номер","#"+f(it.n)+(be?" · "+be[0]:"")+' <span class="pc">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</span>')+tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(lm?' <span class="lmb">ЛИМИТКА</span>':''))+tbr("Надбавка за редкость","+"+Math.round((umul(it)-1)*100)+"%")+tbr("Рыночная цена",ic("coin",14)+f(pr(it)))+(own?tbr("Быстрая продажа",ic("coin",14)+f(sv(it))+' <small class="mu">комиссия '+Math.round((1-ECO.sell)*100)+'%</small>'):'')}
+function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(PS(it.g,it.s)+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi'+(ismono(it)?' mono':'')+'"'+(hasMo(it)&&(mrow(it)[3]&2)?' data-tgs="'+murl(it.g,it.mo,"tgs")+'"':'')+'>'+mimg(it,132)+'</div><div class="h" style="font-size:22px">'+g[0]+' <span class="nno">#'+f(it.n)+'</span></div><div class="nfs">'+mname(it)+'</div></div>'}
+function nftRows(it,owner,own){var sp=supply(it.g),lm=LIM[G[it.g][0]],be=nbe(it.n);return tbr("Владелец",owner)+tbr("Модель",mname(it)+pcb(mpct(it)))+tbr("Узор",PN(it.g,it.s)+pcb(SP[it.s]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Номер","#"+f(it.n)+(be?" · "+be[0]:"")+' <span class="pc">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</span>')+tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(lm?' <span class="lmb">ЛИМИТКА</span>':''))+tbr("Надбавка за редкость","+"+Math.round((umul(it)-1)*100)+"%")+tbr("Рыночная цена",ic("coin",14)+f(pr(it)))+(own?tbr("Быстрая продажа",ic("coin",14)+f(sv(it))+' <small class="mu">комиссия '+Math.round((1-ECO.sell)*100)+'%</small>'):'')}
 function ownerH(){var nm=tgName();return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
 var UPI='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(255,255,255,.2)"/><path d="M8 11l4-4 4 4M8 16l4-4 4 4"/></svg>';
 function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
@@ -43,23 +43,23 @@ function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up
   +'<button class="go bigb" '+(ok?'':'disabled')+' onclick="gUpDo('+u+')">'+(ok?'Улучшить за '+f(c)+' '+UPI:'Не хватает GRADE')+'</button><button class="go gh" style="margin:0;width:100%" onclick="sheet('+u+')">Назад</button>';
  $("sheet").className="ov end on"}
 function gUpDo(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;if(!it.sn&&limLeft(it.g)<=0){toast("Тираж исчерпан");return}var c=upCost(it);if(S.bal<c){toast("Не хватает GRADE");return}
- S.bal-=c;var n=mkItem(it.g,1,it.sn);delete it.sn;it.n=n.n;it.m=n.m;it.s=n.s;it.b=n.b;it.up=1;it.d=Date.now();bpAdd("nft",1);save();render();upAnim(it)}
+ S.bal-=c;var n=mkItem(it.g,1,it.sn);delete it.sn;it.n=n.n;it.m=n.m;it.mo=n.mo;it.s=n.s;it.b=n.b;it.up=1;it.d=Date.now();bpAdd("nft",1);save();render();upAnim(it)}
 var UA=null;
 function upAnim(it){if(UA){clearInterval(UA);UA=null}
  var reduce=false;try{reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches}catch(e){}
- var fin=function(){vib();sfx("r2");burst(it.b>=3||it.m==5?70:44,[BG[it.b],"#ffd54a","#fff"]);itemSheet(it)};
+ var fin=function(){vib();sfx("r2");burst(it.b>=3||ismono(it)||mrare(it)?70:44,[BG[it.b],"#ffd54a","#fff"]);itemSheet(it)};
  if(reduce){fin();return}
- var g=G[it.g],sp=supply(it.g);shown=it.u;
+ var g=G[it.g],sp=supply(it.g);shown=it.u;if(hasMo(it)&&(mrow(it)[3]&1)){var pi=new Image();pi.src=murl(it.g,it.mo,"webp")}
  $("sh").innerHTML='<div class="nfh" id="ua_h" style="--c:'+BG[rnd(BG.length)]+'"><i class="npt" id="ua_p"></i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi ufl" id="ua_i">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs" id="ua_t">Улучшение подарка…</div></div>'
   +'<div class="tbl">'+tbr("Владелец",ownerH())+tbr("Модель",'<span id="ua_m">…</span>')+tbr("Узор",'<span id="ua_s">…</span>')+tbr("Фон",'<span id="ua_b">…</span>')+tbr("Рыночная цена",'<span id="ua_v">…</span>')+tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(LIM[g[0]]?' <span class="lmb">ЛИМИТКА</span>':''))+'</div><div class="mu" style="text-align:center;padding-bottom:6px">Определяем уникальные свойства…</div>';
  $("sheet").className="ov end on";
  var t0=Date.now(),lk={m:0,s:0,b:0},tk=0,pt=function(sym){$("ua_p").textContent=Array(90).join(sym+" ")};
  UA=setInterval(function(){var H=$("ua_h");if(!H||shown!=it.u){clearInterval(UA);UA=null;return}
   var e=Date.now()-t0;tk++;if(tk%3==0)sfx("tick");
-  if(!lk.m){if(e>=1400){lk.m=1;$("ua_m").innerHTML=MN(it.g,it.m)+pcb(MP[it.m]);$("ua_i").classList.remove("ufl");$("ua_i").classList.add("upop");vib()}else $("ua_m").textContent=MN(it.g,rnd(6))}
+  if(!lk.m){if(e>=1400){lk.m=1;$("ua_m").innerHTML=mname(it)+pcb(mpct(it));if(hasMo(it))$("ua_i").innerHTML=mimg(it,132);$("ua_i").classList.remove("ufl");$("ua_i").classList.add("upop");vib()}else $("ua_m").textContent=gmOf(it.g)?gmOf(it.g).m[rnd(gmOf(it.g).m.length)][0]:MN(it.g,rnd(6))}
   if(!lk.s){if(e>=2000){lk.s=1;$("ua_s").innerHTML=PN(it.g,it.s)+pcb(SP[it.s]);pt(PS(it.g,it.s))}else{var k=rnd(5);$("ua_s").textContent=PN(it.g,k);pt(PS(it.g,k))}}
   if(!lk.b){if(e>=2600){lk.b=1;$("ua_b").innerHTML=BN[it.b]+pcb(BP[it.b]);H.style.setProperty("--c",BG[it.b])}else{var q=rnd(BG.length);$("ua_b").textContent=BN[q];H.style.setProperty("--c",BG[q])}}
-  if(e>=3000){clearInterval(UA);UA=null;$("ua_t").textContent=MN(it.g,it.m);$("ua_v").innerHTML=ic("coin",14)+f(pr(it));
-   vib();sfx("r2");burst(it.b>=3||it.m==5?70:44,[BG[it.b],"#ffd54a","#fff"]);toast("Подарок улучшен: "+g[0]+" #"+it.n);
+  if(e>=3000){clearInterval(UA);UA=null;$("ua_t").textContent=mname(it);$("ua_v").innerHTML=ic("coin",14)+f(pr(it));
+   vib();sfx("r2");burst(it.b>=3||ismono(it)||mrare(it)?70:44,[BG[it.b],"#ffd54a","#fff"]);toast("Подарок улучшен: "+g[0]+" #"+it.n);
    setTimeout(function(){if(shown==it.u&&$("ua_h"))itemSheet(it)},900)}
  },90)}

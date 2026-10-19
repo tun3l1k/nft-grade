@@ -8,7 +8,7 @@ function swp(r,w){var s=0,i;for(i=0;i<w.length;i++)s+=w[i];var x=r()*s;for(i=0;i
 var GR=null;function gByR(){if(!GR){GR=[[],[],[],[]];G.forEach(function(x,i){if(!x[6]&&!x[7]&&!x[5]&&!LIM[x[0]]&&GR[x[2]])GR[x[2]].push(i)})}return GR}
 function pvName(u){return PD_NAME[u]||u}
 function pvAv(u,sz,fs){var h=hsh(u)%360;return '<span class="pvo" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+pvName(u).charAt(0).toUpperCase()+'</span>'}
-function pvItemMk(r,g,from,when){var up=G[g][4]&&!LIM[G[g][0]]&&r()<(G[g][2]>=1?.75:.45)?1:0;var it={id:++PID,g:g,up:up,n:up?1+Math.floor(r()*nmax(g)):0,m:up?swp(r,MP):0,s:up?swp(r,SP):0,b:up?swp(r,BP):0,d:when,from:from,u:PID};return it}
+function pvItemMk(r,g,from,when){var up=G[g][4]&&!LIM[G[g][0]]&&r()<(G[g][2]>=1?.75:.45)?1:0;var it={id:++PID,g:g,up:up,n:up?1+Math.floor(r()*nmax(g)):0,m:0,mo:-1,s:up?swp(r,SP):0,b:up?swp(r,BP):0,d:when,from:from,u:PID};if(up){var q=gmOf(g),x=r()*100,t=0;if(q)for(var j=0;j<q.m.length;j++){t+=q.m[j][1];if(x<t){it.mo=j;break}}if(it.mo<0)it.m=swp(r,MP)}return it}
 function genP(u){var b=BTm[u],h=hsh(u),r=rngf(h),val=b[1],tier=val>=150000?3:val>=60000?2:val>=20000?1:0;
  var W=[[60,28,10,2],[48,32,15,5],[36,34,21,9],[24,32,28,16]][tier],now=Date.now(),a=[],sum=0,names=BT.map(function(x){return x[0]}).filter(function(x){return x!=u});
  for(var k=0;k<130;k++){var rem=val-sum;if(rem<18)break;var g=-1;
@@ -44,7 +44,7 @@ function pvShield(l){return '<svg width="18" height="20" viewBox="0 0 24 26"><pa
 function pvTitle(P){var b=P.b;return b[3]>=6?"Легенда":b[1]>=80000?"Магнат":b[1]>=20000?"Коллекционер":b[2]>=3?"Везунчик":"Новичок"}
 function pvAgo(t){var m=Math.max(0,Math.round((Date.now()-t)/6e4));if(m<1)return"только что";if(m<60)return m+" мин назад";var h=Math.round(m/60);if(h<24)return h+" ч назад";return Math.round(h/24)+" дн назад"}
 function pvGift(x,P,focus){var n=!!x.up,c=n?BG[x.b]:"#7f91a4",h=hsh(x.from)%360;
- return '<div class="gc'+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')"><span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?'<span class="gn" style="background:'+c+'">#'+x.n+'</span>':'')+gimg(x.g,60)+'<small>'+(x.id==focus?"только что":f(pr(x)))+'</small></div>'}
+ return '<div class="gc'+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')"><span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?'<span class="gn" style="background:'+c+'">#'+x.n+'</span>':'')+(n?mimg(x,60):gimg(x.g,60))+'<small>'+(x.id==focus?"только что":f(pr(x)))+'</small></div>'}
 function pvBody(){var P=getP(PVU),el=$("pvbody");if(!P||!el)return;
  var a=P.gifts.slice().sort(function(p,q){return(q.id==PVF)-(p.id==PVF)||pr(q)-pr(p)});
  el.innerHTML=PVT==1?'<div class="grid pvg">'+a.map(function(x){return pvGift(x,P,PVF)}).join("")+'</div>'
@@ -100,5 +100,5 @@ function pvSendSheet(){var a=S.inv.slice().sort(function(x,y){return pr(y)-pr(x)
  $("sheet").className="ov end on"}
 function pvSendGo(){if(PVS==null)return;var x=S.inv.filter(function(y){return y.u==PVS})[0];if(!x)return;var P=getP(PVU);
  S.inv=S.inv.filter(function(y){return y.u!=PVS});isel={};
- var it={id:++PID,g:x.g,up:x.up,n:x.n,m:x.m,s:x.s,b:x.b,d:Date.now(),from:"Вы",u:PID};P.gifts.unshift(it);PI[it.id]=[PVU,it];PVF=it.id;
+ var it={id:++PID,g:x.g,up:x.up,n:x.n,m:x.m,mo:x.mo,s:x.s,b:x.b,d:Date.now(),from:"Вы",u:PID};P.gifts.unshift(it);PI[it.id]=[PVU,it];PVF=it.id;
  S.hist.unshift({t:"Подарено",n:G[x.g][0]+(x.up?" #"+x.n:"")+" → @"+PVU,p:0});PVS=null;closeSh();vib();sfx("r2");burst(30,["#2aabee","#fff","#ffd54a"]);toast("Подарок отправлен @"+PVU);save();render();pvRender()}
