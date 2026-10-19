@@ -256,9 +256,9 @@ details.dt{margin:8px 12px;background:var(--pn);border-radius:16px}details.dt su
 </div>
 
 <div id="p3" class="pg">
- <div class="si"><svg class="i" width="18" height="18" viewBox="0 0 24 24" id="s1"></svg><input id="mq" placeholder="Поиск лота" oninput="mqs(this.value)"></div>
- <div class="chips" id="mch"></div><div id="mflt"><div class="chips" id="mrar"></div><div class="fl"><input id="fmin" placeholder="от" inputmode="numeric" oninput="mfs()"><input id="fmax" placeholder="до" inputmode="numeric" oninput="mfs()"><select id="fser" onchange="mfs()"></select><select id="fsort" onchange="mfs()"><option value="0">Цена ↑</option><option value="1">Цена ↓</option><option value="2">Скоро конец</option></select></div></div>
- <div id="mlist"></div><button class="sendb" id="msb" onclick="mtb(5)">Продать</button><p class="note">Лоты, ставки и игроки пока тестовые. Чтобы выставить подарок, запустить аукцион или подарить по юзернейму, нажмите «Продать» внизу.</p>
+ <div class="mhd"><div class="si"><svg class="i" width="18" height="18" viewBox="0 0 24 24" id="s1"></svg><input id="mq" placeholder="Поиск подарка или номера" oninput="mqs(this.value)"></div><button class="mfb" id="mfb" onclick="mflt()">Фильтры</button></div>
+ <div class="chips" id="mch"></div><div id="mflt"><div class="chips" id="mrar"></div><div class="fl"><input id="fmin" placeholder="от" inputmode="numeric" oninput="mfs()"><input id="fmax" placeholder="до" inputmode="numeric" oninput="mfs()"><select id="fser" onchange="mfs()"></select><select id="fsort" onchange="mfs()"><option value="0">Дешевле</option><option value="1">Дороже</option><option value="4">Новые</option><option value="3">Меньше номер</option><option value="2">Скоро конец</option></select></div></div>
+ <div id="mlist"></div><button class="sendb" id="msb" onclick="mtb(5)">Продать</button><p class="note">Лоты, ставки и игроки пока тестовые. Во вкладке «Лимитки» можно выпустить NFT с уникальным номером. Чтобы выставить подарок, запустить аукцион или подарить по юзернейму, нажмите «Продать» внизу.</p>
 </div>
 
 <div id="p4" class="pg">
@@ -459,8 +459,12 @@ IM["Xmas Stocking"]='<image href="img/xmas-stocking.webp" width="100" height="10
 IM["Sleigh Bell"]='<image href="img/sleigh-bell.webp" width="100" height="100"/>';
 var NI=[];G.forEach(function(g,i){if(g[4]&&!g[6]&&!LIM[g[0]])NI.push(i)});
 var CS=[{n:"Подарок дня",p:0,e:"🎁",w:[94,6,0,0],c:"#2b3a66,#4a5fd0",cat:"Бесплатные",free:1},{n:"Мелочь",p:250,e:"🍬",w:[80,20,0,0],c:"#7a3ea8,#d968c0",cat:"Дешёвые"},{n:"Старт",p:530,e:"📦",w:[70,25,5,0],c:"#1d6fb8,#2aabee",cat:"Дешёвые"},{n:"Премиум",p:2100,e:"🎀",w:[35,40,22,3],c:"#5b3fc4,#a78bfa",cat:"Популярные"},{n:"NFT-кейс",p:3600,e:"💠",w:[20,40,32,8],c:"#0f7f86,#4be0c8",cat:"Популярные"},{n:"Легенда",p:6000,e:"👑",w:[0,30,55,15],c:"#a8691a,#ffd54a",cat:"Дорогие"},{n:"Хэллоуин",p:1950,e:"🎃",w:[40,35,20,5],c:"#7a2d00,#ff7a00",cat:"События",ev:1},{n:"Новый год",p:840,e:"🎄",w:[40,35,20,5],c:"#0f5c3a,#d94a4a",cat:"События",ev:2},{n:"Мифик",p:10800,e:"🐉",w:[0,10,50,40],c:"#8a1f2f,#ff6b6b",cat:"Дорогие"},{"n":"Копилка","p":70,"e":"🐷","w":[100,0,0,0],"c":"#2f6b46,#7fd88a","cat":"Дешёвые"},{"n":"Сладости","p":210,"e":"🍰","w":[65,35,0,0],"c":"#b5527a,#ffb3d1","cat":"Дешёвые","pool":[1,3,9,10]},{"n":"Любовь","p":530,"e":"💘","w":[55,45,0,0],"c":"#a31d4a,#ff6f9c","cat":"Дешёвые","pool":[2,4,7,11,31]},{"n":"Огонёк 50/50","p":145,"e":"🔥","w":[50,50,0,0],"c":"#a8300f,#ffb347","cat":"50/50","pool":[1,32]},{"n":"Шапка 50/50","p":6600,"e":"🧢","w":[50,0,0,50],"c":"#1d6fb8,#4be0c8","cat":"50/50","pool":[6,14]},{"n":"Оскар 50/50","p":5600,"e":"🥇","w":[50,0,0,50],"c":"#0f5c3a,#7fd88a","cat":"50/50","pool":[2,17]},{"n":"Космос","p":3400,"e":"🪐","w":[50,0,45,5],"c":"#1b1f5e,#6a5cff","cat":"Популярные","pool":[5,8,12,16,17]},{"n":"Джекпот","p":680,"e":"🎰","w":[97,0,0,3],"c":"#8a1f2f,#ffb347","cat":"Популярные"},{"n":"Золотой","p":4700,"e":"🏅","w":[0,45,45,10],"c":"#8a5a00,#ffe27a","cat":"Дорогие"},{"n":"Элита","p":9600,"e":"🦄","w":[0,0,70,30],"c":"#3b1f6e,#ff8bd8","cat":"Дорогие"}];
+/* Модели и узоры у каждого подарка свои: название берётся из этих списков по номеру подарка (см. MN, PN, PS в shop.js).
+   Модель 5 всегда Monochrome. Фоны общие для всех подарков, как в Telegram. */
+var MPOOL=["Chicken","Tiger","Panda","Frog","Fox","Owl","Wolf","Bunny","Koala","Penguin","Dragon","Phoenix","Unicorn","Robot","Alien","Ghost","Pirate","Wizard","Samurai","Ninja","Astronaut","Cowboy","Viking","Knight","Mermaid","Vampire","Zombie","Angel","Devil","Clown","Chef","Racer","Pilot","Sailor","Rocker","Disco","Retro","Neon Glow","Frozen","Lava","Jungle","Desert","Ocean","Sunset","Midnight","Candy","Cyber","Royal"];
+var PPOOL=[["Cat Mask","🐱"],["Stars","⭐"],["Hearts","❤️"],["Clover","🍀"],["Moons","🌙"],["Skulls","💀"],["Flames","🔥"],["Snowflakes","❄️"],["Bolts","⚡"],["Crowns","👑"],["Diamonds","💎"],["Bows","🎀"],["Leaves","🍃"],["Eyes","👁"],["Bubbles","🫧"],["Paws","🐾"],["Notes","🎵"],["Rockets","🚀"],["Cherries","🍒"],["Butterflies","🦋"],["Daisies","🌼"],["Suns","☀️"],["Clouds","☁️"],["Anchors","⚓"],["Keys","🗝"],["Bells","🔔"],["Dice","🎲"],["Mushrooms","🍄"],["Waves","🌊"],["Spades","♠️"]];
 var MD=["Классика","Неон","Золото","Лёд","Огонь","Монохром"],SY=["★","✦","❖","✿","☾","◐"],BG=["#1d6fb8","#7b4bd6","#c0392b","#1f8f6a","#b7791f","#2a2b33","#0a0a0d"];
-var BN=["Синий","Фиолетовый","Красный","Зелёный","Золотой","Чёрный","Чёрный оникс"],SN=["Звезда","Искра","Кристалл","Цветок","Луна"],MP=[37,27,19,11,4.5,1.5],BP=[33,25,19,12,7,3.5,.5],SP=[32,28,20,13,7];
+var BN=["Pacific Blue","Amethyst","Crimson","Emerald","Golden","Black","Onyx Black"],SN=["Звезда","Искра","Кристалл","Цветок","Луна"],MP=[37,27,19,11,4.5,1.5],BP=[33,25,19,12,7,3.5,.5],SP=[32,28,20,13,7];
 var BT=[["crypto_wolf",376000,24,9],["nft_queen",244000,19,6],["tonfan",152000,15,4],["alex_t",88000,12,3],["mari",60000,9,2],["dima99",36000,7,1],["kira",20800,5,1],["neo",9600,3,0]];
 var IC={box:'<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',layers:'<path d="M4 8l8-4 8 4-8 4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/>',up:'<path d="M6 13l6-6 6 6M6 19l6-6 6 6"/>',bag:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',coin:'<circle cx="12" cy="12" r="9"/><path d="M8 14l4-4 4 4"/>'};
 IC.gear='<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
@@ -547,6 +551,11 @@ function lvl(){return lvInfo()[0]}
 function cv(){return S.inv.reduce(function(a,x){return a+pr(x)},0)}
 function wp(a){var x=Math.random()*100,t=0;for(var i=0;i<a.length;i++){t+=a[i];if(x<t)return i}return 0}
 /* надбавка за малый номер считается от тиража D: первые 0,1% номеров x2,5, до 1% x1,5, до 10% x1,12 (для тиража 10 000 это номера до 10, до 100 и до 1000; первый номер всегда в первой группе) */
+/* название и значок модели/узора конкретного подарка */
+function MN(g,i){if(i==5)return"Monochrome";var N=MPOOL.length;return MPOOL[((g*7+3)%N+[5,7,11,13,17,19,23,25][g%8]*i)%N]}
+function PP(g,i){var N=PPOOL.length;return PPOOL[((g*5+1)%N+[7,11,13,17,19,23,29][g%7]*i)%N]}
+function PN(g,i){return PP(g,i)[0]}
+function PS(g,i){return PP(g,i)[1]}
 function nbm(n,D){return n<=Math.max(1,Math.round(D*.001))?2.5:n<=Math.max(1,Math.round(D*.01))?1.5:n<=Math.max(1,Math.round(D*.1))?1.12:1}
 /* красивый номер: [название, множитель] или null */
 function nbe(n){var s=String(n);if(n>=11&&/^(\d)\1+$/.test(s))return["Одинаковые цифры",PRM.nb.rep];if(n>=1000&&n%1000==0)return["Круглый номер",PRM.nb.rnd];if(n>=1000&&("0123456789".indexOf(s)>=0||"9876543210".indexOf(s)>=0))return["Лесенка",PRM.nb.seq];if(n>=101&&s==s.split("").reverse().join(""))return["Палиндром",PRM.nb.pal];return null}
@@ -576,12 +585,12 @@ function vib(){if(!S.set.vib)return;try{var h=window.Telegram&&Telegram.WebApp&&
 document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("button"))vib()});
 function toast(t){var d=$("toast");d.textContent=t;d.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){d.style.display="none"},2500)}
 function tile(it,cls,oc,inf){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";
- return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(SY[it.s]+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(n&&it.m==5?' mono':'')+'">'+gimg(it.g,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
+ return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(n&&it.m==5?' mono':'')+'">'+gimg(it.g,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
 function gtile(i,cls,oc){var g=G[i],n=g[4],c=n?BG[i%5]:"#7f91a4";return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'"><b class="im">'+gimg(i,52)+'</b><small>'+g[0]+'</small><em>'+(n?"≈ ":"")+f(n?tv(i):g[3])+'</em></div>'}
 function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+gimg(it.g,108)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
-function atxt(it){return it.up?"Номер #"+it.n+" · "+MD[it.m]+" · "+BN[it.b]+" · "+SN[it.s]:"Подарок · можно улучшить"}
+function atxt(it){return it.up?"Номер #"+it.n+" · "+MN(it.g,it.m)+" · "+BN[it.b]+" · "+PN(it.g,it.s):"Подарок · можно улучшить"}
 function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6px 0"><span>'+l+'</span><span>'+nm+' · '+p+'% <small style="display:inline;color:var(--mu)">×'+m.toFixed(2)+'</small></span></div>'}
- return '<div class="sbox" style="margin:8px 0">'+r("Модель",MD[it.m],MP[it.m],1+PRM.m[it.m])+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",SN[it.s],SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
+ return '<div class="sbox" style="margin:8px 0">'+r("Модель",MN(it.g,it.m),MP[it.m],1+PRM.m[it.m])+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",PN(it.g,it.s),SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
 
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");
@@ -851,8 +860,8 @@ function rPf(){
 function tbr(k,v){return '<div class="r"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'}
 function pcb(p){return '<span class="pc">'+p+'%</span>'}
 function fdt(t){return t?new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(","," в"):"—"}
-function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(SY[it.s]+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi'+(it.m==5?' mono':'')+'">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs">Коллекционный подарок #'+it.n+'</div></div>'}
-function nftRows(it,owner,own){var sp=supply(it.g),lm=LIM[G[it.g][0]],be=nbe(it.n);return tbr("Владелец",owner)+tbr("Модель",MD[it.m]+pcb(MP[it.m]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Узор",SN[it.s]+pcb(SP[it.s]))+tbr("Надбавка за редкость","+"+Math.round((umul(it)-1)*100)+"%")+tbr("Номер","#"+it.n+(be?" · "+be[0]:"")+' <span class="pc">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</span>')+tbr("Рыночная цена",ic("coin",14)+f(pr(it)))+(own?tbr("Быстрая продажа",ic("coin",14)+f(sv(it))+' <small class="mu">комиссия '+Math.round((1-ECO.sell)*100)+'%</small>'):'')+tbr(lm?"Лимитка":"Количество",f(sp[0])+", выпущено "+f(sp[1]))}
+function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(PS(it.g,it.s)+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi'+(it.m==5?' mono':'')+'">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+' <span class="nno">#'+f(it.n)+'</span></div><div class="nfs">'+MN(it.g,it.m)+'</div></div>'}
+function nftRows(it,owner,own){var sp=supply(it.g),lm=LIM[G[it.g][0]],be=nbe(it.n);return tbr("Владелец",owner)+tbr("Модель",MN(it.g,it.m)+pcb(MP[it.m]))+tbr("Узор",PN(it.g,it.s)+pcb(SP[it.s]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Номер","#"+f(it.n)+(be?" · "+be[0]:"")+' <span class="pc">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</span>')+tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(lm?' <span class="lmb">ЛИМИТКА</span>':''))+tbr("Надбавка за редкость","+"+Math.round((umul(it)-1)*100)+"%")+tbr("Рыночная цена",ic("coin",14)+f(pr(it)))+(own?tbr("Быстрая продажа",ic("coin",14)+f(sv(it))+' <small class="mu">комиссия '+Math.round((1-ECO.sell)*100)+'%</small>'):'')}
 function ownerH(){var nm=tgName();return '<span class="oav">'+nm.charAt(0).toUpperCase()+'</span>'+nm}
 var UPI='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(255,255,255,.2)"/><path d="M8 11l4-4 4 4M8 16l4-4 4 4"/></svg>';
 function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
@@ -865,7 +874,7 @@ function itemSheet(it){var u=it.u,g=G[it.g],sp=supply(it.g),h="";shown=u;
   +'<div class="at" style="text-align:center;padding:0 10px">Вы можете хранить этот подарок'+(can?', улучшить его':'')+' или обменять на '+f(sv(it))+' GRADE (комиссия '+Math.round((1-ECO.sell)*100)+'%).</div>'
   +'<div class="tbl">'+tbr("От",'<span class="oav">N</span>NFT GRADE')+tbr("Дата",fdt(it.d))
   +tbr("Рыночная цена",ic("coin",14)+f(g[3])+' <button class="lk" onclick="sellOne2('+u+')">продать за '+f(sv(it))+' GRADE</button>')+(can?tbr("После улучшения","≈ "+ic("coin",14)+f(tv(it.g))+' <small class="mu">зависит от модели, фона и узора</small>'):'')
-  +tbr("Наличие",f(sp[0]-sp[1])+" из "+f(sp[0]))
+  +tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(LIM[g[0]]?' <span class="lmb">ЛИМИТКА</span>':''))
   +tbr("Статус","Неуникальный")+'</div>'
   +'<div class="hv">'+(it.hid?'Подарок скрыт из профиля. ':'Подарок виден в профиле. ')+'<a href="#" onclick="hideG('+u+');return false">'+(it.hid?'Показать':'Скрыть')+' ›</a></div>'
   +(can?'<button class="go bigb" onclick="gUp('+u+')">Улучшить '+UPI+'</button><button class="go gh" style="margin:8px 0 0;width:100%" onclick="upOne('+u+')">В апгрейд</button>':'<button class="go gh" style="margin:0;width:100%" onclick="closeSh()">Закрыть</button>')}
@@ -891,15 +900,15 @@ function upAnim(it){if(UA){clearInterval(UA);UA=null}
  if(reduce){fin();return}
  var g=G[it.g],sp=supply(it.g);shown=it.u;
  $("sh").innerHTML='<div class="nfh" id="ua_h" style="--c:'+BG[rnd(BG.length)]+'"><i class="npt" id="ua_p"></i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi ufl" id="ua_i">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs" id="ua_t">Улучшение подарка…</div></div>'
-  +'<div class="tbl">'+tbr("Владелец",ownerH())+tbr("Модель",'<span id="ua_m">…</span>')+tbr("Фон",'<span id="ua_b">…</span>')+tbr("Узор",'<span id="ua_s">…</span>')+tbr("Рыночная цена",'<span id="ua_v">…</span>')+tbr("Количество",f(sp[0])+", выпущено "+f(sp[1]))+'</div><div class="mu" style="text-align:center;padding-bottom:6px">Определяем уникальные свойства…</div>';
+  +'<div class="tbl">'+tbr("Владелец",ownerH())+tbr("Модель",'<span id="ua_m">…</span>')+tbr("Узор",'<span id="ua_s">…</span>')+tbr("Фон",'<span id="ua_b">…</span>')+tbr("Рыночная цена",'<span id="ua_v">…</span>')+tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(LIM[g[0]]?' <span class="lmb">ЛИМИТКА</span>':''))+'</div><div class="mu" style="text-align:center;padding-bottom:6px">Определяем уникальные свойства…</div>';
  $("sheet").className="ov end on";
  var t0=Date.now(),lk={m:0,s:0,b:0},tk=0,pt=function(sym){$("ua_p").textContent=Array(90).join(sym+" ")};
  UA=setInterval(function(){var H=$("ua_h");if(!H||shown!=it.u){clearInterval(UA);UA=null;return}
   var e=Date.now()-t0;tk++;if(tk%3==0)sfx("tick");
-  if(!lk.m){if(e>=1400){lk.m=1;$("ua_m").innerHTML=MD[it.m]+pcb(MP[it.m]);$("ua_i").classList.remove("ufl");$("ua_i").classList.add("upop");vib()}else $("ua_m").textContent=MD[rnd(MD.length)]}
-  if(!lk.s){if(e>=2000){lk.s=1;$("ua_s").innerHTML=SN[it.s]+pcb(SP[it.s]);pt(SY[it.s])}else{var k=rnd(5);$("ua_s").textContent=SN[k];pt(SY[k])}}
+  if(!lk.m){if(e>=1400){lk.m=1;$("ua_m").innerHTML=MN(it.g,it.m)+pcb(MP[it.m]);$("ua_i").classList.remove("ufl");$("ua_i").classList.add("upop");vib()}else $("ua_m").textContent=MN(it.g,rnd(6))}
+  if(!lk.s){if(e>=2000){lk.s=1;$("ua_s").innerHTML=PN(it.g,it.s)+pcb(SP[it.s]);pt(PS(it.g,it.s))}else{var k=rnd(5);$("ua_s").textContent=PN(it.g,k);pt(PS(it.g,k))}}
   if(!lk.b){if(e>=2600){lk.b=1;$("ua_b").innerHTML=BN[it.b]+pcb(BP[it.b]);H.style.setProperty("--c",BG[it.b])}else{var q=rnd(BG.length);$("ua_b").textContent=BN[q];H.style.setProperty("--c",BG[q])}}
-  if(e>=3000){clearInterval(UA);UA=null;$("ua_t").textContent="Коллекционный подарок #"+it.n;$("ua_v").innerHTML=ic("coin",14)+f(pr(it));
+  if(e>=3000){clearInterval(UA);UA=null;$("ua_t").textContent=MN(it.g,it.m);$("ua_v").innerHTML=ic("coin",14)+f(pr(it));
    vib();sfx("r2");burst(it.b>=3||it.m==5?70:44,[BG[it.b],"#ffd54a","#fff"]);toast("Подарок улучшен: "+g[0]+" #"+it.n);
    setTimeout(function(){if(shown==it.u&&$("ua_h"))itemSheet(it)},900)}
  },90)}
@@ -949,17 +958,35 @@ if(!S.mkt.length)for(var q=0;q<8;q++)S.mkt.push(bl());
 function mqs(v){mqv=v.toLowerCase();rMk()}
 function mtb(n){mtab=n;rMk()}
 function minBid(l){return l.by?l.p+stp(l.it.g):l.p}
-function rMk(){$("mch").innerHTML=["Все","Аукционы","Мои","Избранное","История"].map(function(t,i){return '<button class="chip'+(mtab==i?' on':'')+'" onclick="mtb('+i+')">'+t+'</button>'}).join("");
- $("mflt").style.display=mtab<4?"":"none";$("mrar").innerHTML=[["Любой фон",-1]].concat(BN.map(function(r,i){return[r,i]})).map(function(x){return '<button class="chip'+(mf.r==x[1]?" on":"")+'" onclick="mrs('+x[1]+')">'+x[0]+"</button>"}).join("")+(mf.sel?'<button class="chip on" onclick="msl(\'\')">@'+mf.sel+" ✕</button>":"");
+function mcard(l){var g=G[l.it.g],it=l.it,au=l.type=="auc",me=l.s=="you",fv=S.fav.indexOf(l.id)>=0,now=Date.now(),be=nbe(it.n),btn,bd="";
+ if(LIM[g[0]])bd+='<span class="mbd lim">ЛИМИТКА</span>';if(it.m==5)bd+='<span class="mbd">MONO</span>';if(be)bd+='<span class="mbd">★ '+be[0]+'</span>';if(au)bd+='<span class="mbd">'+fmtT(l.end-now)+'</span>';
+ if(me)btn=(au&&l.by)?'<button class="mb" disabled>Идут торги</button>':'<button class="mb" onclick="event.stopPropagation();unl('+l.id+')">'+f(l.p)+' · Снять</button>';
+ else if(au)btn=l.by=="you"?'<button class="mb" disabled>Вы лидируете</button>':'<button class="mb pri" '+(S.bal<minBid(l)?'disabled ':'')+'onclick="event.stopPropagation();bid('+l.id+')">Ставка '+f(minBid(l))+'</button>';
+ else btn='<button class="mb pri" '+(S.bal<l.p?'disabled ':'')+'onclick="event.stopPropagation();buy('+l.id+')">'+f(l.p)+' '+ic("coin",14)+'</button>';
+ return '<div class="mc" style="--c:'+BG[it.b]+'" onclick="lotSheet('+l.id+')"><i class="mpt">'+Array(70).join(PS(it.g,it.s)+" ")+'</i><div class="mtop"><span class="mbds">'+bd+'</span>'+(me?'':'<button class="mfv'+(fv?' on':'')+'" onclick="event.stopPropagation();fav('+l.id+')">'+ic("star",18)+'</button>')+'</div>'
+  +'<div class="mim'+(it.m==5?' mono':'')+'">'+gimg(it.g,70)+'</div><div class="mn">'+g[0]+' <b>#'+f(it.n)+'</b></div><div class="ms">'+MN(it.g,it.m)+' · '+BN[it.b]+'</div><div class="ms">'+(me?"Ваш лот":'@'+l.s)+(au&&l.by?' · ставка @'+(l.by=="you"?"вы":l.by):'')+'</div>'+btn+'</div>'}
+/* лимитированные выпуски: покупка NFT с новым уникальным номером прямо у системы */
+function limList(){return G.map(function(g,i){return i}).filter(function(i){return LIM[G[i][0]]})}
+function limDay(){var a=limList();return a[dkey()%a.length]}
+function limPrice(g){return Math.round(tv(g)*(g==limDay()?.935:1.1))}
+function limCard(g){var q=G[g],sp=supply(g),left=limLeft(g),pc=Math.round(sp[1]/sp[0]*100),p=limPrice(g),day=g==limDay(),c=BG[g%5];
+ return '<div class="mc lc" style="--c:'+c+'"><div class="mtop"><span class="mbds"><span class="mbd lim">ЛИМИТКА</span>'+(day?'<span class="mbd">−15% СЕГОДНЯ</span>':'')+'</span></div><div class="mim">'+gimg(g,70)+'</div><div class="mn">'+q[0]+'</div>'
+  +'<div class="ms">'+f(sp[1])+'/'+f(sp[0])+' выпущено</div><div class="lbar"><i style="width:'+pc+'%"></i></div>'
+  +(left>0?'<button class="mb pri" '+(S.bal<p?'disabled ':'')+'onclick="limBuy('+g+')">Выпустить · '+f(p)+'</button>':'<button class="mb" disabled>Тираж выпущен</button>')+'</div>'}
+function limBuy(g){var p=limPrice(g);if(limLeft(g)<=0){toast("Тираж исчерпан");return}if(S.bal<p){toast("Не хватает GRADE");return}
+ S.bal-=p;var it=mkItem(g,1);S.inv.push(it);bpAdd("nft",1);S.hist.unshift({t:"Выпущено",n:G[g][0]+" #"+it.n,p:p});save();render();limSync();upAnim(it)}
+function mflt(){mf.open=!mf.open;rMk()}
+function rMk(){var T=["Все","Аукционы","Лимитки","Мои","Избранное","История"],TI=[0,1,6,2,3,4];
+ $("mch").innerHTML=T.map(function(t,i){return '<button class="chip'+(mtab==TI[i]?' on':'')+'" onclick="mtb('+TI[i]+')">'+t+'</button>'}).join("");
+ var lst=mtab<4||mtab==6;$("mflt").style.display=(mtab<4&&mf.open)?"":"none";$("mfb").style.display=mtab<4?"":"none";$("mfb").classList.toggle("on",!!mf.open||mf.r>=0||mf.min>0||mf.max>0||mf.ser>=0||!!mf.sel);
+ $("mrar").innerHTML=[["Любой фон",-1]].concat(BN.map(function(r,i){return[r,i]})).map(function(x){return '<button class="chip'+(mf.r==x[1]?" on":"")+'" onclick="mrs('+x[1]+')">'+x[0]+"</button>"}).join("")+(mf.sel?'<button class="chip on" onclick="msl(\'\')">@'+mf.sel+" ✕</button>":"");
  $("msb").style.display=mtab==5?"none":"";if(mtab==5){rSell();return}
+ if(mtab==6){var a6=limList().sort(function(x,y){return(y==limDay())-(x==limDay())||G[y][3]-G[x][3]});
+  $("mlist").innerHTML='<div class="mstat"><span>Лимитированные NFT: номер выдаётся один раз на всех игроков</span></div><div class="mg">'+a6.map(limCard).join("")+'</div>';return}
  if(mtab==4){$("mlist").innerHTML=S.hist.map(function(h){return '<div class="mrow"><div class="tt">'+h.t+': '+h.n+'<small>'+(h.p>0?f(h.p)+' GRADE':'Подарок')+'</small></div></div>'}).join("")||'<p class="note">Сделок пока нет</p>';return}
- var now=Date.now(),a=S.mkt.filter(function(l){var me=l.s=="you";if(mqv&&G[l.it.g][0].toLowerCase().indexOf(mqv)<0)return false;if(mf.r>=0&&l.it.b!=mf.r)return false;if(mf.min&&l.p<mf.min)return false;if(mf.max&&l.p>mf.max)return false;if(mf.ser>=0&&l.it.m!=mf.ser)return false;if(mf.sel&&l.s!=mf.sel)return false;return mtab==0?!me:mtab==1?(l.type=="auc"&&!me):mtab==2?me:S.fav.indexOf(l.id)>=0}).sort(function(x,y){return mf.sort==1?y.p-x.p:mf.sort==2?(x.type=="auc"?x.end:9e15)-(y.type=="auc"?y.end:9e15):x.p-y.p});
- $("mlist").innerHTML=a.map(function(l){var g=G[l.it.g],au=l.type=="auc",me=l.s=="you",fv=S.fav.indexOf(l.id)>=0,btn;
-  var sub=(me?"Ваш лот":'<u onclick="event.stopPropagation();sellerCard(\''+l.s+'\')">@'+l.s+'</u>')+' · '+MD[l.it.m]+' · '+BN[l.it.b]+(au?' · '+fmtT(l.end-now)+(l.by?' · @'+(l.by=="you"?"вы":l.by):''):'');
-  if(me)btn=(au&&l.by)?'<button class="b" disabled>Идут торги</button>':'<button class="b off" onclick="unl('+l.id+')">'+f(l.p)+' · Снять</button>';
-  else if(au)btn=l.by=="you"?'<button class="b" disabled>Вы лидируете</button>':'<button class="b" '+(S.bal<minBid(l)?'disabled ':'')+'onclick="bid('+l.id+')">Ставка '+f(minBid(l))+'</button>';
-  else btn='<button class="b" '+(S.bal<l.p?'disabled ':'')+'onclick="buy('+l.id+')">'+f(l.p)+' '+ic("coin",14)+'</button>';
-  return '<div class="mrow"><span class="e">'+gimg(l.it.g,30)+'</span><div class="tt" onclick="lotSheet('+l.id+')">'+g[0]+' #'+l.it.n+'<small>'+sub+'</small></div>'+(me?'':'<button class="st'+(fv?' fv':'')+'" onclick="fav('+l.id+')">'+ic("star",20)+'</button>')+btn+'</div>'}).join("")||'<p class="note">Ничего не найдено</p>'}
+ var now=Date.now(),a=S.mkt.filter(function(l){var me=l.s=="you";if(mqv&&(G[l.it.g][0]+" #"+l.it.n+" "+MN(l.it.g,l.it.m)+" "+PN(l.it.g,l.it.s)+" "+BN[l.it.b]).toLowerCase().indexOf(mqv)<0)return false;if(mf.r>=0&&l.it.b!=mf.r)return false;if(mf.min&&l.p<mf.min)return false;if(mf.max&&l.p>mf.max)return false;if(mf.ser==1&&l.it.m<3)return false;if(mf.ser==2&&l.it.m!=5)return false;if(mf.ser==3&&!LIM[G[l.it.g][0]])return false;if(mf.sel&&l.s!=mf.sel)return false;return mtab==0?!me:mtab==1?(l.type=="auc"&&!me):mtab==2?me:S.fav.indexOf(l.id)>=0}).sort(function(x,y){return mf.sort==1?y.p-x.p:mf.sort==2?(x.type=="auc"?x.end:9e15)-(y.type=="auc"?y.end:9e15):mf.sort==3?x.it.n-y.it.n:mf.sort==4?y.id-x.id:x.p-y.p});
+ var tot=a.reduce(function(s,l){return s+l.p},0);
+ $("mlist").innerHTML='<div class="mstat"><span>Лотов: '+a.length+'</span><span>Баланс: '+f(S.bal)+'</span></div>'+(a.length?'<div class="mg">'+a.map(mcard).join("")+'</div>':'<p class="note">Ничего не найдено. Измените фильтры или поиск.</p>')}
 function lot(id){return S.mkt.filter(function(y){return y.id==id})[0]}
 function fav(id){var i=S.fav.indexOf(id);if(i<0)S.fav.push(id);else S.fav.splice(i,1);save();rMk()}
 function buy(id){var l=lot(id);if(!l||S.bal<l.p)return;S.bal-=l.p;l.it.u=S.nu++;S.inv.push(l.it);S.mkt=S.mkt.filter(function(y){return y.id!=id});phAdd(l.it.g,l.p);bpAdd("buys",1);S.hist.unshift({t:"Куплено",n:G[l.it.g][0]+" #"+l.it.n,p:l.p});toast("Куплено: "+G[l.it.g][0]);save();render()}
@@ -979,8 +1006,8 @@ setInterval(function(){tk++;var now=Date.now(),c=0;
   if(S.mkt.filter(function(l){return l.s!="you"}).length<8&&Math.random()<.4){S.mkt.push(bl());c=1}}
  if(c){save();render()}else if($("p3").classList.contains("on")&&mtab!=5)rMk()},1000);
 
-var mf={r:-1,min:0,max:0,ser:-1,sort:0,sel:""};
-$("fser").innerHTML='<option value="-1">Все серии</option>'+MD.map(function(m,i){return'<option value="'+i+'">'+m+'</option>'}).join("");
+var mf={r:-1,min:0,max:0,ser:-1,sort:0,sel:"",open:0};
+$("fser").innerHTML='<option value="-1">Все модели</option><option value="1">Редкие модели</option><option value="2">Monochrome</option><option value="3">Лимитки</option>';
 function mfs(){mf.min=+$("fmin").value||0;mf.max=+$("fmax").value||0;mf.ser=+$("fser").value;mf.sort=+$("fsort").value;rMk()}
 function mrs(n){mf.r=n;rMk()}
 function msl(n){mf.sel=n;closeSh();rMk()}
@@ -1186,6 +1213,35 @@ body.pvon{overflow:hidden}
 .pvd{margin:0 14px 6px;padding:8px 12px;border-radius:14px}
 /* Монохром: подарок без цвета */
 .mono svg,.mono img{filter:grayscale(1) contrast(1.15)}
+/* Имя и номер, значок лимитки */
+.nno{color:rgba(255,255,255,.55);font-weight:600;font-size:15px}
+.lmb{background:#ffd54a;color:#3a2a00;border-radius:8px;padding:1px 7px;font-size:11px;font-weight:800;letter-spacing:.3px}
+.npt,.pt,.mpt{filter:grayscale(1) brightness(2)}
+/* Маркет: плитки лотов */
+.mhd{display:flex;gap:8px;align-items:flex-start;padding-right:12px}
+.mhd .si{flex:1;min-width:0;margin-right:0}
+.mfb{flex:0 0 auto;height:44px;border:0;border-radius:14px;background:var(--p2);color:var(--tx);padding:0 14px;font-weight:600;font-size:14px}
+.mfb.on{background:var(--bl);color:#fff}
+.mstat{display:flex;justify-content:space-between;gap:10px;padding:0 14px 8px;color:var(--mu);font-size:12px}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 84px}
+.mc{position:relative;overflow:hidden;border-radius:18px;padding:8px 10px 10px;display:flex;flex-direction:column;gap:2px;text-align:center;cursor:pointer;background:radial-gradient(circle at 50% 30%,var(--c),color-mix(in srgb,var(--c) 28%,#0e1621) 96%)}
+.mc .mpt{position:absolute;inset:0;font-style:normal;font-size:15px;line-height:26px;letter-spacing:10px;color:#fff;opacity:.12;overflow:hidden;word-break:break-all;text-align:left;pointer-events:none}
+.mc>*:not(.mpt){position:relative}
+.mtop{display:flex;justify-content:space-between;align-items:flex-start;min-height:26px;gap:4px}
+.mbds{display:flex;flex-wrap:wrap;gap:3px;text-align:left}
+.mbd{font-size:9.5px;font-weight:800;letter-spacing:.3px;border-radius:7px;padding:3px 6px;background:rgba(0,0,0,.4);color:#fff}
+.mbd.lim{background:#ffd54a;color:#3a2a00}
+.mfv{flex:0 0 auto;border:0;background:rgba(0,0,0,.28);color:#fff;border-radius:50%;width:28px;height:28px;display:grid;place-items:center;padding:0}
+.mfv.on{color:#ffd54a}
+.mc .mim{height:78px;display:grid;place-items:center}
+.mc .mn{font-weight:700;font-size:14px;line-height:1.2}
+.mc .mn b{color:rgba(255,255,255,.6);font-weight:600;font-size:12px}
+.mc .ms{font-size:11px;color:rgba(255,255,255,.74);min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc .mb{margin-top:6px;border:0;border-radius:12px;height:34px;font-weight:700;font-size:13px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;gap:4px}
+.mc .mb.pri{background:rgba(0,0,0,.42)}
+.mc .mb:disabled{opacity:.55}
+.lbar{height:6px;border-radius:4px;background:rgba(0,0,0,.35);margin:4px 4px 0;overflow:hidden}
+.lbar i{display:block;height:100%;background:#ffd54a;border-radius:4px}
 </style>
 <script>
 /* ===== профиль игрока из ленты live ===== */
