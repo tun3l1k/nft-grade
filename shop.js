@@ -48,6 +48,11 @@ function lvl(){return lvInfo()[0]}
 function cv(){return S.inv.reduce(function(a,x){return a+pr(x)},0)}
 function wp(a){var x=Math.random()*100,t=0;for(var i=0;i<a.length;i++){t+=a[i];if(x<t)return i}return 0}
 /* надбавка за малый номер считается от тиража D: первые 0,1% номеров x2,5, до 1% x1,5, до 10% x1,12 (для тиража 10 000 это номера до 10, до 100 и до 1000; первый номер всегда в первой группе) */
+/* название и значок модели/узора конкретного подарка */
+function MN(g,i){if(i==5)return"Monochrome";var N=MPOOL.length;return MPOOL[((g*7+3)%N+[5,7,11,13,17,19,23,25][g%8]*i)%N]}
+function PP(g,i){var N=PPOOL.length;return PPOOL[((g*5+1)%N+[7,11,13,17,19,23,29][g%7]*i)%N]}
+function PN(g,i){return PP(g,i)[0]}
+function PS(g,i){return PP(g,i)[1]}
 function nbm(n,D){return n<=Math.max(1,Math.round(D*.001))?2.5:n<=Math.max(1,Math.round(D*.01))?1.5:n<=Math.max(1,Math.round(D*.1))?1.12:1}
 /* красивый номер: [название, множитель] или null */
 function nbe(n){var s=String(n);if(n>=11&&/^(\d)\1+$/.test(s))return["Одинаковые цифры",PRM.nb.rep];if(n>=1000&&n%1000==0)return["Круглый номер",PRM.nb.rnd];if(n>=1000&&("0123456789".indexOf(s)>=0||"9876543210".indexOf(s)>=0))return["Лесенка",PRM.nb.seq];if(n>=101&&s==s.split("").reverse().join(""))return["Палиндром",PRM.nb.pal];return null}
@@ -77,12 +82,12 @@ function vib(){if(!S.set.vib)return;try{var h=window.Telegram&&Telegram.WebApp&&
 document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("button"))vib()});
 function toast(t){var d=$("toast");d.textContent=t;d.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){d.style.display="none"},2500)}
 function tile(it,cls,oc,inf){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";
- return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(SY[it.s]+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(n&&it.m==5?' mono':'')+'">'+gimg(it.g,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
+ return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(n&&it.m==5?' mono':'')+'">'+gimg(it.g,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
 function gtile(i,cls,oc){var g=G[i],n=g[4],c=n?BG[i%5]:"#7f91a4";return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'"><b class="im">'+gimg(i,52)+'</b><small>'+g[0]+'</small><em>'+(n?"≈ ":"")+f(n?tv(i):g[3])+'</em></div>'}
 function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+gimg(it.g,108)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
-function atxt(it){return it.up?"Номер #"+it.n+" · "+MD[it.m]+" · "+BN[it.b]+" · "+SN[it.s]:"Подарок · можно улучшить"}
+function atxt(it){return it.up?"Номер #"+it.n+" · "+MN(it.g,it.m)+" · "+BN[it.b]+" · "+PN(it.g,it.s):"Подарок · можно улучшить"}
 function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6px 0"><span>'+l+'</span><span>'+nm+' · '+p+'% <small style="display:inline;color:var(--mu)">×'+m.toFixed(2)+'</small></span></div>'}
- return '<div class="sbox" style="margin:8px 0">'+r("Модель",MD[it.m],MP[it.m],1+PRM.m[it.m])+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",SN[it.s],SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
+ return '<div class="sbox" style="margin:8px 0">'+r("Модель",MN(it.g,it.m),MP[it.m],1+PRM.m[it.m])+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",PN(it.g,it.s),SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
 
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");
