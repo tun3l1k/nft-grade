@@ -138,6 +138,14 @@ http.createServer(async (req, res) => {
   if (req.method === 'GET') {
     const p = url === '/' ? '/index.html' : url;
     // Картинки подарков: /img/<имя>.webp (оптимизированные копии из Image/, см. tools/make_images.py)
+    // Модели улучшенных подарков: картинки /img/m/<подарок>/<модель>.webp и анимации /tgs/<подарок>/<модель>.tgs (см. tools/make_models.py)
+    if (/^\/(img\/m|tgs)\/[\w\-]+\/[\w\-]+\.(webp|tgs)$/.test(p)) {
+      try {
+        const data = fs.readFileSync(path.join(__dirname, p));
+        res.writeHead(200, { 'Content-Type': p.endsWith('.tgs') ? 'application/octet-stream' : 'image/webp', 'Cache-Control': 'public, max-age=604800' });
+        return res.end(data);
+      } catch { return send(res, 404, { error: 'not found' }); }
+    }
     if (/^\/img\/[\w\-]+\.webp$/.test(p)) {
       try {
         const data = fs.readFileSync(path.join(__dirname, p));

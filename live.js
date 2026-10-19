@@ -44,11 +44,11 @@ function pvShield(l){return '<svg width="18" height="20" viewBox="0 0 24 26"><pa
 function pvTitle(P){var b=P.b;return b[3]>=6?"Легенда":b[1]>=80000?"Магнат":b[1]>=20000?"Коллекционер":b[2]>=3?"Везунчик":"Новичок"}
 function pvAgo(t){var m=Math.max(0,Math.round((Date.now()-t)/6e4));if(m<1)return"только что";if(m<60)return m+" мин назад";var h=Math.round(m/60);if(h<24)return h+" ч назад";return Math.round(h/24)+" дн назад"}
 function pvGift(x,P,focus){var n=!!x.up,c=n?BG[x.b]:"#7f91a4",h=hsh(x.from)%360;
- return '<div class="gc'+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')"><span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?'<span class="gn" style="background:'+c+'">#'+x.n+'</span>':'')+gimg(x.g,60)+'<small>'+(x.id==focus?"только что":f(pr(x)))+'</small></div>'}
+ return '<div class="gc'+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')"><span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?'<span class="gn" style="background:'+c+'">#'+x.n+'</span>':'')+gimgI(x,60)+'<small>'+(x.id==focus?"только что":f(pr(x)))+'</small></div>'}
 function pvBody(){var P=getP(PVU),el=$("pvbody");if(!P||!el)return;
  var a=P.gifts.slice().sort(function(p,q){return(q.id==PVF)-(p.id==PVF)||pr(q)-pr(p)});
  el.innerHTML=PVT==1?'<div class="grid pvg">'+a.map(function(x){return pvGift(x,P,PVF)}).join("")+'</div>'
-  :P.gifts.slice().sort(function(p,q){return q.d-p.d}).slice(0,25).map(function(x){var g=G[x.g];return '<div class="pvd" onclick="pvItem('+x.id+')"><div style="width:34px">'+gimg(x.g,32)+'</div><div><b>'+g[0]+(x.up?" #"+x.n:"")+'</b><span>выпал из кейса</span></div><em>'+f(pr(x))+'<small>'+pvAgo(x.d)+'</small></em></div>'}).join("");
+  :P.gifts.slice().sort(function(p,q){return q.d-p.d}).slice(0,25).map(function(x){var g=G[x.g];return '<div class="pvd" onclick="pvItem('+x.id+')"><div style="width:34px">'+gimgI(x,32)+'</div><div><b>'+g[0]+(x.up?" #"+x.n:"")+'</b><span>выпал из кейса</span></div><em>'+f(pr(x))+'<small>'+pvAgo(x.d)+'</small></em></div>'}).join("");
  document.querySelectorAll("#pvt button").forEach(function(b,i){b.classList.toggle("on",i+1==PVT)})}
 function pvTab(n){PVT=n;pvBody()}
 function pvSoon(t){toast(t||"Недоступно в демо")}

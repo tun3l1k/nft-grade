@@ -49,6 +49,35 @@ function lvInfo(){var x=S.xp,l=1;while(x>=need(l)){x-=need(l);l++}return[l,x,nee
 function lvl(){return lvInfo()[0]}
 function cv(){return S.inv.reduce(function(a,x){return a+pr(x)},0)}
 function wp(a){var x=Math.random()*100,t=0;for(var i=0;i<a.length;i++){t+=a[i];if(x<t)return i}return 0}
+/* ===== модели улучшенных подарков (models.js собирает tools/make_models.py) =====
+   У подарков из MODELS модель при улучшении выбирается по шансам из config.json, показывается её картинка и анимация.
+   Остальные подарки и «хвост» шансов (если загружены не все модели) используют обычные модели MP. */
+function MDL(g){return typeof MODELS!="undefined"&&MODELS[G[g][0]]||null}
+function mtier(p){return p>=3?0:p>=2?1:p>=1.2?2:p>=.7?3:4}
+function pickModel(g){var M=MDL(g);if(!M)return null;var x=Math.random()*100,t=0;for(var i=0;i<M.l.length;i++){t+=M.l[i][1];if(x<t)return i}return null}
+var EMG=(function(){var e=0;for(var i=0;i<MP.length;i++)e+=MP[i]/100*(1+PRM.m[i]);return e})();
+var MMC={};
+/* множители моделей: цена модели относительно медианы подарка, подогнанная так, чтобы средняя цена улучшенного подарка осталась как у обычных (экономика не меняется) */
+function mmS(g){var nm=G[g][0];if(MMC[nm])return MMC[nm];var M=MDL(g),sp=0;M.l.forEach(function(r){sp+=r[1]/100});sp=Math.min(1,sp);var w=M.l.map(function(r){return Math.min(12,Math.max(.5,r[4]))}),lo=0,hi=100;
+ var ex=function(c){var t=(1-sp)*EMG;M.l.forEach(function(r,i){t+=r[1]/100*Math.min(8,Math.max(1,c*w[i]))});return t};
+ for(var k=0;k<40;k++){var c=(lo+hi)/2;if(ex(c)<EMG)lo=c;else hi=c}
+ return MMC[nm]=w.map(function(x){return Math.min(8,Math.max(1,(lo+hi)/2*x))})}
+function mm(it){return it.k!=null&&MDL(it.g)?mmS(it.g)[it.k]:1+PRM.m[it.m]}
+function MNI(it){return it.k!=null&&MDL(it.g)?MDL(it.g).l[it.k][0]:MN(it.g,it.m)}
+function MPI(it){return it.k!=null&&MDL(it.g)?MDL(it.g).l[it.k][1]:MP[it.m]}
+function mdist(g){var M=MDL(g),r=[];if(!M){MP.forEach(function(p,i){r.push([p/100,1+PRM.m[i]])});return r}
+ var sp=0,S2=mmS(g);M.l.forEach(function(x,i){sp+=x[1]/100;r.push([x[1]/100,S2[i]])});sp=Math.min(1,sp);MP.forEach(function(p,i){if(sp<1)r.push([p/100*(1-sp),1+PRM.m[i]])});return r}
+/* картинка улучшенного подарка: у моделей своя, иначе картинка подарка */
+function mdUrl(it,ext){var M=MDL(it.g),r=M.l[it.k];return(ext=="tgs"?"tgs/":"img/m/")+M.d+"/"+r[2]+"."+ext}
+function gimgI(it,z){if(it&&it.up&&it.k!=null&&MDL(it.g))return '<svg viewBox="0 0 100 100" width="'+z+'" height="'+z+'" style="display:block;margin:auto;filter:drop-shadow(0 4px 5px rgba(0,0,0,.4))"><image href="'+mdUrl(it,"webp")+'" width="100" height="100"/></svg>';return gimg(it.g,z)}
+/* крупная картинка с анимацией модели (.tgs = gzip Lottie). Если проигрыватель или распаковка недоступны, остаётся картинка */
+function gimgA(it,z){var h=gimgI(it,z);if(it&&it.up&&it.k!=null&&MDL(it.g)&&MDL(it.g).l[it.k][3])return '<span class="tgsv" data-t="'+mdUrl(it,"tgs")+'" style="display:block;width:'+z+'px;height:'+z+'px;margin:auto">'+h+'</span>';return h}
+var TGC={},LTL=0,LTQ=[];
+function lotLoad(cb){if(window.lottie)return cb();LTQ.push(cb);if(LTL)return;LTL=1;var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie_light.min.js";s.onload=function(){LTQ.splice(0).forEach(function(f){f()})};s.onerror=function(){LTL=0;LTQ=[]};document.head.appendChild(s)}
+function tgsData(u){return TGC[u]||(TGC[u]=fetch(u).then(function(r){if(!r.ok)throw 0;return r.arrayBuffer()}).then(function(b){return new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).json()}))}
+function tgsInit(root){if(!window.DecompressionStream)return;(root||document).querySelectorAll(".tgsv[data-t]:not([data-d])").forEach(function(el){el.setAttribute("data-d",1);
+ tgsData(el.getAttribute("data-t")).then(function(j){lotLoad(function(){if(!el.isConnected)return;el.innerHTML="";lottie.loadAnimation({container:el,renderer:"svg",loop:true,autoplay:true,animationData:JSON.parse(JSON.stringify(j))})})}).catch(function(){})})}
+try{new MutationObserver(function(){tgsInit($("sh"))}).observe($("sh"),{childList:true})}catch(e){}
 /* надбавка за малый номер считается от тиража D: первые 0,1% номеров x2,5, до 1% x1,5, до 10% x1,12 (для тиража 10 000 это номера до 10, до 100 и до 1000; первый номер всегда в первой группе) */
 /* название и значок модели/узора конкретного подарка */
 function MN(g,i){if(i==5)return"Monochrome";var N=MPOOL.length;return MPOOL[((g*7+3)%N+[5,7,11,13,17,19,23,25][g%8]*i)%N]}
@@ -59,7 +88,7 @@ function nbm(n,D){return n<=Math.max(1,Math.round(D*.001))?2.5:n<=Math.max(1,Mat
 /* красивый номер: [название, множитель] или null */
 function nbe(n){var s=String(n);if(n>=11&&/^(\d)\1+$/.test(s))return["Одинаковые цифры",PRM.nb.rep];if(n>=1000&&n%1000==0)return["Круглый номер",PRM.nb.rnd];if(n>=1000&&("0123456789".indexOf(s)>=0||"9876543210".indexOf(s)>=0))return["Лесенка",PRM.nb.seq];if(n>=101&&s==s.split("").reverse().join(""))return["Палиндром",PRM.nb.pal];return null}
 function nmul(n,D){var e=nbe(n);return nbm(n,D)*(e?e[1]:1)}
-function umul(it){return Math.min(PRM.max,(1+PRM.m[it.m])*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
+function umul(it){return Math.min(PRM.max,mm(it)*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
 function pr(it){var g=G[it.g];return it.up?Math.round(g[3]*umul(it)):g[3]}
 /* тираж: сколько всего подарков и сколько выпущено. Номер улучшенного подарка всегда от 1 до числа выпущенных */
 function supply(g){var q=G[g],l=LIM[q[0]];if(l)return[l,limTaken(g)];var r=q[2],tot=[250000,30000,9000,2000][r]+((g*7919)%900)*(r+1),iss=Math.round(tot*(.55+((g*37)%40)/100));return[tot,iss]}
@@ -79,21 +108,21 @@ function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(fun
  (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab==6&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
 /* средний множитель улучшенного подарка по шансам модели, фона, узора и номера (номер зависит от тиража подарка): нужен для честного шанса в апгрейде */
 var EUC={};
-function EUg(g){var D=nmax(g);if(EUC[D])return EUC[D];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
- var t=0,w=0;for(var m=0;m<MP.length;m++)for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=MP[m]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,(1+PRM.m[m])*(1+PRM.b[b])*(1+PRM.s[s])*k)}return EUC[D]=t/w}
+function EUg(g){var D=nmax(g),key=D+"|"+(MDL(g)?G[g][0]:"");if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
+ var t=0,w=0,DM=mdist(g);for(var m=0;m<DM.length;m++)for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=DM[m][0]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,DM[m][1]*(1+PRM.b[b])*(1+PRM.s[s])*k)}return EUC[key]=t/w}
 function tv(g){return Math.round(G[g][3]*EUg(g))}
-function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};return{u:S.nu++,g:g,n:fx||(LIM[G[g][0]]?mintN(g):1+rnd(nmax(g))),m:wp(MP),s:wp(SP),b:wp(BP),up:1,d:Date.now()}}
+function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};var k=pickModel(g),o={u:S.nu++,g:g,n:fx||(LIM[G[g][0]]?mintN(g):1+rnd(nmax(g))),m:k!=null?mtier(MDL(g).l[k][1]):wp(MP),s:wp(SP),b:wp(BP),up:1,d:Date.now()};if(k!=null)o.k=k;return o}
 function pickG(r,ev,pool){var a=[];G.forEach(function(x,i){if(!x[6]&&!x[7]&&!LIM[x[0]]&&x[2]==r&&(ev?(x[5]==ev||(!x[5]&&r==0)):!x[5])&&(!pool||pool.indexOf(i)>=0))a.push(i)});return a[rnd(a.length)]}
 function vib(){if(!S.set.vib)return;try{var h=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback;if(h)h.impactOccurred("light");else if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("button"))vib()});
 function toast(t){var d=$("toast");d.textContent=t;d.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){d.style.display="none"},2500)}
 function tile(it,cls,oc,inf){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";
- return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(n&&it.m==5?' mono':'')+'">'+gimg(it.g,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
+ return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(n&&it.m==5?' mono':'')+'">'+gimgI(it,52)+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+f(pr(it))+'</em></div>'}
 function gtile(i,cls,oc){var g=G[i],n=g[4],c=n?BG[i%5]:"#7f91a4";return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'"><b class="im">'+gimg(i,52)+'</b><small>'+g[0]+'</small><em>'+(n?"≈ ":"")+f(n?tv(i):g[3])+'</em></div>'}
-function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+gimg(it.g,108)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
-function atxt(it){return it.up?"Номер #"+it.n+" · "+MN(it.g,it.m)+" · "+BN[it.b]+" · "+PN(it.g,it.s):"Подарок · можно улучшить"}
+function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+gimgI(it,108)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
+function atxt(it){return it.up?"Номер #"+it.n+" · "+MNI(it)+" · "+BN[it.b]+" · "+PN(it.g,it.s):"Подарок · можно улучшить"}
 function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6px 0"><span>'+l+'</span><span>'+nm+' · '+p+'% <small style="display:inline;color:var(--mu)">×'+m.toFixed(2)+'</small></span></div>'}
- return '<div class="sbox" style="margin:8px 0">'+r("Модель",MN(it.g,it.m),MP[it.m],1+PRM.m[it.m])+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",PN(it.g,it.s),SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
+ return '<div class="sbox" style="margin:8px 0">'+r("Модель",MNI(it),MPI(it),mm(it))+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",PN(it.g,it.s),SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
 
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");
