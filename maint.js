@@ -13,7 +13,7 @@
   S.inv.forEach(fix);(S.mkt||[]).forEach(function(l){fix(l.it)});save()})();
 
  /* v10: у старых улучшенных подарков из коллекций с моделями появляется конкретная модель */
- (function(){if(S.mv>=10)return;S.mv=10;var fix=function(x){if(!x||!x.up||x.mo!==undefined||!G[x.g])return;var j=mpick(x.g);x.mo=j;if(j>=0)x.m=0};S.inv.forEach(fix);(S.mkt||[]).forEach(function(l){fix(l.it)});save()})(); limSync();setInterval(limSync,30000);
+ (function(){if(S.mv>=11)return;S.mv=11;var fix=function(x){if(!x||!x.up||x.mo>=0||!G[x.g]||!gmOf(x.g))return;var j=mpick(x.g);x.mo=j;if(j>=0)x.m=0};S.inv.forEach(fix);(S.mkt||[]).forEach(function(l){fix(l.it)});save()})(); limSync();setInterval(limSync,30000);
  if(!S.ack){var l=document.createElement("div");l.id="legal";
   l.innerHTML='<div class="box"><div class="h" style="font-size:20px;margin-bottom:10px">Добро пожаловать в NFT GRADE</div><div class="dis">'+DISC+'</div><button class="go" style="width:100%;margin:14px 0 0" onclick="legalOk()">Мне есть 18, всё понятно</button></div>';
   document.body.appendChild(l);window.legalOk=function(){S.ack=1;save();l.remove()}}

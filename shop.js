@@ -57,11 +57,11 @@ function PN(g,i){return PP(g,i)[0]}
 function PS(g,i){return PP(g,i)[1]}
 /* ---- модели подарков (папка models/, данные GM из models.js, сборка tools/make_models.py) ----
    У NFT, чей подарок есть в GM, при улучшении выпадает конкретная модель: it.mo = номер в GM[...].m.
-   Шанс охватывает часть коллекции (GM.c %), остаток выпадает по старой системе редкости (it.mo = -1, картинка подарка). */
+   Улучшение всегда даёт модель: шансы загруженных моделей нормируются до 100%. Подарки без папки в models/ получают сгенерированную модель по редкости (it.mo = -1). */
 function gmOf(g){return typeof GM!="undefined"?GM[G[g][0]]:null}
 function mslug(s){return String(s).toLowerCase().replace(/[’‘']/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function murl(g,j,ext){var q=gmOf(g),m=q.m[j];return "m/"+q.s+"/"+mslug(m[2])+"."+ext}
-function mpick(g){var q=gmOf(g);if(!q)return -1;var x=Math.random()*100,t=0;for(var j=0;j<q.m.length;j++){t+=q.m[j][1];if(x<t)return j}return -1}
+function mpick(g){var q=gmOf(g);if(!q)return -1;var T=0,j;for(j=0;j<q.m.length;j++)T+=q.m[j][1];var x=Math.random()*T,t=0;for(j=0;j<q.m.length;j++){t+=q.m[j][1];if(x<t)return j}return q.m.length-1}
 function hasMo(it){return it.up&&it.mo>=0&&!!gmOf(it.g)&&!!gmOf(it.g).m[it.mo]}
 function mrow(it){return hasMo(it)?gmOf(it.g).m[it.mo]:null}
 function mname(it){var r=mrow(it);return r?r[0]:MN(it.g,it.m)}
@@ -108,7 +108,7 @@ function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(fun
 var EUC={};
 function EUg(g){var D=nmax(g),q=gmOf(g),key=q?g+":"+D:"d"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
  /* варианты модели: [шанс, множитель]; у подарков из models/ это реальные модели, остаток охвата идёт по старой системе */
- var ML=[],cov=0,m;if(q)q.m.forEach(function(x){ML.push([x[1],x[4]]);cov+=x[1]});if(cov>100)cov=100;for(m=0;m<MP.length;m++)ML.push([MP[m]*(100-cov)/100,1+PRM.m[m]]);
+ var ML=[],cov=0,m;if(q)q.m.forEach(function(x){ML.push([x[1],x[4]]);cov+=x[1]});if(!q)for(m=0;m<MP.length;m++)ML.push([MP[m],1+PRM.m[m]]);
  var t=0,w=0;ML.forEach(function(mm){if(mm[0]<=0)return;for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=mm[0]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,mm[1]*(1+PRM.b[b])*(1+PRM.s[s])*k)}});return EUC[key]=t/w}
 function tv(g){return Math.round(G[g][3]*EUg(g))}
 function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};var mo=mpick(g),it=mkUp(g,fx);it.mo=mo;it.m=mo>=0?0:wp(MP);return it}
