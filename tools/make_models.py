@@ -23,6 +23,7 @@ import colorsys, json, os, re, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'models')
 E0 = 1.16        # средний множитель модели в обычной системе (MP и PRM.m в игре)
+ALIAS = {'blinginky': 'blingbinky'}   # папка названа с опечаткой
 REL_CAP = 12.0   # потолок относительной цены модели
 
 
@@ -91,7 +92,7 @@ def main():
         if not os.path.isdir(p) or not os.path.exists(cfg):
             report.append((d, 'нет config.json, пропущена (папка ещё пустая?)'))
             continue
-        gift = gnorm.get(norm(d))
+        gift = gnorm.get(ALIAS.get(norm(d), norm(d)))
         if not gift:
             report.append((d, 'в игре нет подарка с таким названием, пропущена'))
             continue
