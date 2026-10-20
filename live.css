@@ -99,3 +99,4 @@ body.pvon{overflow:hidden}
 .upg button{min-width:34px;height:34px;border-radius:10px;border:1px solid var(--ln);background:var(--p2);color:var(--tx);font-weight:700;font-size:14px;padding:0 8px;cursor:pointer}
 .upg button.on{background:var(--bl);border-color:var(--bl)}.upg button:disabled{opacity:.35}.upg{align-items:center;gap:14px}.upn{font-weight:700;min-width:64px;text-align:center}
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
+.lstrip{cursor:pointer;color:var(--bl);font-weight:700}

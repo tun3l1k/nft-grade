@@ -18,7 +18,7 @@
  (function(){if(S.mv>=12)return;S.mv=12;var O=0,B=1,R=[2, 3, 5, 7, 10, 12, 13, 14, 17, 19, 23, 28, 29, 41, 43, 46, 50, 56, 58, 61],C=[4, 6, 8, 9, 11, 15, 16, 18, 20, 21, 22, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 44, 45, 47, 48, 49, 51, 52, 53, 54, 55, 57, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79],pk=function(a){return a[Math.floor(Math.random()*a.length)]};var fix=function(x){if(!x||!x.up||x.b>6)return;x.b=x.b==6?O:x.b==5?B:x.b==4?pk(R):x.b==3&&Math.random()<.5?pk(R):pk(C)};S.inv.forEach(fix);(S.mkt||[]).forEach(function(l){fix(l.it)});save()})();
  /* v13: старый тип модели «Монохром» убран, монохром теперь определяется по цвету */
  (function(){if(S.mv>=13)return;S.mv=13;var fix=function(x){if(x&&x.up&&x.m==5)x.m=4};S.inv.forEach(fix);(S.mkt||[]).forEach(function(l){fix(l.it)});save()})();
- limSync();setInterval(limSync,30000);
+ limSync();setInterval(function(){if(Date.now()-limT>(document.getElementById("p3").classList.contains("on")?8000:30000))limSync()},4000);document.addEventListener("visibilitychange",function(){if(!document.hidden)limSync()});
  if(!S.ack){var l=document.createElement("div");l.id="legal";
   l.innerHTML='<div class="box"><div class="h" style="font-size:20px;margin-bottom:10px">Добро пожаловать в NFT GRADE</div><div class="dis">'+DISC+'</div><button class="go" style="width:100%;margin:14px 0 0" onclick="legalOk()">Мне есть 18, всё понятно</button></div>';
   document.body.appendChild(l);window.legalOk=function(){S.ack=1;save();l.remove()}}

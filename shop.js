@@ -112,8 +112,8 @@ function limFind(nm,n){var a=S.inv.concat((S.mkt||[]).map(function(l){return l.i
 var ED=S.ed||{};
 function edApply(e){ED=e||{};S.ed=ED;Object.keys(LIM).forEach(function(k){delete LIM[k]});Object.keys(ED).forEach(function(k){LIM[k]=ED[k].total})}
 Object.keys(ED).forEach(function(k){LIM[k]=ED[k].total});
-function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(function(d){if(!d||!d.lim)return;LTK=d.lim;if(d.ed)edApply(d.ed);S.ltp=(S.ltp||[]).filter(function(x){return sent.indexOf(x)<0});
- (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab==6&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
+var limT=0;function limSync(){limT=Date.now();var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(function(d){if(!d||!d.lim)return;LTK=d.lim;if(d.ed)edApply(d.ed);S.ltp=(S.ltp||[]).filter(function(x){return sent.indexOf(x)<0});
+ (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab!=5&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
 /* средний множитель улучшенного подарка по шансам модели, фона, узора и номера (номер зависит от тиража подарка): нужен для честного шанса в апгрейде */
 var EUC={};
 function EUg(g){var D=nmax(g),q=gmOf(g),key=g+":"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
@@ -138,4 +138,4 @@ function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6p
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");
 $("s1").innerHTML=IC.search;$("s2").innerHTML=IC.search;
-function tab(n){if(n==6)rSet();for(var i=0;i<11;i++)$("p"+i).classList.toggle("on",i==n);document.querySelectorAll(".nav button").forEach(function(b,i){b.classList.toggle("on",i==(n==10?1:n==5||n==8||n==9?0:n==6?-1:n==7?4:n))});window.scrollTo(0,0);render()}
+function tab(n){try{sessionStorage.setItem("nt",n)}catch(e){}if(n==6)rSet();for(var i=0;i<11;i++)$("p"+i).classList.toggle("on",i==n);document.querySelectorAll(".nav button").forEach(function(b,i){b.classList.toggle("on",i==(n==10?1:n==5||n==8||n==9?0:n==6?-1:n==7?4:n))});window.scrollTo(0,0);render()}
