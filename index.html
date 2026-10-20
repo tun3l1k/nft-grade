@@ -634,8 +634,8 @@ function limFind(nm,n){var a=S.inv.concat((S.mkt||[]).map(function(l){return l.i
 var ED=S.ed||{};
 function edApply(e){ED=e||{};S.ed=ED;Object.keys(LIM).forEach(function(k){delete LIM[k]});Object.keys(ED).forEach(function(k){LIM[k]=ED[k].total})}
 Object.keys(ED).forEach(function(k){LIM[k]=ED[k].total});
-function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(function(d){if(!d||!d.lim)return;LTK=d.lim;if(d.ed)edApply(d.ed);S.ltp=(S.ltp||[]).filter(function(x){return sent.indexOf(x)<0});
- (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab==6&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
+var limT=0;function limSync(){limT=Date.now();var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(function(d){if(!d||!d.lim)return;LTK=d.lim;if(d.ed)edApply(d.ed);S.ltp=(S.ltp||[]).filter(function(x){return sent.indexOf(x)<0});
+ (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab!=5&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
 /* средний множитель улучшенного подарка по шансам модели, фона, узора и номера (номер зависит от тиража подарка): нужен для честного шанса в апгрейде */
 var EUC={};
 function EUg(g){var D=nmax(g),q=gmOf(g),key=g+":"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
@@ -660,7 +660,7 @@ function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6p
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");
 $("s1").innerHTML=IC.search;$("s2").innerHTML=IC.search;
-function tab(n){if(n==6)rSet();for(var i=0;i<11;i++)$("p"+i).classList.toggle("on",i==n);document.querySelectorAll(".nav button").forEach(function(b,i){b.classList.toggle("on",i==(n==10?1:n==5||n==8||n==9?0:n==6?-1:n==7?4:n))});window.scrollTo(0,0);render()}
+function tab(n){try{sessionStorage.setItem("nt",n)}catch(e){}if(n==6)rSet();for(var i=0;i<11;i++)$("p"+i).classList.toggle("on",i==n);document.querySelectorAll(".nav button").forEach(function(b,i){b.classList.toggle("on",i==(n==10?1:n==5||n==8||n==9?0:n==6?-1:n==7?4:n))});window.scrollTo(0,0);render()}
 </script>
 <script>/* ===== BATTLE PASS ===== */
 var BPV={id:"bpvip",st:599,n:"Battle Pass VIP"},BPL={id:"bplvl",st:60,n:"+1 уровень Battle Pass"},BPMAX=30,BPX=60,BPSD=14;
@@ -1029,7 +1029,7 @@ function bl(){var g=NI[rnd(NI.length)];for(var z=0;z<20&&LIM[G[g][0]];z++)g=NI[r
  var v=pr(l.it);if(au){l.p=Math.max(1,Math.round(v*.9));l.by=null;l.end=Date.now()+(60+rnd(240))*1000}else l.p=Math.max(1,Math.round(v*(1+Math.random()*.4)));return l}
 if(!S.mkt.length)for(var q=0;q<8;q++)S.mkt.push(bl());
 function mqs(v){mqv=v.toLowerCase();rMk()}
-function mtb(n){mtab=n;rMk()}
+function mtb(n){mtab=n;rMk();if(n==6||n==0)limSync()}
 function minBid(l){return l.by?l.p+stp(l.it.g):l.p}
 function mcard(l){var g=G[l.it.g],it=l.it,au=l.type=="auc",me=l.s=="you",fv=S.fav.indexOf(l.id)>=0,now=Date.now(),be=nbe(it.n),btn,bd="";
  if(LIM[g[0]])bd+='<span class="mbd lim">ЛИМИТКА</span>';if(ismono(it))bd+='<span class="mbd">MONO</span>';if(hasMo(it)&&mrare(it))bd+='<span class="mbd">РЕДКАЯ</span>';if(be)bd+='<span class="mbd">★ '+be[0]+'</span>';if(au)bd+='<span class="mbd">'+fmtT(l.end-now)+'</span>';
@@ -1041,7 +1041,7 @@ function mcard(l){var g=G[l.it.g],it=l.it,au=l.type=="auc",me=l.s=="you",fv=S.fa
 /* лимитированные выпуски админа: покупка даёт обычный (неулучшенный) подарок с закреплённым уникальным номером */
 function edList(){var a=[];Object.keys(ED).forEach(function(nm){var gi=G.map(function(q){return q[0]}).indexOf(nm);if(gi>=0)a.push(gi)});return a.sort(function(x,y){return(ED[G[y][0]].on&&limLeft(y)>0)-(ED[G[x][0]].on&&limLeft(x)>0)||ED[G[y][0]].price-ED[G[x][0]].price})}
 function limCard(g){var q=G[g],e=ED[q[0]],sp=supply(g),left=limLeft(g),pc=Math.round(sp[1]/sp[0]*100),p=e.price,c=BG[g%5],btn;
- if(left<=0)btn='<button class="mb" disabled>Тираж выпущен</button>';else if(!e.on)btn='<button class="mb" disabled>Продажа на паузе</button>';else btn='<button class="mb pri" '+(S.bal<p?'disabled ':'')+'onclick="limBuy('+g+')">Купить · '+f(p)+'</button>';
+ if(left<=0)btn='<button class="mb" disabled>Тираж выпущен</button>';else if(!e.on)btn='<button class="mb" disabled>Продажа на паузе</button>';else btn='<button class="mb pri" '+(S.bal<p?'disabled ':'')+'onclick="limAsk('+g+')">Купить · '+f(p)+'</button>';
  return '<div class="mc lc" style="--c:'+c+'"><div class="mtop"><span class="mbds"><span class="mbd lim">ЛИМИТКА</span></span></div><div class="mim">'+gimg(g,70)+'</div><div class="mn">'+q[0]+'</div>'
   +'<div class="ms">'+f(sp[1])+'/'+f(sp[0])+' выпущено</div><div class="lbar"><i style="width:'+pc+'%"></i></div>'+btn+'</div>'}
 var limBusy=0;
@@ -1054,7 +1054,8 @@ function limBuy(g){var nm=G[g][0],e=ED[nm];if(limBusy)return;if(!e||!e.on){toast
  .catch(function(){limBusy=0;S.bal+=p;save();render();toast("Нет связи с сервером, монеты возвращены")})}
 function mflt(){mf.open=!mf.open;rMk()}
 function rMk(){var T=["Все","Аукционы","Лимитки","Мои","Избранное","История"],TI=[0,1,6,2,3,4];
- $("mch").innerHTML=T.map(function(t,i){return '<button class="chip'+(mtab==TI[i]?' on':'')+'" onclick="mtb('+TI[i]+')">'+t+'</button>'}).join("");
+ var nl=edList().filter(function(g){return ED[G[g][0]].on&&limLeft(g)>0}).length;try{sessionStorage.setItem("mt",JSON.stringify([mtab]))}catch(e){}
+ $("mch").innerHTML=T.map(function(t,i){return '<button class="chip'+(mtab==TI[i]?' on':'')+'" onclick="mtb('+TI[i]+')">'+t+(TI[i]==6&&nl?' · '+nl:'')+'</button>'}).join("");
  var lst=mtab<4||mtab==6;$("mflt").style.display=(mtab<4&&mf.open)?"":"none";$("mfb").style.display=mtab<4?"":"none";$("mfb").classList.toggle("on",!!mf.open||mf.r>=0||mf.min>0||mf.max>0||mf.ser>=0||!!mf.sel);
  $("mrar").innerHTML=[["Любой фон",-1]].concat(BN.map(function(r,i){return[r,i]})).map(function(x){return '<button class="chip'+(mf.r==x[1]?" on":"")+'" onclick="mrs('+x[1]+')">'+x[0]+"</button>"}).join("")+(mf.sel?'<button class="chip on" onclick="msl(\'\')">@'+mf.sel+" ✕</button>":"");
  $("msb").style.display=mtab==5?"none":"";if(mtab==5){rSell();return}
@@ -1063,7 +1064,7 @@ function rMk(){var T=["Все","Аукционы","Лимитки","Мои","И�
  if(mtab==4){$("mlist").innerHTML=S.hist.map(function(h){return '<div class="mrow"><div class="tt">'+h.t+': '+h.n+'<small>'+(h.p>0?f(h.p)+' GRADE':'Подарок')+'</small></div></div>'}).join("")||'<p class="note">Сделок пока нет</p>';return}
  var now=Date.now(),a=S.mkt.filter(function(l){var me=l.s=="you";if(mqv&&(G[l.it.g][0]+" #"+l.it.n+" "+mname(l.it)+" "+PN(l.it.g,l.it.s)+" "+BN[l.it.b]).toLowerCase().indexOf(mqv)<0)return false;if(mf.r>=0&&l.it.b!=mf.r)return false;if(mf.min&&l.p<mf.min)return false;if(mf.max&&l.p>mf.max)return false;if(mf.ser==1&&!mrare(l.it))return false;if(mf.ser==2&&!ismono(l.it))return false;if(mf.ser==3&&!LIM[G[l.it.g][0]])return false;if(mf.sel&&l.s!=mf.sel)return false;return mtab==0?!me:mtab==1?(l.type=="auc"&&!me):mtab==2?me:S.fav.indexOf(l.id)>=0}).sort(function(x,y){return mf.sort==1?y.p-x.p:mf.sort==2?(x.type=="auc"?x.end:9e15)-(y.type=="auc"?y.end:9e15):mf.sort==3?x.it.n-y.it.n:mf.sort==4?y.id-x.id:x.p-y.p});
  var tot=a.reduce(function(s,l){return s+l.p},0);
- $("mlist").innerHTML='<div class="mstat"><span>Лотов: '+a.length+'</span><span>Баланс: '+f(S.bal)+'</span></div>'+(a.length?'<div class="mg">'+a.map(mcard).join("")+'</div>':'<p class="note">Ничего не найдено. Измените фильтры или поиск.</p>')}
+ $("mlist").innerHTML=(mtab==0&&nl?'<div class="mstat lstrip" onclick="mtb(6)"><span>💎 Лимитки в продаже: '+nl+'</span><span>Открыть ›</span></div>':'')+'<div class="mstat"><span>Лотов: '+a.length+'</span><span>Баланс: '+f(S.bal)+'</span></div>'+(a.length?'<div class="mg">'+a.map(mcard).join("")+'</div>':'<p class="note">Ничего не найдено. Измените фильтры или поиск.</p>')}
 function lot(id){return S.mkt.filter(function(y){return y.id==id})[0]}
 function fav(id){var i=S.fav.indexOf(id);if(i<0)S.fav.push(id);else S.fav.splice(i,1);save();rMk()}
 function buy(id){var l=lot(id);if(!l||S.bal<l.p)return;S.bal-=l.p;l.it.u=S.nu++;S.inv.push(l.it);S.mkt=S.mkt.filter(function(y){return y.id!=id});phAdd(l.it.g,l.p);bpAdd("buys",1);S.hist.unshift({t:"Куплено",n:G[l.it.g][0]+" #"+l.it.n,p:l.p});toast("Куплено: "+G[l.it.g][0]);save();render()}
@@ -1094,7 +1095,17 @@ function spark(a){var mn=Math.min.apply(0,a),mx=Math.max.apply(0,a),d=mx-mn||1;r
 function lotSheet(id){var l=lot(id);if(!l)return;var a=ph(l.it.g),av=a.reduce(function(x,y){return x+y},0)/a.length,me=l.s=="you",au=l.type=="auc";
  var sel=me?ownerH():'<span class="oav">'+l.s.charAt(0).toUpperCase()+'</span><u style="color:var(--bl)" onclick="sellerCard(\''+l.s+'\')">@'+l.s+'</u>';
  $("sh").innerHTML=nftHead(l.it)+'<div class="tbl">'+nftRows(l.it,sel)+'</div><div class="sbox" style="margin:0 0 12px;text-align:left"><div class="lab">История цен · '+a.length+' сделок</div>'+spark(a)+'<div class="srow"><small>мин '+f(Math.min.apply(0,a))+'</small><small>сред. '+f(av)+'</small><small>макс '+f(Math.max.apply(0,a))+'</small></div></div>'+(me?'':'<button class="go" style="margin:0;width:100%" onclick="lotAct('+id+')">'+(au?"Ставка "+f(minBid(l)):"Купить за "+f(l.p))+'</button>');$("sheet").className="ov end on"}
-function lotAct(id){var l=lot(id);if(!l)return;if(l.type=="auc")bid(id);else buy(id);closeSh()}
+/* подтверждение покупки: окно открывается поверх, вкладка и прокрутка не сбрасываются */
+var CFM=null;
+function cfmAsk(h,txt,ok,fn,back){CFM={fn:fn,back:back};$("sh").innerHTML='<div class="h" style="font-size:20px;margin-bottom:6px">'+h+'</div><div class="mu" style="line-height:1.5;margin-bottom:14px;text-align:center">'+txt+'</div><button class="go" style="width:100%;margin:0 0 8px" onclick="cfmYes()">'+ok+'</button><button class="go gh" style="width:100%;margin:0" onclick="cfmNo()">Отмена</button>';$("sheet").className="ov end on"}
+function cfmYes(){var c=CFM;CFM=null;closeSh();if(c&&c.fn)keepPos(c.fn)}
+function cfmNo(){var c=CFM;CFM=null;if(c&&c.back)c.back();else closeSh()}
+function keepPos(fn){var y=window.scrollY;fn();setTimeout(function(){window.scrollTo(0,y)},0)}
+function lotAct(id){var l=lot(id);if(!l)return;var au=l.type=="auc",p=au?minBid(l):l.p,nm=G[l.it.g][0]+" #"+f(l.it.n);
+ if(S.bal<p){toast("Не хватает GRADE");return}
+ cfmAsk(au?"Сделать ставку?":"Купить подарок?",nm+" · "+mname(l.it)+"<br>"+(au?"Ставка: ":"Цена: ")+"<b>"+f(p)+" GRADE</b><br>Останется: "+f(S.bal-p),au?"Сделать ставку":"Купить за "+f(p),function(){if(au)bid(id);else buy(id)},function(){lotSheet(id)})}
+function limAsk(g){var e=ED[G[g][0]];if(!e)return;if(S.bal<e.price){toast("Не хватает GRADE");return}
+ cfmAsk("Купить лимитку?",G[g][0]+" · случайный свободный номер<br>Цена: <b>"+f(e.price)+" GRADE</b><br>Останется: "+f(S.bal-e.price),"Купить за "+f(e.price),function(){limBuy(g)})}
 function sellerCard(n){var b=BT.filter(function(x){return x[0]==n})[0];if(!b)return;var c=S.mkt.filter(function(l){return l.s==n}).length;
  $("sh").innerHTML='<div class="av" style="margin:0 auto 8px;width:72px;height:72px">'+n.charAt(0).toUpperCase()+'</div><div class="h" style="font-size:20px">@'+n+'</div><div class="mu" style="margin:4px 0 12px">Уровень '+b[2]+'</div><div class="stats" style="padding:0 0 12px">'+[[f(b[1]),"Коллекция"],[b[3],"Топ"],[c,"Лотов"]].map(function(x){return'<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("")+'</div><button class="go" onclick="msl(\''+n+'\')">Показать лоты продавца</button>';$("sheet").className="ov end on"}
 function msel(u){mp=mp==u?null:u;var x=S.inv.filter(function(y){return y.u==mp})[0];if(x){shp=pr(x);shd=300}shown=mp;rSell()}
@@ -1210,6 +1221,9 @@ function pnGo(){ptb=1;rPro();var a=achPend(),c=setPend();$("dtc").open=!!c;$("dt
 </script>
 <script>sortm=S.set.sort|0;applySet();$("gb").innerHTML=ic("gear",20);bpEns();render();rLive();claim();boot2();lbSync();
 var frs=freeRdy();setInterval(function(){var n=freeRdy();if(n!=frs){frs=n;render()}seasonChk()},3000);
+/* возврат на то же место после перезагрузки: вкладка, подвкладка маркета и прокрутка */
+try{var _mt=JSON.parse(sessionStorage.getItem("mt")||"null");if(_mt&&_mt[0]!=5)mtab=_mt[0];var _nt=+sessionStorage.getItem("nt");if(_nt>0&&_nt<11&&!S.sn){tab(_nt);var _sy=+sessionStorage.getItem("sy")||0;if(_sy)setTimeout(function(){window.scrollTo(0,_sy)},60)}}catch(e){}
+(function(){var sv=function(){try{sessionStorage.setItem("sy",window.scrollY)}catch(e){}};window.addEventListener("scroll",function(){clearTimeout(sv.t);sv.t=setTimeout(sv,200)},{passive:true});document.addEventListener("visibilitychange",sv);window.addEventListener("pagehide",sv)})();
 </script>
 
 <script>S.set.fast=0;var rollT=null,rollDone=null,sendU=null;
@@ -1330,6 +1344,7 @@ body.pvon{overflow:hidden}
 .upg button{min-width:34px;height:34px;border-radius:10px;border:1px solid var(--ln);background:var(--p2);color:var(--tx);font-weight:700;font-size:14px;padding:0 8px;cursor:pointer}
 .upg button.on{background:var(--bl);border-color:var(--bl)}.upg button:disabled{opacity:.35}.upg{align-items:center;gap:14px}.upn{font-weight:700;min-width:64px;text-align:center}
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
+.lstrip{cursor:pointer;color:var(--bl);font-weight:700}
 </style>
 <script>
 /* ===== профиль игрока из ленты live ===== */
@@ -1445,7 +1460,7 @@ var CL={ready:0,tm:null,busy:0};
 function cloudReload(){try{var k="clrl",n=Date.now(),l=+sessionStorage.getItem(k)||0;if(n-l<60000)return;sessionStorage.setItem(k,n)}catch(e){}window.CLDEAD=1;location.reload()}
 function cloudPush(){if(!CL.ready||CL.busy||!initD())return;CL.busy=1;clearTimeout(CL.tm);CL.tm=null;
  api("/save",{s:S,t:S.ts||Date.now(),w:S.wp||""}).then(function(d){CL.busy=0;if(!d)return;
-  if(d.wipe!==undefined)cloudInit(1);else if(d.stale){CL.ready=0;cloudInit(1)}else if(CL.tm===null&&CL.dirty){CL.dirty=0;cloudSched()}}).catch(function(){CL.busy=0})}
+  if(d.wipe!==undefined)cloudInit(1);else if(d.stale){S.ts=Math.max(S.ts||0,d.t||0)+1;CL.dirty=1;cloudSched()}else if(CL.tm===null&&CL.dirty){CL.dirty=0;cloudSched()}}).catch(function(){CL.busy=0})}
 function cloudSched(){if(!CL.ready)return;CL.dirty=1;if(CL.tm)return;CL.tm=setTimeout(function(){CL.tm=null;CL.dirty=0;cloudPush()},4000)}
 function cloudInit(force){if(!initD()){CL.ready=1;return}
  api("/load").then(function(d){if(!d||d.error){CL.ready=1;return}var w=d.w||"";
@@ -1480,7 +1495,7 @@ cloudInit();
  (function(){if(S.mv>=12)return;S.mv=12;var O=0,B=1,R=[2, 3, 5, 7, 10, 12, 13, 14, 17, 19, 23, 28, 29, 41, 43, 46, 50, 56, 58, 61],C=[4, 6, 8, 9, 11, 15, 16, 18, 20, 21, 22, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 44, 45, 47, 48, 49, 51, 52, 53, 54, 55, 57, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79],pk=function(a){return a[Math.floor(Math.random()*a.length)]};var fix=function(x){if(!x||!x.up||x.b>6)return;x.b=x.b==6?O:x.b==5?B:x.b==4?pk(R):x.b==3&&Math.random()<.5?pk(R):pk(C)};S.inv.forEach(fix);(S.mkt||[]).forEach(function(l){fix(l.it)});save()})();
  /* v13: старый тип модели «Монохром» убран, монохром теперь определяется по цвету */
  (function(){if(S.mv>=13)return;S.mv=13;var fix=function(x){if(x&&x.up&&x.m==5)x.m=4};S.inv.forEach(fix);(S.mkt||[]).forEach(function(l){fix(l.it)});save()})();
- limSync();setInterval(limSync,30000);
+ limSync();setInterval(function(){if(Date.now()-limT>(document.getElementById("p3").classList.contains("on")?8000:30000))limSync()},4000);document.addEventListener("visibilitychange",function(){if(!document.hidden)limSync()});
  if(!S.ack){var l=document.createElement("div");l.id="legal";
   l.innerHTML='<div class="box"><div class="h" style="font-size:20px;margin-bottom:10px">Добро пожаловать в NFT GRADE</div><div class="dis">'+DISC+'</div><button class="go" style="width:100%;margin:14px 0 0" onclick="legalOk()">Мне есть 18, всё понятно</button></div>';
   document.body.appendChild(l);window.legalOk=function(){S.ack=1;save();l.remove()}}

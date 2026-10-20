@@ -5,7 +5,7 @@ var CL={ready:0,tm:null,busy:0};
 function cloudReload(){try{var k="clrl",n=Date.now(),l=+sessionStorage.getItem(k)||0;if(n-l<60000)return;sessionStorage.setItem(k,n)}catch(e){}window.CLDEAD=1;location.reload()}
 function cloudPush(){if(!CL.ready||CL.busy||!initD())return;CL.busy=1;clearTimeout(CL.tm);CL.tm=null;
  api("/save",{s:S,t:S.ts||Date.now(),w:S.wp||""}).then(function(d){CL.busy=0;if(!d)return;
-  if(d.wipe!==undefined)cloudInit(1);else if(d.stale){CL.ready=0;cloudInit(1)}else if(CL.tm===null&&CL.dirty){CL.dirty=0;cloudSched()}}).catch(function(){CL.busy=0})}
+  if(d.wipe!==undefined)cloudInit(1);else if(d.stale){S.ts=Math.max(S.ts||0,d.t||0)+1;CL.dirty=1;cloudSched()}else if(CL.tm===null&&CL.dirty){CL.dirty=0;cloudSched()}}).catch(function(){CL.busy=0})}
 function cloudSched(){if(!CL.ready)return;CL.dirty=1;if(CL.tm)return;CL.tm=setTimeout(function(){CL.tm=null;CL.dirty=0;cloudPush()},4000)}
 function cloudInit(force){if(!initD()){CL.ready=1;return}
  api("/load").then(function(d){if(!d||d.error){CL.ready=1;return}var w=d.w||"";
