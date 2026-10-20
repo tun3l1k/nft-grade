@@ -22,10 +22,15 @@ const ITEMS = {
 };
 
 // Хранилище: JSON-файл. Для продакшена замените на SQLite/Postgres.
-const DB_FILE = path.join(__dirname, 'db.json');
+const DB_FILE = process.env.DB_PATH || path.join(__dirname, 'db.json');
+// Облачные сохранения игроков: по файлу на игрока (saves/<id>.json), чтобы не переписывать большой db.json при каждом сохранении
+const SAVE_DIR = process.env.SAVES_DIR || path.join(path.dirname(DB_FILE), 'saves');
+try { fs.mkdirSync(SAVE_DIR, { recursive: true }); } catch {}
+const saveFile = id => path.join(SAVE_DIR, String(id).replace(/\D/g, '') + '.json');
 let db = { pending: {}, paid: {} }; // pending[userId] = [{id,item,charge}], paid[charge]=1
 try { db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } catch {}
 db.scores = db.scores || {};
+db.wipe = db.wipe || { id: '', t: 0 };
 db.users = db.users || {}; db.sales = db.sales || []; db.banned = db.banned || {}; db.grants = db.grants || {}; db.audit = db.audit || [];
 const saveDb = () => fs.writeFileSync(DB_FILE + '.tmp', JSON.stringify(db)) || fs.renameSync(DB_FILE + '.tmp', DB_FILE);
 
@@ -45,7 +50,7 @@ function checkInitData(initData) {
   try { return JSON.parse(p.get('user')); } catch { return null; }
 }
 
-const readBody = req => new Promise(res => { let d = ''; req.on('data', c => { d += c; if (d.length > 1e5) req.destroy(); }); req.on('end', () => { try { res(JSON.parse(d || '{}')); } catch { res({}); } }); });
+const readBody = (req, max = 1e5) => new Promise(res => { let d = ''; req.on('data', c => { d += c; if (d.length > max) req.destroy(); }); req.on('end', () => { try { res(JSON.parse(d || '{}')); } catch { res({}); } }); });
 const send = (res, code, obj) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type' }); res.end(JSON.stringify(obj)); };
 
 // ---------- Игроки и админ-команды ----------
@@ -56,7 +61,9 @@ const iso = ts => new Date(ts).toISOString().slice(0, 16).replace('T', ' ') + ' 
 const spentBy = id => db.sales.filter(x => String(x.u) === String(id) && !x.refunded).reduce((a, x) => a + x.st, 0);
 const pendingBc = {};
 // Админ-меню на кнопках, лимитированные выпуски, промокоды (admin.js)
-const A = require('./admin.js')({ db, tg, saveDb, ADMINS, PUBLIC_URL, SUPPORT, findUser, esc, iso, spentBy });
+// Сброс прогресса у всех игроков: новый id сброса, удаляем облачные сохранения, рейтинг и занятые номера лимиток
+const wipeAll = () => { db.wipe = { id: crypto.randomBytes(6).toString('hex'), t: Date.now() }; try { for (const f of fs.readdirSync(SAVE_DIR)) fs.unlinkSync(path.join(SAVE_DIR, f)); } catch {} db.scores = {}; db.lim = {}; db.grants = {}; saveDb(); return db.wipe; };
+const A = require('./admin.js')({ wipeAll, db, tg, saveDb, ADMINS, PUBLIC_URL, SUPPORT, findUser, esc, iso, spentBy });
 const ADMIN_CMDS = ['/admin', '/menu', '/adminhelp', '/cancel', '/stats', '/find', '/give', '/ban', '/unban', '/sales', '/refund', '/broadcast', '/yes'];
 async function admin(m, cmd) {
   if (!ADMIN_CMDS.includes(cmd)) return;
@@ -260,10 +267,31 @@ http.createServer(async (req, res) => {
     else if (Array.isArray(b.take) && b.take.length) saveDb();
     return send(res, 200, { ...out, lim: A.limMap(), ed: A.edMap(), dup });
   }
+  // 4d) Облачное сохранение прогресса. Клиент присылает всё состояние игры (s) и время последнего изменения (t).
+  // Сервер хранит самую свежую версию; если игрок зашёл с другого устройства, клиент подтягивает её через /load.
+  if (url === '/save' && req.method === 'POST') {
+    const b = await readBody(req, 1.5e6), user = checkInitData(b.initData);
+    if (!user) return send(res, 401, { error: 'auth' });
+    if (db.banned[user.id]) return send(res, 403, { error: 'banned' });
+    if ((b.w || '') !== db.wipe.id) return send(res, 200, { wipe: db.wipe.id });
+    const t = Math.floor(Number(b.t) || 0), str = JSON.stringify(b.s || null);
+    if (!b.s || typeof b.s !== 'object' || str.length > 1.2e6 || !t) return send(res, 400, { error: 'bad state' });
+    let cur = null; try { cur = JSON.parse(fs.readFileSync(saveFile(user.id), 'utf8')); } catch {}
+    if (cur && cur.t > t) return send(res, 200, { stale: 1, t: cur.t });
+    try { fs.writeFileSync(saveFile(user.id) + '.tmp', JSON.stringify({ t, w: db.wipe.id, s: b.s })); fs.renameSync(saveFile(user.id) + '.tmp', saveFile(user.id)); } catch { return send(res, 500, { error: 'write' }); }
+    return send(res, 200, { ok: 1, t });
+  }
+  if (url === '/load' && req.method === 'POST') {
+    const b = await readBody(req), user = checkInitData(b.initData);
+    if (!user) return send(res, 401, { error: 'auth' });
+    if (db.banned[user.id]) return send(res, 403, { error: 'banned' });
+    let cur = null; try { cur = JSON.parse(fs.readFileSync(saveFile(user.id), 'utf8')); } catch {}
+    return send(res, 200, { w: db.wipe.id, t: cur && cur.w === db.wipe.id ? cur.t : 0, s: cur && cur.w === db.wipe.id ? cur.s : null });
+  }
   // 4c) Статус игры: технический перерыв включается в админ-меню бота. Админы заходят и во время перерыва.
   if (url === '/status' && req.method === 'POST') {
     const b = await readBody(req), user = checkInitData(b.initData);
-    return send(res, 200, { maint: !!db.maint.on, msg: db.maint.msg || '', admin: !!(user && ADMINS.includes(user.id)) });
+    return send(res, 200, { maint: !!db.maint.on, msg: db.maint.msg || '', admin: !!(user && ADMINS.includes(user.id)), w: db.wipe.id });
   }
   if (url === '/top' && req.method === 'POST') {
     const b = await readBody(req), user = checkInitData(b.initData);

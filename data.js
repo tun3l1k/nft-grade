@@ -165,14 +165,14 @@ IC.gear='<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.
 function coinI(z){return '<svg class="i coin" width="'+z+'" height="'+z+'" viewBox="0 0 32 32" style="vertical-align:middle"><defs><linearGradient id="cg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset=".55" stop-color="#f5a524"/><stop offset="1" stop-color="#b66a08"/></linearGradient></defs><circle cx="16" cy="16" r="14" fill="url(#cg1)"/><circle cx="16" cy="16" r="10.5" fill="none" stroke="#fff3c4" stroke-opacity=".75" stroke-width="1.6"/><path d="M11 18.5l5-5 5 5" fill="none" stroke="#fff8dc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'}
 function ic(n,z){return '<svg class="i" width="'+z+'" height="'+z+'" viewBox="0 0 24 24">'+IC[n]+'</svg>'}
 var S={bal:1000,xp:0,inv:[],nu:1,mkt:[],nl:1,hist:[],fav:[],drops:[],st:{cases:0,ups:0,wins:0,leg:0},vib:1};
-try{var sv=JSON.parse(localStorage.getItem("nftgrade3")||"null");if(sv)S=sv}catch(e){}
+var FRESH=true;try{var sv=JSON.parse(localStorage.getItem("nftgrade3")||"null");if(sv){S=sv;FRESH=false}}catch(e){}
 S.set=Object.assign({bs:1,vib:1,fast:0,odds:1,cols:3,snd:1,vol:80,fx:1,live:1,cfm:0,acc:0,sort:0},S.set||{});
 /* миграция: «Сердце» удалено, Heart Locket теперь обычный подарок */
 (function(){var rf=0;S.inv=(S.inv||[]).filter(function(x){var q=G[x.g];if(!q||q[6]){rf+=q?q[3]:1300;return false}return true});S.uh=(S.uh||[]).filter(function(h){return G[h.t]});
  S.mkt=(S.mkt||[]).filter(function(l){if(G[l.it.g]&&G[l.it.g][4])return true;if(!G[l.it.g]){if(l.s=="you"||l.by=="you")rf+=l.p;return false}if(l.s=="you")S.inv.push(l.it);if(l.by=="you")rf+=l.p;return false});
  if(rf){S.bal+=rf;S.mg=(S.mg||0)+rf}})();
 (function(){var m=function(x){if(x&&x.up==null){x.up=x.n>0?1:0;delete x.lv;delete x.pf}};(S.inv||[]).forEach(m);(S.mkt||[]).forEach(function(l){m(l.it)})})();
-function save(){try{localStorage.setItem("nftgrade3",JSON.stringify(S))}catch(e){}}
+function save(){S.ts=Date.now();try{localStorage.setItem("nftgrade3",JSON.stringify(S))}catch(e){}if(typeof cloudSched=="function")cloudSched()}
 IM["Candy Cane"]='<image href="img/candy-cane.webp" width="100" height="100"/>';
 IM["Jelly Bunny"]='<image href="img/jelly-bunny.webp" width="100" height="100"/>';
 IM["Durov's Cap"]='<image href="img/durovs-cap.webp" width="100" height="100"/>';
