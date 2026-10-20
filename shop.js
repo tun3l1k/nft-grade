@@ -24,14 +24,16 @@ function buyStars(it){
  }).catch(function(){toast("Сервер недоступен")})}
 function gidx(nm){return G.map(function(q){return q[0]}).indexOf(nm)}
 function cidx(nm){return CS.map(function(q){return q.n}).indexOf(nm)}
+/* NFT, выданный админом: модель (r[2], -2 = случайная), фон (r[3]), узор (r[4]) и номер (r[5]) можно задать, остальное случайно */
+function mkNftG(r){var g=r[1],q=gmOf(g),it=mkItem(g,1);if(q&&r[2]>=0&&q.m[r[2]]){it.mo=r[2];it.m=0}if(r[3]>=0&&r[3]<BN.length)it.b=r[3];if(r[4]>=0&&r[4]<SP.length)it.s=r[4];if(r[5]>0)it.n=Math.min(r[5],nmax(g));return it}
 function claim(){ /* забрать подтверждённые сервером покупки (идемпотентно) */
- api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).map(function(r){return r[0]=="gn"?["gift",gidx(r[1])]:r[0]=="cn"?["case",cidx(r[1])]:r[0]=="lim"?["lim",gidx(r[1]),r[2]]:r}).filter(function(r){return (r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])||(r[0]=="lim"&&G[r[1]]&&r[2]>0)});gs.forEach(function(r){if(r[0]=="lim"){var li=mkItem(r[1]);li.sn=r[2];S.inv.push(li)}else bpApply(r)});if(gs.length){toast("От администрации: "+gs.map(function(r){return r[0]=="coin"?"+"+f(r[1])+" GRADE":r[0]=="gift"?G[r[1]][0]:r[0]=="lim"?G[r[1]][0]+" · лимитка #"+r[2]:"кейс «"+CS[r[1]].n+"»"}).join(", "));save();render()}}).catch(function(){})}
+ api("/claim").then(function(d){(d.items||[]).forEach(function(id){var it=PACKS.concat([PASS,BPV,BPL],FR).filter(function(x){return x.id==id})[0];if(it)grant(it)});var gs=(d.grants||[]).map(function(r){return r[0]=="gn"?["gift",gidx(r[1])]:r[0]=="cn"?["case",cidx(r[1])]:r[0]=="lim"?["lim",gidx(r[1]),r[2]]:r[0]=="nft"?["nft",gidx(r[1]),r[2],r[3],r[4],r[5]]:r}).filter(function(r){return (r[0]=="ttl"&&TL[r[1]])||(r[0]=="nft"&&G[r[1]])||(r[0]=="coin"&&r[1]>0)||(r[0]=="gift"&&G[r[1]])||(r[0]=="case"&&CS[r[1]])||(r[0]=="lim"&&G[r[1]]&&r[2]>0)});gs.forEach(function(r){if(r[0]=="lim"){var li=mkItem(r[1]);li.sn=r[2];S.inv.push(li)}else if(r[0]=="ttl"){S.tg=S.tg||[];if(S.tg.indexOf(r[1])<0)S.tg.push(r[1]);S.tt=r[1]}else if(r[0]=="nft")S.inv.push(mkNftG(r));else bpApply(r)});if(gs.length){toast("От администрации: "+gs.map(function(r){return r[0]=="coin"?"+"+f(r[1])+" GRADE":r[0]=="ttl"?"титул «"+TL[r[1]][0]+"»":r[0]=="nft"?"NFT "+G[r[1]][0]:r[0]=="gift"?G[r[1]][0]:r[0]=="lim"?G[r[1]][0]+" · лимитка #"+r[2]:"кейс «"+CS[r[1]].n+"»"}).join(", "));save();render()}}).catch(function(){})}
 setInterval(claim,30000);document.addEventListener("visibilitychange",function(){if(!document.hidden)claim()});
 function shopGo(){tab(8)}
 function rShop(){var b=$("shp8");if(!b)return;
  var fp=!S.fp,h='<div class="dnote">Покупки за Stars дают игровую валюту. Вывод из игры невозможен. Только 18+.</div>';
  if(fp)h+='<div class="ihead" style="background:linear-gradient(135deg,#b7791f,#ff9f1c)"><div><div class="mu" style="color:#fff3d0">Первая покупка</div><div class="h" style="font-size:22px">×2 монет</div></div><div style="font-size:42px">🎁</div></div>';
- h+='<div class="mrow" onclick="bpOpen()" style="cursor:pointer"><span class="e">🏆</span><div class="tt">Battle Pass · сезон '+bpEns().s+(bpPending()?'<span class="dot">'+bpPending()+'</span>':'')+'<small>'+(bpPending()?'К получению: '+bpHint():bpEns().vip?'VIP активен':'Задания, награды и VIP-дорожка')+'</small></div><span class="mu" style="font-size:24px">›</span></div>'+'<h3 class="sec">Монеты GRADE</h3>'+PACKS.map(function(k){return '<div class="mrow"><span class="e">🪙</span><div class="tt">'+f(k.g*(fp?2:1))+' GRADE<small>'+k.t+(fp?' · с бонусом ×2':'')+'</small></div><button class="b" onclick="buyStars(PACKS['+PACKS.indexOf(k)+'])">'+k.st+' ⭐</button></div>'}).join("");
+ h+='<div class="mrow" onclick="bpOpen()" style="cursor:pointer"><span class="e">🏆</span><div class="tt">Battle Pass · сезон '+bpEns().s+(bpPending()?'<span class="dot">'+bpPending()+'</span>':'')+'<small>'+(bpPending()?'К получению: '+bpHint():bpEns().vip?'VIP активен':'Задания, награды и VIP-дорожка')+'</small></div><span class="mu" style="font-size:24px">›</span></div>'+'<h3 class="sec">Монеты GRADE</h3>'+PACKS.map(function(k){return '<div class="mrow"><span class="e">'+coinI(32)+'</span><div class="tt">'+f(k.g*(fp?2:1))+' GRADE<small>'+k.t+(fp?' · с бонусом ×2':'')+'</small></div><button class="b" onclick="buyStars(PACKS['+PACKS.indexOf(k)+'])">'+k.st+' ⭐</button></div>'}).join("");
  h+='<h3 class="sec">GRADE Pass · 30 дней</h3><div class="sbox"><div class="srow"><span>'+(isPass()?'Активен до '+new Date(S.pass).toLocaleDateString("ru-RU"):'Не активен')+'</span><button class="b" onclick="buyStars(PASS)">'+PASS.st+' ⭐</button></div><div class="mu" style="margin-top:10px;line-height:1.6">• «Подарок дня» раз в 12 часов вместо 24<br>• +10% к опыту<br>• комиссия маркета 3% вместо 7%<br>• значок Pass в профиле</div></div>';
  h+='<h3 class="sec">Рамки аватара</h3>'+FR.filter(function(k){return !k.bp}).map(function(k){var own=(S.own||[]).indexOf(k.id)>=0;return '<div class="mrow"><div class="av" style="width:44px;height:44px;font-size:18px;box-shadow:0 0 0 3px #17212b,0 0 0 6px transparent;border:3px solid transparent;background:linear-gradient(#202b38,#202b38) padding-box,linear-gradient(135deg,'+k.c+') border-box">И</div><div class="tt">'+k.n+'<small>Только внешний вид, на шансы не влияет</small></div>'+(own?'<button class="b '+(S.frame==k.id?'':'off')+'" onclick="S.frame=\''+k.id+'\';save();rShop();rAv()">'+(S.frame==k.id?'Надета':'Надеть')+'</button>':'<button class="b" onclick="buyStars(FR['+FR.indexOf(k)+'])">'+k.st+' ⭐</button>')+'</div>'}).join("");
  h+='<h3 class="sec">Пригласить друга</h3><div class="sbox"><div class="mu" style="line-height:1.5;margin-bottom:10px">Друг получает 300 GRADE на старт, вы — 300 GRADE за каждого и 5% от его покупок в монетах.</div><button class="go gh" style="width:100%;margin:0" onclick="invite()">Поделиться ссылкой</button></div>';
@@ -51,7 +53,7 @@ function cv(){return S.inv.reduce(function(a,x){return a+pr(x)},0)}
 function wp(a){var x=Math.random()*100,t=0;for(var i=0;i<a.length;i++){t+=a[i];if(x<t)return i}return 0}
 /* надбавка за малый номер считается от тиража D: первые 0,1% номеров x2,5, до 1% x1,5, до 10% x1,12 (для тиража 10 000 это номера до 10, до 100 и до 1000; первый номер всегда в первой группе) */
 /* название и значок модели/узора конкретного подарка */
-function MN(g,i){if(i==5)return"Monochrome";var N=MPOOL.length;return MPOOL[((g*7+3)%N+[5,7,11,13,17,19,23,25][g%8]*i)%N]}
+function MN(g,i){var N=MPOOL.length;return MPOOL[((g*7+3)%N+[5,7,11,13,17,19,23,25][g%8]*i)%N]}
 function PP(g,i){var N=PPOOL.length;return PPOOL[((g*5+1)%N+[7,11,13,17,19,23,29][g%7]*i)%N]}
 function PN(g,i){return PP(g,i)[0]}
 function PS(g,i){return PP(g,i)[1]}
@@ -67,7 +69,15 @@ function mrow(it){return hasMo(it)?gmOf(it.g).m[it.mo]:null}
 function mname(it){var r=mrow(it);return r?r[0]:MN(it.g,it.m)}
 function mpct(it){var r=mrow(it);return r?r[1]:MP[it.m]}
 function mmul(it){var r=mrow(it);return r?r[4]:1+PRM.m[it.m]}
-function ismono(it){return it.up&&!hasMo(it)&&it.m==5}
+/* Монохром: главный цвет модели (у подарков без моделей цвет подарка) совпадает с цветом фона: оранжевая модель на оранжевом фоне, чёрная на чёрном */
+function ccls(h){var n=parseInt(h.slice(1),16),r=(n>>16&255)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn,s=mx?d/mx:0;
+ if(s>=.25&&mx>=.25){var hu=d==0?0:mx==r?((g-b)/d+6)%6:mx==g?(b-r)/d+2:(r-g)/d+4;return[hu*60,s,mx]}
+ return[mx<.36?-1:mx>.82&&s<.25?-2:-3,s,mx]}
+var CCC={};function ccm(a,b){var k=a+b,v=CCC[k];if(v!==undefined)return v;var x=ccls(a),y=ccls(b);
+ return CCC[k]=x[0]<0||y[0]<0?x[0]==y[0]&&x[0]!=-3:Math.min(Math.abs(x[0]-y[0]),360-Math.abs(x[0]-y[0]))<=10&&Math.abs(x[1]-y[1])<=.25&&Math.abs(x[2]-y[2])<=.25}
+function gcol(g,mo){var q=gmOf(g),r=q&&mo>=0?q.m[mo]:null;return (r&&r[5])||(typeof GC!="undefined"&&GC[G[g][0]])||null}
+function monoOf(g,mo,b){var c=gcol(g,mo);return !!c&&ccm(c,BG[b])}
+function ismono(it){return !!it.up&&monoOf(it.g,it.mo,it.b)}
 function mrare(it){var r=mrow(it);return r?r[4]>=1.5:it.m>=3}
 /* картинка NFT: у модели своя, иначе картинка подарка */
 function mimg(it,z){var r=mrow(it);if(!r||!(r[3]&1))return gimg(it.g,z);
@@ -86,7 +96,7 @@ function nbm(n,D){return n<=Math.max(1,Math.round(D*.001))?2.5:n<=Math.max(1,Mat
 /* красивый номер: [название, множитель] или null */
 function nbe(n){var s=String(n);if(n>=11&&/^(\d)\1+$/.test(s))return["Одинаковые цифры",PRM.nb.rep];if(n>=1000&&n%1000==0)return["Круглый номер",PRM.nb.rnd];if(n>=1000&&("0123456789".indexOf(s)>=0||"9876543210".indexOf(s)>=0))return["Лесенка",PRM.nb.seq];if(n>=101&&s==s.split("").reverse().join(""))return["Палиндром",PRM.nb.pal];return null}
 function nmul(n,D){var e=nbe(n);return nbm(n,D)*(e?e[1]:1)}
-function umul(it){return Math.min(PRM.max,mmul(it)*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
+function umul(it){return Math.min(PRM.max,mmul(it)*(ismono(it)?PRM.mono:1)*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
 function pr(it){var g=G[it.g];return it.up?Math.round(g[3]*umul(it)):g[3]}
 /* тираж: сколько всего подарков и сколько выпущено. Номер улучшенного подарка всегда от 1 до числа выпущенных */
 function supply(g){var q=G[g],l=LIM[q[0]];if(l)return[l,limTaken(g)];var r=q[2],tot=[250000,30000,9000,2000][r]+((g*7919)%900)*(r+1),iss=Math.round(tot*(.55+((g*37)%40)/100));return[tot,iss]}
@@ -106,10 +116,10 @@ function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(fun
  (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab==6&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
 /* средний множитель улучшенного подарка по шансам модели, фона, узора и номера (номер зависит от тиража подарка): нужен для честного шанса в апгрейде */
 var EUC={};
-function EUg(g){var D=nmax(g),q=gmOf(g),key=q?g+":"+D:"d"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
+function EUg(g){var D=nmax(g),q=gmOf(g),key=g+":"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
  /* варианты модели: [шанс, множитель]; у подарков из models/ это реальные модели, остаток охвата идёт по старой системе */
- var ML=[],cov=0,m;if(q)q.m.forEach(function(x){ML.push([x[1],x[4]]);cov+=x[1]});if(!q)for(m=0;m<MP.length;m++)ML.push([MP[m],1+PRM.m[m]]);
- var t=0,w=0;ML.forEach(function(mm){if(mm[0]<=0)return;for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=mm[0]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,mm[1]*(1+PRM.b[b])*(1+PRM.s[s])*k)}});return EUC[key]=t/w}
+ var ML=[],cov=0,m;if(q)q.m.forEach(function(x,j){ML.push([x[1],x[4],gcol(g,j)]);cov+=x[1]});if(!q)for(m=0;m<MP.length;m++)ML.push([MP[m],1+PRM.m[m],gcol(g,-1)]);
+ var t=0,w=0;ML.forEach(function(mm){if(mm[0]<=0)return;for(var b=0;b<BP.length;b++){var mf=mm[2]&&ccm(mm[2],BG[b])?PRM.mono:1;for(var s=0;s<SP.length;s++)for(k in H){var p=mm[0]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,mm[1]*mf*(1+PRM.b[b])*(1+PRM.s[s])*k)}}});return EUC[key]=t/w}
 function tv(g){return Math.round(G[g][3]*EUg(g))}
 function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};var mo=mpick(g),it=mkUp(g,fx);it.mo=mo;it.m=mo>=0?0:wp(MP);return it}
 function mkUp(g,fx){return{u:S.nu++,g:g,n:fx||(LIM[G[g][0]]?mintN(g):1+rnd(nmax(g))),m:0,s:wp(SP),b:wp(BP),up:1,d:Date.now()}}

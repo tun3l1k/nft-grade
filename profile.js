@@ -7,7 +7,7 @@ setInterval(lbSync,60000);
 function rts(n){rt=n;lbT=0;lbSync();rPro()}
 function rPro(){try{rGifts()}catch(e){}rPf();var v=cv(),rare=S.st.leg+S.inv.filter(function(x){return G[x.g][2]>=2}).length;
  var A=[["Первый кейс","Откройте кейс",S.st.cases>=1],["Коллекционер","10 подарков в инвентаре",S.inv.length>=10],["Богач","Коллекция дороже 80 000",v>=80000],["Топ-находка","Выбейте NFT из топ-класса",S.st.leg>=1],["Удачливый","Выиграйте апгрейд",S.st.wins>=1],["Торговец","Совершите сделку",S.hist.length>=1]];
- $("ptt").textContent="в сети · "+TL[S.tt||0][0];$("plv").textContent=lvl();rAv();$("ttl").innerHTML=TL.map(function(t,i){var ok=t[2]();return '<button class="chip'+((S.tt||0)==i?" on":"")+'" style="'+(ok?"":"opacity:.45")+'" onclick="setTl('+i+')">'+(ok?"":"🔒 ")+t[0]+"</button>"}).join("");
+ $("ptt").textContent="в сети · "+TL[S.tt||0][0];$("plv").textContent=lvl();rAv();$("ttl").innerHTML=TL.map(function(t,i){var ok=t[2]()||(S.tg||[]).indexOf(i)>=0;return '<button class="chip'+((S.tt||0)==i?" on":"")+'" style="'+(ok?"":"opacity:.45")+'" onclick="setTl('+i+')">'+(ok?"":"🔒 ")+t[0]+"</button>"}).join("");
  $("pst").innerHTML=[[f(v),"Коллекция"],[S.inv.length,"Подарков"],[S.st.cases,"Кейсов"]].map(function(x){return '<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("");
  try{rAch();rCols()}catch(e){}
  var pp=profPending(),nb=$("pnb");nb.style.display=pp?"flex":"none";nb.innerHTML=pp?'<span>Можно забрать: '+[achPend()?achPend()+' '+pl(achPend(),'достижение','достижения','достижений'):'',setPend()?setPend()+' '+pl(setPend(),'коллекция','коллекции','коллекций'):''].filter(Boolean).join(' · ')+'</span><span>›</span>':'';
@@ -16,7 +16,7 @@ function rPro(){try{rGifts()}catch(e){}rPf();var v=cv(),rare=S.st.leg+S.inv.filt
  $("rl").innerHTML=L.map(function(x,i){return '<div class="rk'+(x[0]=="Вы"?' me':'')+'"><span>'+(i+1)+'</span><span>'+x[0]+'</span><span>'+f(x[rt])+'</span></div>'}).join("")}
 
 var TL=[["Новичок","стартовый",function(){return 1}],["Везунчик","достигните 3 уровня",function(){return lvl()>=3}],["Коллекционер","коллекция от 20 000",function(){return cv()>=20000}],["Магнат","коллекция от 80 000",function(){return cv()>=80000}],["Торговец","3 сделки на маркете",function(){return S.hist.length>=3}],["Легенда","выбейте NFT из топ-класса",function(){return S.st.leg>=1}],["Ветеран BP","награда Battle Pass (FREE, ур. 15)",function(){return !!(S.ttu&&S.ttu.v)}],["Элита BP","награда Battle Pass VIP (ур. 14)",function(){return !!(S.ttu&&S.ttu.e)}],["Чемпион сезона","награда Battle Pass VIP (ур. 24)",function(){return !!(S.ttu&&S.ttu.c)}],["Охотник за NFT","достижение «Топ-находка»",function(){return !!(S.ttu&&S.ttu.t1)}],["Постоянный игрок","достижение «Неделя подряд»",function(){return !!(S.ttu&&S.ttu.t2)}],["Коллектор","коллекция «Топ NFT»",function(){return !!(S.ttu&&S.ttu.s1)}]];
-function setTl(i){if(TL[i][2]()){S.tt=i;save();rPro()}else toast("Откроется: "+TL[i][1])}
+function setTl(i){if(TL[i][2]()||(S.tg||[]).indexOf(i)>=0){S.tt=i;save();rPro()}else toast("Откроется: "+TL[i][1])}
 var TGU=null;try{var WA=window.Telegram&&Telegram.WebApp;if(WA){WA.ready();WA.expand();TGU=(WA.initDataUnsafe&&WA.initDataUnsafe.user)||null}}catch(e){}
 function tgUser(){try{var w=window.Telegram&&Telegram.WebApp;return(w&&w.initDataUnsafe&&w.initDataUnsafe.user)||TGU}catch(e){return TGU}}
 function tgName(){var u=tgUser()||{};return((u.first_name||"")+" "+(u.last_name||"")).trim()||u.username||"Игрок"}

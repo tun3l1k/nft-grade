@@ -58,7 +58,7 @@ body.pvon{overflow:hidden}
 .pvg .gc small{font-size:10px;bottom:5px}
 .pvd{margin:0 14px 6px;padding:8px 12px;border-radius:14px}
 /* Монохром: подарок без цвета */
-.mono svg,.mono img{filter:grayscale(1) contrast(1.15)}
+.mono svg,.mono img{filter:drop-shadow(0 0 10px rgba(255,255,255,.55)) saturate(1.2)}
 /* Имя и номер, значок лимитки */
 .nno{color:rgba(255,255,255,.55);font-weight:600;font-size:15px}
 .lmb{background:#ffd54a;color:#3a2a00;border-radius:8px;padding:1px 7px;font-size:11px;font-weight:800;letter-spacing:.3px}
@@ -92,3 +92,10 @@ body.pvon{overflow:hidden}
 .nfi{position:relative}
 .nfi .tgsb{position:absolute;left:50%;top:50%;width:150px;height:150px;transform:translate(-50%,-50%);pointer-events:none}
 .nfi.tgsOn>svg{visibility:hidden}
+/* колесо апгрейда: значок (!), быстрая прокрутка, страницы целей */
+.wib{position:absolute;top:2px;right:-4px;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--ln);background:var(--p2);color:var(--bl);font-weight:800;font-size:17px;display:grid;place-items:center;padding:0;cursor:pointer;z-index:3}
+.wib.wz{right:auto;left:-4px;color:var(--mu)}.wib.wz.on{color:#ffd54a;border-color:#ffd54a;box-shadow:0 0 12px rgba(255,213,74,.45)}
+.upg{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:12px 12px 4px}
+.upg button{min-width:34px;height:34px;border-radius:10px;border:1px solid var(--ln);background:var(--p2);color:var(--tx);font-weight:700;font-size:14px;padding:0 8px;cursor:pointer}
+.upg button.on{background:var(--bl);border-color:var(--bl)}.upg button:disabled{opacity:.35}.upg{align-items:center;gap:14px}.upn{font-weight:700;min-width:64px;text-align:center}
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}

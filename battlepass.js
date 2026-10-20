@@ -1,7 +1,7 @@
 /* ===== BATTLE PASS ===== */
 var BPV={id:"bpvip",st:599,n:"Battle Pass VIP"},BPL={id:"bplvl",st:60,n:"+1 уровень Battle Pass"},BPMAX=30,BPX=60,BPSD=14;
 var BPT=0;
-var DT=[["cases",3,"Открыть 3 кейса","📦",30],["sells",2,"Продать 2 подарка","💰",20],["ups",1,"Сделать апгрейд","⬆️",25],["spent",500,"Потратить 500 GRADE на кейсы","🪙",30],["nft",1,"Получить NFT","💠",25],["buys",1,"Купить лот на маркете","🛒",25],["lists",1,"Выставить лот на маркет","🏷️",20],["contracts",1,"Заключить контракт","📜",30]];
+var DT=[["cases",3,"Открыть 3 кейса","📦",30],["sells",2,"Продать 2 подарка","💰",20],["ups",1,"Сделать апгрейд","⬆️",25],["spent",500,"Потратить 500 GRADE на кейсы",coinI(26),30],["nft",1,"Получить NFT","💠",25],["buys",1,"Купить лот на маркете","🛒",25],["lists",1,"Выставить лот на маркет","🏷️",20],["contracts",1,"Заключить контракт","📜",30]];
 var WT=[["cases",20,"Открыть 20 кейсов","📦",120],["upw",2,"Выиграть 2 апгрейда","🏆",100],["rare",2,"Выбить 2 дорогих NFT","👑",100]];
 var VN={12:"Astral Shard"};
 /* награды: [тип,значение]; coin=монеты, gift=индекс подарка, frame=id рамки */
@@ -10,7 +10,7 @@ var BVP={2:["case",10],5:["gift",32],8:["case",16],10:["gift",11],12:["case",16]
 var BTN={v:"Ветеран BP",e:"Элита BP",c:"Чемпион сезона",t1:"Охотник за NFT",t2:"Постоянный игрок",s1:"Коллектор"};
 function bpFree(l){return BFR[l]||["coin",40+l*5]}
 function bpVip(l){return BVP[l]||["coin",30+l*4]}
-function rwTxt(r){if(r[0]=="coin")return["🪙",f(r[1]),"Монеты"];if(r[0]=="gift"){var g=G[r[1]];return[g[1],g[0],"Подарок"]}if(r[0]=="case")return[CS[r[1]].e,CS[r[1]].n,"Билет на кейс"];if(r[0]=="title")return["🎖️",BTN[r[1]],"Титул"];var fr=FR.filter(function(x){return x.id==r[1]})[0];return["🖼️",fr?fr.n:"Рамка","Рамка"]}
+function rwTxt(r){if(r[0]=="coin")return[coinI(26),f(r[1]),"Монеты"];if(r[0]=="gift"){var g=G[r[1]];return[g[1],g[0],"Подарок"]}if(r[0]=="case")return[CS[r[1]].e,CS[r[1]].n,"Билет на кейс"];if(r[0]=="title")return["🎖️",BTN[r[1]],"Титул"];var fr=FR.filter(function(x){return x.id==r[1]})[0];return["🖼️",fr?fr.n:"Рамка","Рамка"]}
 function dkey(){return Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)}
 function bpEns(){var B=S.bp,now=Date.now();
  if(B&&B.end-now>BPSD*864e5)B.end=now+BPSD*864e5;
@@ -29,7 +29,7 @@ function bpGain(x){var B=bpEns(),l0=bpLv();B.xp=Math.min(BPMAX*BPX,B.xp+x);if(bp
 function bpCan(side,l){var B=bpEns();return l<=bpLv()&&!(side=="v"?B.cv:B.cf)[l]&&(side=="f"||B.vip)}
 function bpApply(r){if(r[0]=="coin")S.bal+=r[1];else if(r[0]=="gift")S.inv.push(mkItem(r[1]));else if(r[0]=="case"){S.tix=S.tix||{};S.tix[r[1]]=(S.tix[r[1]]||0)+1}else if(r[0]=="title"){S.ttu=S.ttu||{};S.ttu[r[1]]=1}else{S.own=S.own||[];if(S.own.indexOf(r[1])<0)S.own.push(r[1]);S.frame=r[1]}}
 function bpClaim(side,l){if(!bpCan(side,l)){if(side=="v"&&!bpEns().vip)toast("Нужен VIP Battle Pass");else if(l>bpLv())toast("Откроется на уровне "+l);return}
- var r=side=="v"?bpVip(l):bpFree(l);(side=="v"?bpEns().cv:bpEns().cf)[l]=1;bpApply(r);var t=rwTxt(r);toast("Получено: "+t[0]+" "+t[1]);sfx("ok");burst(14,["#2aabee","#ffd54a","#fff"]);save();render()}
+ var r=side=="v"?bpVip(l):bpFree(l);(side=="v"?bpEns().cv:bpEns().cf)[l]=1;bpApply(r);var t=rwTxt(r);toast("Получено: "+(t[0].charAt(0)=="<"?"":t[0]+" ")+t[1]);sfx("ok");burst(14,["#2aabee","#ffd54a","#fff"]);save();render()}
 function bpAll(){var n=0;for(var l=1;l<=BPMAX;l++)["f","v"].forEach(function(sd){if(bpCan(sd,l)){var r=sd=="v"?bpVip(l):bpFree(l);(sd=="v"?S.bp.cv:S.bp.cf)[l]=1;bpApply(r);n++}});toast(n?"Получено наград: "+n:"Нет доступных наград");save();render()}
 function bpTask(kind,i){var B=bpEns(),T=kind=="d"?bpDaily()[i]:{id:"w"+i,t:WT[i]},c=(kind=="d"?B.dc:B.wc)[T.t[0]]||0,dn=kind=="d"?B.dd:B.wd;
  if(c<T.t[1]||dn[T.id])return;dn[T.id]=1;bpGain(T.t[4]);toast("+"+T.t[4]+" опыта Battle Pass");sfx("ok");save();render()}

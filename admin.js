@@ -3,7 +3,7 @@
 const vm = require('vm'), fs = require('fs'), path = require('path');
 
 module.exports = function (env) {
-  const { db, tg, saveDb, ADMINS, PUBLIC_URL, SUPPORT, findUser, esc, iso, spentBy } = env;
+  const { db, tg, saveDb, ADMINS, PUBLIC_URL, SUPPORT, findUser, esc, iso, spentBy, wipeAll } = env;
   db.ed = db.ed || {}; db.lim = db.lim || {}; db.promos = db.promos || {}; db.maint = db.maint || { on: false, msg: '' }; db.edn = db.edn || 0;
 
   // ---------- Каталог подарков и кейсов из файлов игры (чтобы админ выбирал названия, а не номера) ----------
@@ -11,10 +11,15 @@ module.exports = function (env) {
   try {
     const ctx = { console: { log() {}, warn() {} }, localStorage: { getItem() { return null; }, setItem() {} }, window: {}, document: { getElementById() { return null; } } };
     vm.createContext(ctx);
-    for (const f of ['config.js', 'data.js', 'prices.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx, { filename: f });
+    for (const f of ['config.js', 'data.js', 'models.js', 'prices.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx, { filename: f });
     cat.gifts = ctx.G.map((g, i) => ({ i, name: g[0], emoji: g[1], price: g[3], up: !!g[4], hidden: !!g[6] }));
     cat.cases = ctx.CS.map((c, i) => ({ i, name: c.n, emoji: c.e, price: c.p }));
+    cat.gm = ctx.GM || {}; cat.bn = ctx.BN || []; cat.bp = ctx.BP || []; cat.pool = ctx.PPOOL || []; cat.sp = ctx.SP || [];
+    const ps = fs.readFileSync(path.join(__dirname, 'profile.js'), 'utf8'), ti = ps.indexOf('var TL=');
+    cat.titles = ti < 0 ? [] : [...ps.slice(ti, ps.indexOf('];', ti)).matchAll(/\["([^"]+)","[^"]*",function/g)].map(m => m[1]);
   } catch (e) { console.warn('Каталог не загружен, названия подарков не проверяются:', e.message); }
+  // узор у подарка зависит от редкости узора (0..4): те же формулы, что в игре (PP в shop.js)
+  const patName = (g, i) => { const N = cat.pool.length; return N ? cat.pool[(((g * 5 + 1) % N) + [7, 11, 13, 17, 19, 23, 29][g % 7] * i) % N][0] : 'Узор ' + (i + 1); };
   const giftByName = n => cat.gifts.find(g => g.name.toLowerCase() === String(n).trim().toLowerCase());
   const search = (list, q) => { q = String(q).trim().toLowerCase(); if (!q) return []; const ex = list.filter(x => x.name.toLowerCase() === q); return ex.length ? ex : list.filter(x => x.name.toLowerCase().includes(q)).slice(0, 8); };
 
@@ -70,7 +75,11 @@ module.exports = function (env) {
       [B('💎 Лимитки', 'a:l'), B('🎁 Выдать игроку', 'a:g')],
       [B('📣 Рассылка', 'a:b'), B('🎟 Промокоды', 'a:c')],
       [B('🛠 Техперерыв', 'a:m'), B('📜 Журнал', 'a:j')],
+      [B('🔄 Обновление игры (сброс прогресса)', 'a:wp')],
     ].concat(kbPlay) }),
+
+    wp: () => ({ text: '<b>🔄 Обновление игры</b>\n\n⚠️ Это <b>удалит прогресс у ВСЕХ игроков</b>: баланс, подарки, NFT, маркет, рейтинг и занятые номера лимиток. Облачные сохранения будут стёрты, а при следующем входе игроков их локальный прогресс тоже обнулится.\n\nНе затрагиваются: покупки, баны, промокоды, выпуски лимиток (тираж освободится), журнал.\nИгроков сейчас: ' + Object.keys(db.users).length + '.\n\nОтменить это действие нельзя.', kb: [[B('Продолжить', 'a:wp2')], back()] }),
+    tt: id => ({ text: '<b>🏷 Выдать титул</b>\nИгрок ' + id + ' сможет выбрать его в профиле. Выберите титул:', kb: cat.titles.map((t, i) => [B(t, 'a:ttp:' + id + ':' + i)]).concat([back('pu:' + id)]) }),
     stats: () => {
       const now = Date.now(), us = Object.values(db.users), act = d => us.filter(x => now - x.l < d * 864e5).length;
       const rev = db.sales.filter(x => !x.refunded).reduce((t, x) => t + x.st, 0);
@@ -85,7 +94,7 @@ module.exports = function (env) {
       const f = db.users[id]; if (!f) return { text: 'Игрок не найден.', kb: [back('pl')] };
       const sc = db.scores[id] || {};
       return { text: '<b>' + esc(f.n) + '</b> @' + esc(f.u || '-') + '\nID: <code>' + id + '</code>\nВпервые: ' + iso(f.f) + '\nПоследний вход: ' + iso(f.l) + '\nПотратил: ' + spentBy(id) + ' ⭐\nКоллекция: ' + (sc.v ?? '-') + ', уровень ' + (sc.l ?? '-') + '\nБан: ' + (db.banned[id] ? 'да' : 'нет'),
-        kb: [[B('💰 Монеты', 'a:gc:' + id), B('🎁 Подарок', 'a:gg:' + id)], [B('📦 Кейс', 'a:gk:' + id), B('💎 Лимитка', 'a:gl:' + id)], [B('✉️ Написать', 'a:gm:' + id), B(db.banned[id] ? '✅ Разбанить' : '🚫 Забанить', 'a:gb:' + id)], back('pl')] };
+        kb: [[B('💰 Монеты', 'a:gc:' + id), B('🎁 Подарок', 'a:gg:' + id)], [B('📦 Кейс', 'a:gk:' + id), B('💎 Лимитка', 'a:gl:' + id)], [B('🎨 NFT с параметрами', 'a:glm:n:' + id + ':0'), B('🏷 Титул', 'a:tt:' + id)], [B('✉️ Написать', 'a:gm:' + id), B(db.banned[id] ? '✅ Разбанить' : '🚫 Забанить', 'a:gb:' + id)], back('pl')] };
     },
     l: () => {
       const rows = Object.entries(db.ed).sort((a, b) => a[1].id - b[1].id).map(([nm, e]) => [B((e.on ? '▶ ' : '⏸ ') + nm + ' · ' + taken(nm) + '/' + e.total + ' · ' + fmt(e.price), 'a:le:' + e.id)]);
@@ -169,6 +178,21 @@ module.exports = function (env) {
     if (!st) return false;
     const num = (lo, hi) => { const v = Number(txt.replace(/\s/g, '')); return Number.isInteger(v) && v >= lo && v <= hi ? v : null; };
     const again = t => show(ctx, { text: t, kb: [[B('✖ Отмена', 'a:x')]] });
+    if (st.a === 'wipeconf') {
+      delete ST[uid];
+      if (txt !== 'СБРОС') { await show(ctx, { text: 'Сброс отменён.', kb: [back()] }); return true; }
+      const w = wipeAll(); audit(uid, 'WIPE ALL id ' + w.id);
+      await show(ctx, { text: '✅ Прогресс у всех игроков сброшен. Id сброса: <code>' + w.id + '</code>. При следующем входе игроки начнут с нуля. Рассылкой можно предупредить об обновлении.', kb: [[B('📣 Рассылка', 'a:b')], back()] }); return true;
+    }
+    if (st.a === 'gsearch') {
+      const pool = giftPool(st.mode).filter(g => g.name.toLowerCase().includes(txt.toLowerCase()));
+      if (!pool.length) return again('Ничего не найдено. Попробуйте другую часть названия или нажмите «Отмена».'), true;
+      delete ST[uid]; await show(ctx, giftList(st.mode, st.u, 0, pool.slice(0, 40))); return true;
+    }
+    if (st.a === 'nbnum') {
+      const v = num(0, 100000); if (v === null) return again('Нужно целое число от 0 до 100 000 (0 = случайный).'), true;
+      delete ST[uid]; if (NB[uid]) NB[uid].n = v; await show(ctx, nbScreen(uid)); return true;
+    }
     if (st.a === 'find') {
       const f = findUser(txt); if (!f) return again('Игрок не найден. Он должен хотя бы раз открыть бота или игру. Пришлите ещё раз или отмените.'), true;
       delete ST[uid]; await show(ctx, screens.pu(f.id)); return true;
@@ -199,9 +223,84 @@ module.exports = function (env) {
     if (st.a === 'puses') { const v = num(1, 1e6); if (!v) return again('Число от 1.'), true; db.promos[st.code] = { coin: st.coin, left: v, used: {}, ts: Date.now() }; audit(uid, 'promo create ' + st.code); delete ST[uid]; await show(ctx, { text: '✅ Промокод <code>' + st.code + '</code>: +' + fmt(st.coin) + ' GRADE, активаций ' + fmt(v) + '. Игроки вводят: /promo ' + st.code, kb: [back('c')] }); return true; }
     return false;
   }
+
+  // ---------- Списки подарков (режимы: e = новый лимитированный выпуск, g = обычный подарок, n = NFT с параметрами) ----------
+  const NB = {}; // конструктор NFT по id админа
+  const GP = 8;
+  const giftPool = mode => cat.gifts.filter(g => !g.hidden && (mode === 'g' || g.up) && !(mode === 'e' && db.ed[g.name]));
+  const modeTitle = { e: '💎 Какой подарок выпускаем ограниченным тиражом?', g: '🎁 Какой подарок выдать?', n: '🎨 Для какого подарка собрать NFT?' };
+  const modeCb = (mode, uid, g) => mode === 'e' ? 'a:np:' + g.i : mode === 'g' ? 'a:gp:' + uid + ':' + g.i : 'a:nbg:' + uid + ':' + g.i;
+  const giftList = (mode, uid, page, pool) => {
+    pool = pool || giftPool(mode); const pages = Math.max(1, Math.ceil(pool.length / GP)); page = Math.max(0, Math.min(page, pages - 1));
+    const rows = pool.slice(page * GP, page * GP + GP).map(g => [B(g.emoji + ' ' + g.name + ' · ' + fmt(g.price) + (mode === 'e' ? '' : '') + (db.ed[g.name] ? ' 💎' : ''), modeCb(mode, uid, g))]);
+    const nav = []; if (page > 0) nav.push(B('‹', 'a:glm:' + mode + ':' + uid + ':' + (page - 1))); nav.push(B((page + 1) + '/' + pages, 'a:noop')); if (page < pages - 1) nav.push(B('›', 'a:glm:' + mode + ':' + uid + ':' + (page + 1)));
+    return { text: '<b>' + modeTitle[mode] + '</b>\n' + (mode === 'e' ? 'Показаны подарки, которые можно улучшить и у которых ещё нет выпуска. 💎 помечены те, у кого выпуск уже есть.\n' : '') + 'Всего: ' + pool.length, kb: rows.concat([nav, [B('🔎 Искать по названию', 'a:gls:' + mode + ':' + uid)], back(mode === 'e' ? 'l' : 'pu:' + uid)]) };
+  };
+  const nbScreen = uid => {
+    const s = NB[uid]; if (!s) return { text: 'Сессия истекла, начните заново.', kb: [back()] };
+    const g = cat.gifts[s.gi], q = cat.gm[g.name];
+    return { text: '<b>🎨 NFT для игрока ' + s.u + '</b>\nПодарок: <b>' + esc(g.name) + '</b>\n\nМодель: ' + (!q ? 'по редкости (у подарка нет моделей)' : s.mo === -2 ? '🎲 случайная' : esc(q.m[s.mo][0])) + '\nФон: ' + (s.b < 0 ? '🎲 случайный' : esc(cat.bn[s.b])) + '\nУзор: ' + (s.s < 0 ? '🎲 случайный' : esc(patName(s.gi, s.s))) + '\nНомер: ' + (s.n ? '#' + s.n : '🎲 случайный') + '\n\nВыберите, что задать. Что не задано, выпадет случайно, как при обычном улучшении.',
+      kb: [[B('Модель', 'a:nbm:0'), B('Фон', 'a:nbb:0')], [B('Узор', 'a:nbs'), B('Номер', 'a:nbn')], [B('🎲 Всё случайно', 'a:nbr'), B('✅ Выдать', 'a:nbgo')], back('pu:' + s.u)] };
+  };
+  const pageNav = (act, page, pages) => { const nav = []; if (page > 0) nav.push(B('‹', 'a:' + act + ':' + (page - 1))); nav.push(B((page + 1) + '/' + pages, 'a:noop')); if (page < pages - 1) nav.push(B('›', 'a:' + act + ':' + (page + 1))); return nav; };
+
+  async function onCallbackNew(cq) {
+    const d = String(cq.data || '').split(':'); d.shift(); const act = d[0];
+    const mine = ['wp', 'wp2', 'glm', 'gls', 'tt', 'ttp', 'nbg', 'nbm', 'nbmp', 'nbb', 'nbbp', 'nbs', 'nbsp', 'nbn', 'nbr', 'nbx', 'nbgo', 'noop', 'ln', 'gg'];
+    if (!mine.includes(act)) return null;
+    const uid = cq.from.id, chat = cq.message && cq.message.chat && cq.message.chat.id;
+    if (!ADMINS.includes(uid) || !cq.message || cq.message.chat.type !== 'private') { tg('answerCallbackQuery', { callback_query_id: cq.id, text: 'Только для администраторов', show_alert: true }); return true; }
+    tg('answerCallbackQuery', { callback_query_id: cq.id });
+    if (act === 'noop') return true;
+    const ctx = { chat, msg: cq.message.message_id };
+    delete ST[uid];
+    if (act === 'wp') { await show(ctx, screens.wp()); return true; }
+    if (act === 'wp2') { await ask(ctx, uid, { a: 'wipeconf' }, '⚠️ Последнее подтверждение. Чтобы удалить прогресс у всех игроков, отправьте слово <b>СБРОС</b> (заглавными). Любой другой текст или кнопка «Отмена» отменят действие.'); return true; }
+    if (act === 'ln') { await show(ctx, giftList('e', 0, 0)); return true; }
+    if (act === 'gg') { await show(ctx, giftList('g', d[1], 0)); return true; }
+    if (act === 'glm') { await show(ctx, giftList(d[1], d[2], Number(d[3]) || 0)); return true; }
+    if (act === 'gls') { await ask(ctx, uid, { a: 'gsearch', mode: d[1], u: d[2] }, 'Часть названия подарка (например: pepe):'); return true; }
+    if (act === 'tt') { await show(ctx, screens.tt(d[1])); return true; }
+    if (act === 'ttp') {
+      const t = cat.titles[d[2]]; if (!t) return true;
+      grant(d[1], ['ttl', Number(d[2])], 'титул «' + t + '»'); audit(uid, 'give title ' + t + ' -> ' + d[1]);
+      await show(ctx, { text: '✅ Титул «' + esc(t) + '» выдан игроку ' + d[1] + '. Он появится в профиле при следующем входе в игру.', kb: [back('pu:' + d[1])] }); return true;
+    }
+    if (act === 'nbg') {
+      const g = cat.gifts[d[2]]; if (!g) return true;
+      if (db.ed[g.name]) { await show(ctx, { text: '«' + esc(g.name) + '» сейчас лимитированный подарок. Выдайте его кнопкой «💎 Лимитка» в карточке игрока: номер должен быть уникальным.', kb: [back('pu:' + d[1])] }); return true; }
+      NB[uid] = { u: d[1], gi: Number(d[2]), mo: -2, b: -1, s: -1, n: 0 }; await show(ctx, nbScreen(uid)); return true;
+    }
+    const s = NB[uid]; if (!s) { await show(ctx, { text: 'Сессия сборки истекла, начните заново из карточки игрока.', kb: [back()] }); return true; }
+    const g = cat.gifts[s.gi], q = cat.gm[g.name];
+    if (act === 'nbx') { await show(ctx, nbScreen(uid)); return true; }
+    if (act === 'nbr') { Object.assign(s, { mo: -2, b: -1, s: -1, n: 0 }); await show(ctx, nbScreen(uid)); return true; }
+    if (act === 'nbm') {
+      if (!q) { await show(ctx, { text: 'У «' + esc(g.name) + '» нет загруженных моделей, модель выпадает по редкости.', kb: [[B('‹ К сборке', 'a:nbx')]] }); return true; }
+      const P = 10, pages = Math.ceil(q.m.length / P), pg = Math.max(0, Math.min(Number(d[1]) || 0, pages - 1));
+      const rows = q.m.slice(pg * P, pg * P + P).map((m, k) => [B(m[0] + ' · ' + m[1] + '%' + (m[4] > 1.5 ? ' ×' + m[4] : ''), 'a:nbmp:' + (pg * P + k))]);
+      await show(ctx, { text: '<b>Модель</b> для ' + esc(g.name), kb: rows.concat([pageNav('nbm', pg, pages), [B('🎲 Случайная', 'a:nbmp:-2')], [B('‹ К сборке', 'a:nbx')]]) }); return true;
+    }
+    if (act === 'nbmp') { s.mo = Number(d[1]); await show(ctx, nbScreen(uid)); return true; }
+    if (act === 'nbb') {
+      const P = 12, pages = Math.ceil(cat.bn.length / P), pg = Math.max(0, Math.min(Number(d[1]) || 0, pages - 1));
+      const rows = cat.bn.slice(pg * P, pg * P + P).map((n, k) => [B(n + ' · ' + (cat.bp[pg * P + k] || 0).toFixed(2) + '%', 'a:nbbp:' + (pg * P + k))]);
+      await show(ctx, { text: '<b>Фон</b> (' + cat.bn.length + ' штук, самые дорогие Black и Onyx Black)', kb: rows.concat([pageNav('nbb', pg, pages), [B('🎲 Случайный', 'a:nbbp:-1')], [B('‹ К сборке', 'a:nbx')]]) }); return true;
+    }
+    if (act === 'nbbp') { s.b = Number(d[1]); await show(ctx, nbScreen(uid)); return true; }
+    if (act === 'nbs') { await show(ctx, { text: '<b>Узор</b> для ' + esc(g.name) + ' (от частого к редкому)', kb: [0, 1, 2, 3, 4].map(i => [B(patName(s.gi, i) + ' · ' + (cat.sp[i] || '') + '%', 'a:nbsp:' + i)]).concat([[B('🎲 Случайный', 'a:nbsp:-1')], [B('‹ К сборке', 'a:nbx')]]) }); return true; }
+    if (act === 'nbsp') { s.s = Number(d[1]); await show(ctx, nbScreen(uid)); return true; }
+    if (act === 'nbn') { await ask(ctx, uid, { a: 'nbnum' }, 'Номер NFT: число от 1 (меньше номер, дороже). Если больше тиража подарка, игра поставит максимальный. 0 = случайный.'); return true; }
+    if (act === 'nbgo') {
+      grant(s.u, ['nft', g.name, s.mo, s.b, s.s, s.n], 'NFT «' + g.name + '»'); audit(uid, 'give nft ' + g.name + ' m' + s.mo + ' b' + s.b + ' s' + s.s + ' n' + s.n + ' -> ' + s.u);
+      const u = s.u; delete NB[uid]; await show(ctx, { text: '✅ NFT «' + esc(g.name) + '» выдан игроку ' + u + '.', kb: [back('pu:' + u)] }); return true;
+    }
+    return null;
+  }
   // Выбор подарка для нового выпуска приходит кнопкой a:np:<индекс каталога>
   const origCb = onCallback;
   async function onCallback2(cq) {
+    const nr = await onCallbackNew(cq); if (nr) return;
     const d = String(cq.data || '').split(':');
     if (d[1] === 'np' && ADMINS.includes(cq.from.id) && cq.message) {
       const g = cat.gifts[d[2]]; tg('answerCallbackQuery', { callback_query_id: cq.id });

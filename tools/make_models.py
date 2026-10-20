@@ -18,7 +18,7 @@
 Запуск из корня проекта: python3 tools/make_models.py
 Нужен node (читает названия подарков из data.js). После запуска перезапустите сервер.
 """
-import json, os, re, subprocess, sys
+import colorsys, json, os, re, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'models')
@@ -42,6 +42,39 @@ def game_gifts():
     if out.returncode:
         sys.exit('Не удалось прочитать data.js: ' + out.stderr[:300])
     return json.loads(out.stdout)
+
+
+def dom_color(path):
+    """Главный цвет картинки: оттенок (если он есть), иначе тёмный/светлый/серый. Нужен для «монохрома»."""
+    try:
+        from PIL import Image
+        im = Image.open(path).convert('RGBA').resize((48, 48))
+    except Exception:
+        return None
+    bins, ach = {}, {'d': 0, 'l': 0, 'g': 0}
+    for r, g, b, a in im.getdata():
+        if a < 128:
+            continue
+        h, s_, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+        if s_ >= 0.25 and v >= 0.25:
+            k = int(h * 24) % 24
+            bins.setdefault(k, []).append((r, g, b))
+        elif v < 0.36:
+            ach['d'] += 1
+        elif v > 0.82 and s_ < 0.25:
+            ach['l'] += 1
+        else:
+            ach['g'] += 1
+    best, bw = None, 0
+    for k in bins:
+        w = len(bins[k]) + len(bins.get((k + 1) % 24, [])) + len(bins.get((k - 1) % 24, []))
+        if w > bw:
+            best, bw = k, w
+    ak = max(ach, key=ach.get)
+    if best is not None and bw >= ach[ak]:
+        px = bins[best]
+        return '#%02x%02x%02x' % tuple(sum(c[i] for c in px) // len(px) for i in range(3))
+    return {'d': '#1c1c1f', 'l': '#f0f0f0', 'g': '#8c8f94'}[ak]
 
 
 def mean_mult(items, a):
@@ -79,7 +112,7 @@ def main():
                 continue
             pct = float(x.get('rarity_permille', x.get('rarity_percent', 0)))
             pn = prices.get(norm(nm))
-            rows.append({'file': nm, 'name': pn[0].replace("'", '’') if pn else title(nm), 'pct': pct, 'fl': fl, 'price': pn[1] if pn else None})
+            rows.append({'col': dom_color(os.path.join(p, nm + '.webp')) if fl & 1 else None, 'file': nm, 'name': pn[0].replace("'", '’') if pn else title(nm), 'pct': pct, 'fl': fl, 'price': pn[1] if pn else None})
         if not rows:
             report.append((d, 'нет ни одного файла модели'))
             continue
@@ -114,7 +147,7 @@ def main():
             slugs[sl] = r['file']
         result[gift] = {
             's': re.sub(r'[^a-z0-9]+', '-', gift.lower()).strip('-'), 'd': d, 'c': round(cov, 1),
-            'm': [[r['name'], round(r['pct'], 2), r['file'], r['fl'], r['mult']] for r in sorted(rows, key=lambda r: -r['pct'])],
+            'm': [[r['name'], round(r['pct'], 2), r['file'], r['fl'], r['mult']] + ([r['col']] if r['col'] else []) for r in sorted(rows, key=lambda r: -r['pct'])],
         }
         miss = [x['name'] for x in conf if not ((x['name'] + '.webp') in files or (x['name'] + '.tgs') in files)]
         no_img = [r['file'] for r in rows if not r['fl'] & 1]
@@ -123,10 +156,17 @@ def main():
             (', нет файлов у: ' + ', '.join(miss[:6]) + ('…' if len(miss) > 6 else '')) if miss else '',
             (', только анимация, без картинки: ' + ', '.join(no_img)) if no_img else '')))
 
+    gc = {}
+    for g in gifts:
+        c = dom_color(os.path.join(ROOT, 'img', re.sub(r'[^a-z0-9]+', '-', g.lower().replace("'", '')).strip('-') + '.webp'))
+        if c:
+            gc[g] = c
     js = ('/* Модели подарков. Создано tools/make_models.py из папки models/, руками не править.\n'
           '   GM[название подарка] = {s: папка в адресе, d: папка в models/, c: охват шанса в %,\n'
-          '   m: [[название, шанс %, имя файла, флаги (1 картинка, 2 анимация), множитель цены]]} */\n'
-          'var GM=' + json.dumps(result, ensure_ascii=False, separators=(',', ':')) + ';\n')
+          '   m: [[название, шанс %, имя файла, флаги (1 картинка, 2 анимация), множитель цены, главный цвет]]} */\n'
+          'var GM=' + json.dumps(result, ensure_ascii=False, separators=(',', ':')) + ';\n'
+          '/* GC[название подарка] = главный цвет картинки подарка (для монохрома у подарков без моделей) */\n'
+          'var GC=' + json.dumps(gc, ensure_ascii=False, separators=(',', ':')) + ';\n')
     open(os.path.join(ROOT, 'models.js'), 'w', encoding='utf8').write(js)
 
     ip = os.path.join(ROOT, 'index.html')
