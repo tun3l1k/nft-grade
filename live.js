@@ -17,7 +17,7 @@ function genP(u){var b=BTm[u],h=hsh(u),r=rngf(h),val=b[1],tier=val>=150000?3:val
   if(g<0)break;var from=r()<.45?"NFT GRADE":names[Math.floor(r()*names.length)];
   var it=pvItemMk(r,g,from,now-Math.floor(r()*18*864e5)-36e5);a.push(it);PI[it.id]=[u,it];sum+=pr(it)}
  var ups=b[2]*3+Math.floor(r()*9),cs=b[2]*9+Math.floor(r()*40);
- var P={u:u,b:b,gifts:a,bd:[1+Math.floor(r()*28),Math.floor(r()*12)],on:r()<.42,ago:Math.floor(r()*5),bio:r()<.8?PBIO[Math.floor(r()*PBIO.length)]:"",ups:ups,wins:Math.round(ups*(.3+r()*.25)),cases:cs,deals:Math.floor(b[2]*1.6+r()*8)};
+ var P={u:u,b:b,gifts:a,bd:[1+Math.floor(r()*28),Math.floor(r()*12)],on:r()<.42,ago:Math.floor(r()*5),bio:PBIO[Math.floor(r()*PBIO.length)],ups:ups,wins:Math.round(ups*(.3+r()*.25)),cases:cs,deals:Math.floor(b[2]*1.6+r()*8)};
  P.val=function(){var s=0;P.gifts.forEach(function(x){s+=pr(x)});return s};return P}
 function getP(u){if(!BTm[u])return null;return PC[u]||(PC[u]=genP(u))}
 function mkLive(u,g){var it=pvItemMk(Math.random,g,"NFT GRADE",Date.now());var P=getP(u);if(P){P.gifts.unshift(it);PI[it.id]=[u,it]}return it}

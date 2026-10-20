@@ -1005,7 +1005,7 @@ function rUp(){var s=usum();if(mx&&s>0)T=near(s*mx,s);else if(T!=null&&!cchance(
  $("umine").innerHTML=S.inv.filter(upOk).sort(function(x,y){return pr(y)-pr(x)}).map(function(x){return tile(x,U[x.u]?" on":"","tu("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет подходящих подарков. В апгрейд идут NFT и неулучшенные подарки, которые можно улучшить. Обычные подарки не участвуют.</p>';
  var tl=[];G.forEach(function(x,i){if(utOk(i))tl.push(i)});var np=Math.max(1,Math.ceil(tl.length/UPG));if(upg>=np)upg=np-1;
  $("utgt").innerHTML=tl.slice(upg*UPG,upg*UPG+UPG).map(function(i){var c=cchance(i,s);return gtile(i,(T==i?" on":"")+(c?"":" dm"),"tt("+i+")").replace("<b>",'<span class="bd'+(c>=50?' ok':'')+'">'+(c?c.toFixed(2)+" %":"—")+"</span><b>")}).join("");
- $("upg").innerHTML=np>1?'<button '+(upg?'':'disabled ')+'onclick="upgGo('+(upg-1)+')">‹</button>'+Array.apply(0,Array(np)).map(function(_,k){return '<button class="'+(k==upg?'on':'')+'" onclick="upgGo('+k+')">'+(k+1)+'</button>'}).join("")+'<button '+(upg<np-1?'':'disabled ')+'onclick="upgGo('+(upg+1)+')">›</button>':"";
+ $("upg").innerHTML=np>1?'<button '+(upg?'':'disabled ')+'onclick="upgGo('+(upg-1)+')">‹</button><span class="upn">'+(upg+1)+' / '+np+'</span><button '+(upg<np-1?'':'disabled ')+'onclick="upgGo('+(upg+1)+')">›</button>':"";
  $("ufast").classList.toggle("on",!!S.set.ufast);
  $("uhist").innerHTML=(S.uh||[]).map(function(h){return '<div class="mrow"><span class="e">'+(h.w?"✅":"❌")+'</span><div class="tt">'+h.a+' → '+G[h.t][1]+' '+G[h.t][0]+'<small>шанс '+h.c.toFixed(1)+' % · '+new Date(h.ts).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})+'</small></div></div>'}).join("")||'<p class="note">Попыток пока нет</p>'}
 function upOk(x){return !!(x.up||G[x.g][4])}
@@ -1328,7 +1328,7 @@ body.pvon{overflow:hidden}
 .wib.wz{right:auto;left:-4px;color:var(--mu)}.wib.wz.on{color:#ffd54a;border-color:#ffd54a;box-shadow:0 0 12px rgba(255,213,74,.45)}
 .upg{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:12px 12px 4px}
 .upg button{min-width:34px;height:34px;border-radius:10px;border:1px solid var(--ln);background:var(--p2);color:var(--tx);font-weight:700;font-size:14px;padding:0 8px;cursor:pointer}
-.upg button.on{background:var(--bl);border-color:var(--bl)}.upg button:disabled{opacity:.35}
+.upg button.on{background:var(--bl);border-color:var(--bl)}.upg button:disabled{opacity:.35}.upg{align-items:center;gap:14px}.upn{font-weight:700;min-width:64px;text-align:center}
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 </style>
 <script>
@@ -1351,7 +1351,7 @@ function genP(u){var b=BTm[u],h=hsh(u),r=rngf(h),val=b[1],tier=val>=150000?3:val
   if(g<0)break;var from=r()<.45?"NFT GRADE":names[Math.floor(r()*names.length)];
   var it=pvItemMk(r,g,from,now-Math.floor(r()*18*864e5)-36e5);a.push(it);PI[it.id]=[u,it];sum+=pr(it)}
  var ups=b[2]*3+Math.floor(r()*9),cs=b[2]*9+Math.floor(r()*40);
- var P={u:u,b:b,gifts:a,bd:[1+Math.floor(r()*28),Math.floor(r()*12)],on:r()<.42,ago:Math.floor(r()*5),bio:r()<.8?PBIO[Math.floor(r()*PBIO.length)]:"",ups:ups,wins:Math.round(ups*(.3+r()*.25)),cases:cs,deals:Math.floor(b[2]*1.6+r()*8)};
+ var P={u:u,b:b,gifts:a,bd:[1+Math.floor(r()*28),Math.floor(r()*12)],on:r()<.42,ago:Math.floor(r()*5),bio:PBIO[Math.floor(r()*PBIO.length)],ups:ups,wins:Math.round(ups*(.3+r()*.25)),cases:cs,deals:Math.floor(b[2]*1.6+r()*8)};
  P.val=function(){var s=0;P.gifts.forEach(function(x){s+=pr(x)});return s};return P}
 function getP(u){if(!BTm[u])return null;return PC[u]||(PC[u]=genP(u))}
 function mkLive(u,g){var it=pvItemMk(Math.random,g,"NFT GRADE",Date.now());var P=getP(u);if(P){P.gifts.unshift(it);PI[it.id]=[u,it]}return it}
