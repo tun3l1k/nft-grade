@@ -2,7 +2,7 @@
    При входе с другого устройства подтягивается более свежая версия (/load). Если админ сбросил прогресс у всех (id сброса w изменился),
    локальный прогресс стирается. Без Telegram (нет initData) всё работает как раньше, только на устройстве. */
 var CL={ready:0,tm:null,busy:0};
-function cloudReload(){try{var k="clrl",n=Date.now(),l=+sessionStorage.getItem(k)||0;if(n-l<60000)return;sessionStorage.setItem(k,n)}catch(e){}location.reload()}
+function cloudReload(){try{var k="clrl",n=Date.now(),l=+sessionStorage.getItem(k)||0;if(n-l<60000)return;sessionStorage.setItem(k,n)}catch(e){}window.CLDEAD=1;location.reload()}
 function cloudPush(){if(!CL.ready||CL.busy||!initD())return;CL.busy=1;clearTimeout(CL.tm);CL.tm=null;
  api("/save",{s:S,t:S.ts||Date.now(),w:S.wp||""}).then(function(d){CL.busy=0;if(!d)return;
   if(d.wipe!==undefined)cloudInit(1);else if(d.stale){CL.ready=0;cloudInit(1)}else if(CL.tm===null&&CL.dirty){CL.dirty=0;cloudSched()}}).catch(function(){CL.busy=0})}

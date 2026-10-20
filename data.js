@@ -172,7 +172,7 @@ S.set=Object.assign({bs:1,vib:1,fast:0,odds:1,cols:3,snd:1,vol:80,fx:1,live:1,cf
  S.mkt=(S.mkt||[]).filter(function(l){if(G[l.it.g]&&G[l.it.g][4])return true;if(!G[l.it.g]){if(l.s=="you"||l.by=="you")rf+=l.p;return false}if(l.s=="you")S.inv.push(l.it);if(l.by=="you")rf+=l.p;return false});
  if(rf){S.bal+=rf;S.mg=(S.mg||0)+rf}})();
 (function(){var m=function(x){if(x&&x.up==null){x.up=x.n>0?1:0;delete x.lv;delete x.pf}};(S.inv||[]).forEach(m);(S.mkt||[]).forEach(function(l){m(l.it)})})();
-function save(){S.ts=Date.now();try{localStorage.setItem("nftgrade3",JSON.stringify(S))}catch(e){}if(typeof cloudSched=="function")cloudSched()}
+function save(){if(window.CLDEAD)return;S.ts=Date.now();try{localStorage.setItem("nftgrade3",JSON.stringify(S))}catch(e){}if(typeof cloudSched=="function")cloudSched()}
 IM["Candy Cane"]='<image href="img/candy-cane.webp" width="100" height="100"/>';
 IM["Jelly Bunny"]='<image href="img/jelly-bunny.webp" width="100" height="100"/>';
 IM["Durov's Cap"]='<image href="img/durovs-cap.webp" width="100" height="100"/>';
