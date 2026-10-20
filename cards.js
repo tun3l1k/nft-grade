@@ -9,7 +9,7 @@ function rPf(){
  $("pfv").innerHTML=ic("coin",16).replace('<svg','<svg style="display:inline;vertical-align:-3px;margin-right:4px"')+f(cv())+" GRADE";
  var b=$("bio");if(document.activeElement!=b)b.value=S.bio||""}
 function tbr(k,v){return '<div class="r"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'}
-function pcb(p){return '<span class="pc">'+p+'%</span>'}
+function pcb(p){return '<span class="pc">'+(Math.round(p*100)/100)+'%</span>'}
 function fdt(t){return t?new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(","," в"):"—"}
 function nftHead(it){var g=G[it.g],c=BG[it.b];return '<div class="nfh" style="--c:'+c+'"><i class="npt">'+Array(90).join(PS(it.g,it.s)+" ")+'</i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi'+(ismono(it)?' mono':'')+'"'+(hasMo(it)&&(mrow(it)[3]&2)?' data-tgs="'+murl(it.g,it.mo,"tgs")+'"':'')+'>'+mimg(it,132)+'</div><div class="h" style="font-size:22px">'+g[0]+' <span class="nno">#'+f(it.n)+'</span></div><div class="nfs">'+mname(it)+'</div></div>'}
 function nftRows(it,owner,own){var sp=supply(it.g),lm=LIM[G[it.g][0]],be=nbe(it.n);return tbr("Владелец",owner)+tbr("Модель",mname(it)+pcb(mpct(it)))+tbr("Узор",PN(it.g,it.s)+pcb(SP[it.s]))+tbr("Фон",BN[it.b]+pcb(BP[it.b]))+tbr("Номер","#"+f(it.n)+(be?" · "+be[0]:"")+' <span class="pc">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</span>')+tbr("Наличие",f(sp[1])+"/"+f(sp[0])+" выпущено"+(lm?' <span class="lmb">ЛИМИТКА</span>':''))+tbr("Надбавка за редкость","+"+Math.round((umul(it)-1)*100)+"%")+tbr("Рыночная цена",ic("coin",14)+f(pr(it)))+(own?tbr("Быстрая продажа",ic("coin",14)+f(sv(it))+' <small class="mu">комиссия '+Math.round((1-ECO.sell)*100)+'%</small>'):'')}
@@ -47,7 +47,7 @@ function gUpDo(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.
 var UA=null;
 function upAnim(it){if(UA){clearInterval(UA);UA=null}
  var reduce=false;try{reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches}catch(e){}
- var fin=function(){vib();sfx("r2");burst(it.b>=3||ismono(it)||mrare(it)?70:44,[BG[it.b],"#ffd54a","#fff"]);itemSheet(it)};
+ var fin=function(){vib();sfx("r2");burst(PRM.b[it.b]>=.3||ismono(it)||mrare(it)?70:44,[BG[it.b],"#ffd54a","#fff"]);itemSheet(it)};
  if(reduce){fin();return}
  var g=G[it.g],sp=supply(it.g);shown=it.u;if(hasMo(it)&&(mrow(it)[3]&1)){var pi=new Image();pi.src=murl(it.g,it.mo,"webp")}
  $("sh").innerHTML='<div class="nfh" id="ua_h" style="--c:'+BG[rnd(BG.length)]+'"><i class="npt" id="ua_p"></i><span class="bpill">'+ic("coin",14)+f(S.bal)+'</span><div class="nfi ufl" id="ua_i">'+gimg(it.g,132)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="nfs" id="ua_t">Улучшение подарка…</div></div>'
@@ -60,6 +60,6 @@ function upAnim(it){if(UA){clearInterval(UA);UA=null}
   if(!lk.s){if(e>=2000){lk.s=1;$("ua_s").innerHTML=PN(it.g,it.s)+pcb(SP[it.s]);pt(PS(it.g,it.s))}else{var k=rnd(5);$("ua_s").textContent=PN(it.g,k);pt(PS(it.g,k))}}
   if(!lk.b){if(e>=2600){lk.b=1;$("ua_b").innerHTML=BN[it.b]+pcb(BP[it.b]);H.style.setProperty("--c",BG[it.b])}else{var q=rnd(BG.length);$("ua_b").textContent=BN[q];H.style.setProperty("--c",BG[q])}}
   if(e>=3000){clearInterval(UA);UA=null;$("ua_t").textContent=mname(it);$("ua_v").innerHTML=ic("coin",14)+f(pr(it));
-   vib();sfx("r2");burst(it.b>=3||ismono(it)||mrare(it)?70:44,[BG[it.b],"#ffd54a","#fff"]);toast("Подарок улучшен: "+g[0]+" #"+it.n);
+   vib();sfx("r2");burst(PRM.b[it.b]>=.3||ismono(it)||mrare(it)?70:44,[BG[it.b],"#ffd54a","#fff"]);toast("Подарок улучшен: "+g[0]+" #"+it.n);
    setTimeout(function(){if(shown==it.u&&$("ua_h"))itemSheet(it)},900)}
  },90)}
