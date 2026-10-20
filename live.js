@@ -23,7 +23,7 @@ function mkLive(u,g){var it=pvItemMk(Math.random,g,"NFT GRADE",Date.now());var P
 LF.forEach(function(d,i){d[2]=mkLive(d[0],d[1]);d[2].d=Date.now()-i*95000});
 livePush=function(u,g){var it=mkLive(u,g);LF.unshift([u,g,it]);if(LF.length>30)LF.pop();rLive(1)};
 function tileH(d,an){var g=G[d[1]],it=d[2],up=it&&it.up,c=up?BG[it.b]:(g[4]?BG[d[1]%5]:"#7f91a4");
- return '<div class="t sm'+(an?" nw":"")+'" data-u="'+d[0]+'" data-i="'+(it?it.id:0)+'" onclick="liveTap(this)" style="--rc:'+c+';--bg2:'+(up?c:BG[d[1]%5])+'"><b>'+gimg(d[1],34)+'</b><small>'+g[0]+'</small><em style="font-size:10px;color:var(--mu)">'+(d[0]=="вы"?"вы":"@"+d[0])+'</em></div>'}
+ return '<div class="t sm'+(an?" nw":"")+'" data-u="'+d[0]+'" data-i="'+(it?it.id:0)+'" onclick="liveTap(this)" style="--rc:'+c+';--bg2:'+(up?c:BG[d[1]%5])+'">'+(up?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+'<b'+(ismono(it)?' class="mono"':'')+'>'+(up?mimg(it,34):gimg(d[1],34))+'</b><small>'+g[0]+'</small><em style="font-size:10px;color:var(--mu)">'+(d[0]=="вы"?"вы":"@"+d[0])+'</em></div>'}
 rLive=function(an){var fd=$("feed");if(!fd)return;
  if(an&&fd.children.length&&LF.length){var sl=fd.scrollLeft;fd.insertAdjacentHTML("afterbegin",tileH(LF[0],1));while(fd.children.length>20)fd.removeChild(fd.lastChild);if(sl>4)fd.scrollLeft=sl+94}
  else fd.innerHTML=LF.slice(0,20).map(function(d){return tileH(d,0)}).join("")};
@@ -48,7 +48,7 @@ function pvGift(x,P,focus){var n=!!x.up,c=n?BG[x.b]:"#7f91a4",h=hsh(x.from)%360;
 function pvBody(){var P=getP(PVU),el=$("pvbody");if(!P||!el)return;
  var a=P.gifts.slice().sort(function(p,q){return(q.id==PVF)-(p.id==PVF)||pr(q)-pr(p)});
  el.innerHTML=PVT==1?'<div class="grid pvg">'+a.map(function(x){return pvGift(x,P,PVF)}).join("")+'</div>'
-  :P.gifts.slice().sort(function(p,q){return q.d-p.d}).slice(0,25).map(function(x){var g=G[x.g];return '<div class="pvd" onclick="pvItem('+x.id+')"><div style="width:34px">'+gimg(x.g,32)+'</div><div><b>'+g[0]+(x.up?" #"+x.n:"")+'</b><span>выпал из кейса</span></div><em>'+f(pr(x))+'<small>'+pvAgo(x.d)+'</small></em></div>'}).join("");
+  :P.gifts.slice().sort(function(p,q){return q.d-p.d}).slice(0,25).map(function(x){var g=G[x.g];return '<div class="pvd" onclick="pvItem('+x.id+')"><div style="width:34px">'+(x.up?mimg(x,32):gimg(x.g,32))+'</div><div><b>'+g[0]+(x.up?" #"+x.n:"")+'</b><span>выпал из кейса</span></div><em>'+f(pr(x))+'<small>'+pvAgo(x.d)+'</small></em></div>'}).join("");
  document.querySelectorAll("#pvt button").forEach(function(b,i){b.classList.toggle("on",i+1==PVT)})}
 function pvTab(n){PVT=n;pvBody()}
 function pvSoon(t){toast(t||"Недоступно в демо")}
