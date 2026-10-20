@@ -51,7 +51,7 @@ function cv(){return S.inv.reduce(function(a,x){return a+pr(x)},0)}
 function wp(a){var x=Math.random()*100,t=0;for(var i=0;i<a.length;i++){t+=a[i];if(x<t)return i}return 0}
 /* надбавка за малый номер считается от тиража D: первые 0,1% номеров x2,5, до 1% x1,5, до 10% x1,12 (для тиража 10 000 это номера до 10, до 100 и до 1000; первый номер всегда в первой группе) */
 /* название и значок модели/узора конкретного подарка */
-function MN(g,i){if(i==5)return"Monochrome";var N=MPOOL.length;return MPOOL[((g*7+3)%N+[5,7,11,13,17,19,23,25][g%8]*i)%N]}
+function MN(g,i){var N=MPOOL.length;return MPOOL[((g*7+3)%N+[5,7,11,13,17,19,23,25][g%8]*i)%N]}
 function PP(g,i){var N=PPOOL.length;return PPOOL[((g*5+1)%N+[7,11,13,17,19,23,29][g%7]*i)%N]}
 function PN(g,i){return PP(g,i)[0]}
 function PS(g,i){return PP(g,i)[1]}
@@ -67,7 +67,15 @@ function mrow(it){return hasMo(it)?gmOf(it.g).m[it.mo]:null}
 function mname(it){var r=mrow(it);return r?r[0]:MN(it.g,it.m)}
 function mpct(it){var r=mrow(it);return r?r[1]:MP[it.m]}
 function mmul(it){var r=mrow(it);return r?r[4]:1+PRM.m[it.m]}
-function ismono(it){return it.up&&!hasMo(it)&&it.m==5}
+/* Монохром: главный цвет модели (у подарков без моделей цвет подарка) совпадает с цветом фона: оранжевая модель на оранжевом фоне, чёрная на чёрном */
+function ccls(h){var n=parseInt(h.slice(1),16),r=(n>>16&255)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn,s=mx?d/mx:0;
+ if(s>=.25&&mx>=.25){var hu=d==0?0:mx==r?((g-b)/d+6)%6:mx==g?(b-r)/d+2:(r-g)/d+4;return[hu*60,s,mx]}
+ return[mx<.36?-1:mx>.82&&s<.25?-2:-3,s,mx]}
+var CCC={};function ccm(a,b){var k=a+b,v=CCC[k];if(v!==undefined)return v;var x=ccls(a),y=ccls(b);
+ return CCC[k]=x[0]<0||y[0]<0?x[0]==y[0]&&x[0]!=-3:Math.min(Math.abs(x[0]-y[0]),360-Math.abs(x[0]-y[0]))<=10&&Math.abs(x[1]-y[1])<=.25&&Math.abs(x[2]-y[2])<=.25}
+function gcol(g,mo){var q=gmOf(g),r=q&&mo>=0?q.m[mo]:null;return (r&&r[5])||(typeof GC!="undefined"&&GC[G[g][0]])||null}
+function monoOf(g,mo,b){var c=gcol(g,mo);return !!c&&ccm(c,BG[b])}
+function ismono(it){return !!it.up&&monoOf(it.g,it.mo,it.b)}
 function mrare(it){var r=mrow(it);return r?r[4]>=1.5:it.m>=3}
 /* картинка NFT: у модели своя, иначе картинка подарка */
 function mimg(it,z){var r=mrow(it);if(!r||!(r[3]&1))return gimg(it.g,z);
@@ -86,7 +94,7 @@ function nbm(n,D){return n<=Math.max(1,Math.round(D*.001))?2.5:n<=Math.max(1,Mat
 /* красивый номер: [название, множитель] или null */
 function nbe(n){var s=String(n);if(n>=11&&/^(\d)\1+$/.test(s))return["Одинаковые цифры",PRM.nb.rep];if(n>=1000&&n%1000==0)return["Круглый номер",PRM.nb.rnd];if(n>=1000&&("0123456789".indexOf(s)>=0||"9876543210".indexOf(s)>=0))return["Лесенка",PRM.nb.seq];if(n>=101&&s==s.split("").reverse().join(""))return["Палиндром",PRM.nb.pal];return null}
 function nmul(n,D){var e=nbe(n);return nbm(n,D)*(e?e[1]:1)}
-function umul(it){return Math.min(PRM.max,mmul(it)*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
+function umul(it){return Math.min(PRM.max,mmul(it)*(ismono(it)?PRM.mono:1)*(1+PRM.b[it.b])*(1+PRM.s[it.s])*nmul(it.n,nmax(it.g)))}
 function pr(it){var g=G[it.g];return it.up?Math.round(g[3]*umul(it)):g[3]}
 /* тираж: сколько всего подарков и сколько выпущено. Номер улучшенного подарка всегда от 1 до числа выпущенных */
 function supply(g){var q=G[g],l=LIM[q[0]];if(l)return[l,limTaken(g)];var r=q[2],tot=[250000,30000,9000,2000][r]+((g*7919)%900)*(r+1),iss=Math.round(tot*(.55+((g*37)%40)/100));return[tot,iss]}
@@ -106,10 +114,10 @@ function limSync(){var sent=(S.ltp||[]).slice();api("/lim",{take:sent}).then(fun
  (d.dup||[]).forEach(function(x){var it=limFind(x[0],x[1]),gi=G.map(function(q){return q[0]}).indexOf(x[0]);if(!it||gi<0)return;S.ltk[x[0]]=(S.ltk[x[0]]||[]).filter(function(v){return v!=x[1]});it.n=mintN(gi);toast("Номер "+x[0]+" занят, выдан #"+it.n)});save();if(typeof rMk=="function"&&mtab==6&&$("p3").classList.contains("on"))rMk()}).catch(function(){})}
 /* средний множитель улучшенного подарка по шансам модели, фона, узора и номера (номер зависит от тиража подарка): нужен для честного шанса в апгрейде */
 var EUC={};
-function EUg(g){var D=nmax(g),q=gmOf(g),key=q?g+":"+D:"d"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
+function EUg(g){var D=nmax(g),q=gmOf(g),key=g+":"+D;if(EUC[key])return EUC[key];var H={},k,n;for(n=1;n<=D;n++){k=nmul(n,D);H[k]=(H[k]||0)+1}
  /* варианты модели: [шанс, множитель]; у подарков из models/ это реальные модели, остаток охвата идёт по старой системе */
- var ML=[],cov=0,m;if(q)q.m.forEach(function(x){ML.push([x[1],x[4]]);cov+=x[1]});if(!q)for(m=0;m<MP.length;m++)ML.push([MP[m],1+PRM.m[m]]);
- var t=0,w=0;ML.forEach(function(mm){if(mm[0]<=0)return;for(var b=0;b<BP.length;b++)for(var s=0;s<SP.length;s++)for(k in H){var p=mm[0]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,mm[1]*(1+PRM.b[b])*(1+PRM.s[s])*k)}});return EUC[key]=t/w}
+ var ML=[],cov=0,m;if(q)q.m.forEach(function(x,j){ML.push([x[1],x[4],gcol(g,j)]);cov+=x[1]});if(!q)for(m=0;m<MP.length;m++)ML.push([MP[m],1+PRM.m[m],gcol(g,-1)]);
+ var t=0,w=0;ML.forEach(function(mm){if(mm[0]<=0)return;for(var b=0;b<BP.length;b++){var mf=mm[2]&&ccm(mm[2],BG[b])?PRM.mono:1;for(var s=0;s<SP.length;s++)for(k in H){var p=mm[0]*BP[b]*SP[s]*H[k]/D;w+=p;t+=p*Math.min(PRM.max,mm[1]*mf*(1+PRM.b[b])*(1+PRM.s[s])*k)}}});return EUC[key]=t/w}
 function tv(g){return Math.round(G[g][3]*EUg(g))}
 function mkItem(g,up,fx){if(!up)return{u:S.nu++,g:g,n:0,m:0,s:0,b:0,up:0,d:Date.now()};var mo=mpick(g),it=mkUp(g,fx);it.mo=mo;it.m=mo>=0?0:wp(MP);return it}
 function mkUp(g,fx){return{u:S.nu++,g:g,n:fx||(LIM[G[g][0]]?mintN(g):1+rnd(nmax(g))),m:0,s:wp(SP),b:wp(BP),up:1,d:Date.now()}}

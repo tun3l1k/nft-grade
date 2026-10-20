@@ -58,7 +58,7 @@ body.pvon{overflow:hidden}
 .pvg .gc small{font-size:10px;bottom:5px}
 .pvd{margin:0 14px 6px;padding:8px 12px;border-radius:14px}
 /* Монохром: подарок без цвета */
-.mono svg,.mono img{filter:grayscale(1) contrast(1.15)}
+.mono svg,.mono img{filter:drop-shadow(0 0 10px rgba(255,255,255,.55)) saturate(1.2)}
 /* Имя и номер, значок лимитки */
 .nno{color:rgba(255,255,255,.55);font-weight:600;font-size:15px}
 .lmb{background:#ffd54a;color:#3a2a00;border-radius:8px;padding:1px 7px;font-size:11px;font-weight:800;letter-spacing:.3px}
