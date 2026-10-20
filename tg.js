@@ -12,3 +12,7 @@
  ["ready","expand","close","enableClosingConfirmation"].forEach(function(k){if(!W[k])W[k]=function(){}});
  if(!W.HapticFeedback)W.HapticFeedback=null;
 }catch(e){}})();
+/* запрет масштабирования: двойное касание и щипок */
+(function(){var lt=0;document.addEventListener("touchend",function(e){var n=Date.now();if(n-lt<350&&e.target.closest&&!e.target.closest("input,textarea,select"))e.preventDefault();lt=n},{passive:false});
+ ["gesturestart","gesturechange","gestureend"].forEach(function(g){document.addEventListener(g,function(e){e.preventDefault()})});
+ document.addEventListener("dblclick",function(e){e.preventDefault()});})();
