@@ -1340,6 +1340,7 @@ var GR=null;function gByR(){if(!GR){GR=[[],[],[],[]];G.forEach(function(x,i){if(
 function pvName(u){return PD_NAME[u]||u}
 function pvAv(u,sz,fs){var h=hsh(u)%360;return '<span class="pvo" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+pvName(u).charAt(0).toUpperCase()+'</span>'}
 function pvItemMk(r,g,from,when){var up=G[g][4]&&!LIM[G[g][0]]&&r()<(G[g][2]>=1?.75:.45)?1:0;var it={id:++PID,g:g,up:up,n:up?1+Math.floor(r()*nmax(g)):0,m:0,mo:-1,s:up?swp(r,SP):0,b:up?swp(r,BP):0,d:when,from:from,u:PID};if(up){var q=gmOf(g);if(q){var T=0,j;for(j=0;j<q.m.length;j++)T+=q.m[j][1];var x=r()*T,t=0;it.mo=q.m.length-1;for(j=0;j<q.m.length;j++){t+=q.m[j][1];if(x<t){it.mo=j;break}}}else it.m=swp(r,MP)}return it}
+var PBIO=["Коллекционирую редкие NFT 💎","Ловлю удачу в кейсах","Тут за красивыми номерами","Не продаю, только копию","Собираю Monochrome","Апгрейд — мой стиль","Люблю Plush Pepe","Крипта, кофе и подарки","Всё по плану, всё в плюс","Торгую на маркете каждый день"],PAGO=["был(а) недавно","был(а) 12 минут назад","был(а) 1 час назад","был(а) 3 часа назад","был(а) вчера"];
 function genP(u){var b=BTm[u],h=hsh(u),r=rngf(h),val=b[1],tier=val>=150000?3:val>=60000?2:val>=20000?1:0;
  var W=[[60,28,10,2],[48,32,15,5],[36,34,21,9],[24,32,28,16]][tier],now=Date.now(),a=[],sum=0,names=BT.map(function(x){return x[0]}).filter(function(x){return x!=u});
  for(var k=0;k<130;k++){var rem=val-sum;if(rem<18)break;var g=-1;
@@ -1347,7 +1348,7 @@ function genP(u){var b=BTm[u],h=hsh(u),r=rngf(h),val=b[1],tier=val>=150000?3:val
   if(g<0)break;var from=r()<.45?"NFT GRADE":names[Math.floor(r()*names.length)];
   var it=pvItemMk(r,g,from,now-Math.floor(r()*18*864e5)-36e5);a.push(it);PI[it.id]=[u,it];sum+=pr(it)}
  var ups=b[2]*3+Math.floor(r()*9),cs=b[2]*9+Math.floor(r()*40);
- var P={u:u,b:b,gifts:a,bd:[1+Math.floor(r()*28),Math.floor(r()*12)],on:r()<.34,ups:ups,wins:Math.round(ups*(.3+r()*.25)),cases:cs,deals:Math.floor(b[2]*1.6+r()*8)};
+ var P={u:u,b:b,gifts:a,bd:[1+Math.floor(r()*28),Math.floor(r()*12)],on:r()<.42,ago:Math.floor(r()*5),bio:r()<.8?PBIO[Math.floor(r()*PBIO.length)]:"",ups:ups,wins:Math.round(ups*(.3+r()*.25)),cases:cs,deals:Math.floor(b[2]*1.6+r()*8)};
  P.val=function(){var s=0;P.gifts.forEach(function(x){s+=pr(x)});return s};return P}
 function getP(u){if(!BTm[u])return null;return PC[u]||(PC[u]=genP(u))}
 function mkLive(u,g){var it=pvItemMk(Math.random,g,"NFT GRADE",Date.now());var P=getP(u);if(P){P.gifts.unshift(it);PI[it.id]=[u,it]}return it}
@@ -1390,10 +1391,10 @@ function pvRender(){var P=getP(PVU),b=P.b,u=PVU,h=hsh(u)%360,val=P.val(),nft=P.g
  bt=function(ic,l,fn){return '<button onclick="'+fn+'">'+ic+'<span>'+l+'</span></button>'};
  $("pv").innerHTML='<div class="pve" id="pve"></div><div class="pvh"><button class="pvb" onclick="pvClose()">'+PV_ICO.back+'</button>'
  +'<div class="pvav" style="background:linear-gradient(135deg,hsl('+h+' 62% 46%),hsl('+(h+60)+' 66% 30%))">'+pvName(u).charAt(0).toUpperCase()+'</div>'
- +'<div class="pvn">'+pvName(u)+'</div><div class="pvst'+(P.on?' on':'')+'">'+pvShield(b[2])+'<span>'+(P.on?"в сети":"был(а) недавно")+'</span></div></div>'
+ +'<div class="pvn">'+pvName(u)+'</div><div class="pvst'+(P.on?' on':'')+'">'+pvShield(b[2])+'<span>'+(P.on?"в сети":PAGO[P.ago|0])+'</span></div></div>'
  +'<button class="pvsend" onclick="pvSend()">Отправить подарок</button>'
  +'<div class="pvm">'+PV_ICO.cup.replace(/20/g,'16')+'Титул: '+pvTitle(P)+' <span>· '+place+'-е место ›</span></div>'
- +'<div class="pvc"><div class="r"><div class="k">имя пользователя</div><div class="pvv bl2">@'+u+'</div><span class="pvq">'+PV_ICO.qr+'</span></div><div class="r"><div class="k">день рождения</div><div class="pvv">'+P.bd[0]+' '+mo[P.bd[1]]+'</div></div></div>'
+ +'<div class="pvc">'+(P.bio?'<div class="r"><div class="k">о себе</div><div class="pvv">'+P.bio+'</div></div>':'')+'<div class="r"><div class="k">имя пользователя</div><div class="pvv bl2">@'+u+'</div><span class="pvq">'+PV_ICO.qr+'</span></div><div class="r"><div class="k">день рождения</div><div class="pvv">'+P.bd[0]+' '+mo[P.bd[1]]+'</div></div></div>'
  +'<div class="pvk"><div class="w">'+ic("coin",18)+f(val)+'<small>GRADE · коллекция</small></div>'
  +[[P.gifts.length,"Подарков"],[nft,"NFT"],[rare,"Редких"],[b[2],"Уровень"],[f(P.cases),"Кейсов"],[P.wins+"/"+P.ups,"Апгрейды"]].map(function(x){return '<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("")+'</div>'
  +'<div class="pvt" id="pvt"><button onclick="pvTab(1)">Подарки '+top+'</button><button onclick="pvTab(2)">Дропы</button></div><div id="pvbody"></div>';
