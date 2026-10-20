@@ -40,8 +40,9 @@ function gUp(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up
  $("sh").innerHTML='<div class="nfi" style="height:120px">'+gimg(it.g,112)+'</div><div class="h" style="font-size:22px">Улучшение подарка</div><div class="at" style="text-align:center;padding:0 10px">Подарок станет уникальным коллекционным, и его можно будет передать или продать на маркете.</div>'
   +fe(I1,"Уникальность","При улучшении подарку присваиваются уникальный номер, модель, фон и узор.")+fe(I2,"Можно продать","Подарок можно продать на маркете или обменять на GRADE.")+fe(I3,"Можно носить","Подарок можно добавить в профиль и показывать другим.")
   +'<div class="tbl">'+tbr("Улучшение",ic("coin",14)+f(c)+" GRADE")+tbr("Ваш баланс",ic("coin",14)+f(S.bal))+'</div>'
-  +'<button class="go bigb" '+(ok?'':'disabled')+' onclick="gUpDo('+u+')">'+(ok?'Улучшить за '+f(c)+' '+UPI:'Не хватает GRADE')+'</button><button class="go gh" style="margin:0;width:100%" onclick="sheet('+u+')">Назад</button>';
+  +'<button class="go bigb" '+(ok?'':'disabled')+' onclick="gUpAsk('+u+')">'+(ok?'Улучшить за '+f(c)+' '+UPI:'Не хватает GRADE')+'</button><button class="go gh" style="margin:0;width:100%" onclick="sheet('+u+')">Назад</button>';
  $("sheet").className="ov end on"}
+function gUpAsk(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it)return;ask("Улучшить "+G[it.g][0]+" за "+f(upCost(it))+" GRADE? Модель, фон и узор выпадут случайно.",function(){gUpDo(u)})}
 function gUpDo(u){var it=S.inv.filter(function(x){return x.u==u})[0];if(!it||it.up||!G[it.g][4])return;if(!it.sn&&limLeft(it.g)<=0){toast("Тираж исчерпан");return}var c=upCost(it);if(S.bal<c){toast("Не хватает GRADE");return}
  S.bal-=c;var n=mkItem(it.g,1,it.sn);delete it.sn;it.n=n.n;it.m=n.m;it.mo=n.mo;it.s=n.s;it.b=n.b;it.up=1;it.d=Date.now();bpAdd("nft",1);save();render();upAnim(it)}
 var UA=null;

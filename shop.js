@@ -138,4 +138,4 @@ function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6p
 var tabs=[["box","Кейсы"],["layers","Прогресс"],["up","Апгрейд"],["bag","Маркет"],["user","Профиль"]];
 $("nav").innerHTML=tabs.map(function(t,i){return '<button onclick="tab('+i+')">'+ic(t[0],24)+t[1]+'</button>'}).join("");
 $("s1").innerHTML=IC.search;$("s2").innerHTML=IC.search;
-function tab(n){if(n==6)rSet();for(var i=0;i<11;i++)$("p"+i).classList.toggle("on",i==n);document.querySelectorAll(".nav button").forEach(function(b,i){b.classList.toggle("on",i==(n==10?1:n==5||n==8||n==9?0:n==6?-1:n==7?4:n))});window.scrollTo(0,0);render()}
+function tab(n){if(n==6)rSet();if(n==3&&typeof limSync=="function")limSync();for(var i=0;i<11;i++)$("p"+i).classList.toggle("on",i==n);document.querySelectorAll(".nav button").forEach(function(b,i){b.classList.toggle("on",i==(n==10?1:n==5||n==8||n==9?0:n==6?-1:n==7?4:n))});window.scrollTo(0,0);render()}
