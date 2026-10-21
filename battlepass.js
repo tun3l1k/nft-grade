@@ -1,7 +1,7 @@
 /* ===== BATTLE PASS ===== */
 var BPV={id:"bpvip",st:599,n:"Battle Pass VIP"},BPL={id:"bplvl",st:60,n:"+1 уровень Battle Pass"},BPMAX=30,BPX=60,BPSD=14;
 var BPT=0;
-var DT=[["cases",3,"Открыть 3 кейса","📦",30],["sells",2,"Продать 2 подарка","💰",20],["ups",1,"Сделать апгрейд","⬆️",25],["spent",500,"Потратить 500 GRADE на кейсы",coinI(26),30],["nft",1,"Получить NFT","💠",25],["buys",1,"Купить лот на маркете","🛒",25],["lists",1,"Выставить лот на маркет","🏷️",20],["contracts",1,"Заключить контракт","📜",30]];
+var DT=[["cases",3,"Открыть 3 кейса","📦",30],["sells",2,"Продать 2 подарка","💰",20],["ups",1,"Сделать апгрейд","⬆️",25],["spent",500,"Потратить "+tn(500)+" TON на кейсы",coinI(26),30],["nft",1,"Получить NFT","💠",25],["buys",1,"Купить лот на маркете","🛒",25],["lists",1,"Выставить лот на маркет","🏷️",20],["contracts",1,"Заключить контракт","📜",30]];
 var WT=[["cases",20,"Открыть 20 кейсов","📦",120],["upw",2,"Выиграть 2 апгрейда","🏆",100],["rare",2,"Выбить 2 дорогих NFT","👑",100]];
 var VN={12:"Astral Shard"};
 /* награды: [тип,значение]; coin=монеты, gift=индекс подарка, frame=id рамки */
@@ -10,7 +10,7 @@ var BVP={2:["case",10],5:["gift",32],8:["case",16],10:["gift",11],12:["case",16]
 var BTN={v:"Ветеран BP",e:"Элита BP",c:"Чемпион сезона",t1:"Охотник за NFT",t2:"Постоянный игрок",s1:"Коллектор"};
 function bpFree(l){return BFR[l]||["coin",40+l*5]}
 function bpVip(l){return BVP[l]||["coin",30+l*4]}
-function rwTxt(r){if(r[0]=="coin")return[coinI(26),f(r[1]),"Монеты"];if(r[0]=="gift"){var g=G[r[1]];return[g[1],g[0],"Подарок"]}if(r[0]=="case")return[CS[r[1]].e,CS[r[1]].n,"Билет на кейс"];if(r[0]=="title")return["🎖️",BTN[r[1]],"Титул"];var fr=FR.filter(function(x){return x.id==r[1]})[0];return["🖼️",fr?fr.n:"Рамка","Рамка"]}
+function rwTxt(r){if(r[0]=="coin")return[coinI(26),tn(r[1]),"Монеты"];if(r[0]=="gift"){var g=G[r[1]];return[g[1],g[0],"Подарок"]}if(r[0]=="case")return[CS[r[1]].e,CS[r[1]].n,"Билет на кейс"];if(r[0]=="title")return["🎖️",BTN[r[1]],"Титул"];var fr=FR.filter(function(x){return x.id==r[1]})[0];return["🖼️",fr?fr.n:"Рамка","Рамка"]}
 function dkey(){return Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)}
 function bpEns(){var B=S.bp,now=Date.now();
  if(B&&B.end-now>BPSD*864e5)B.end=now+BPSD*864e5;
@@ -67,7 +67,7 @@ function rBp(){var B=bpEns(),l=bpLv(),rp=bpRewP(),tp=bpTaskP(),pend=rp+tp,inl=l>
 function bpCell(sd,l){var B=bpEns(),r=sd=="v"?bpVip(l):bpFree(l),t=rwTxt(r),got=(sd=="v"?B.cv:B.cf)[l],can=bpCan(sd,l),lk=!got&&!can;
  return '<div class="bc'+(sd=="v"?' vp':'')+(got?' got':can?' ok':' lk')+'" onclick="bpClaim(\''+sd+'\','+l+')"><b>'+t[0]+'</b><small>'+t[1]+'</small><small style="color:'+(t[2]=="NFT"?"#a78bfa":t[2]=="Титул"||t[2]=="Рамка"?"#ffd54a":t[2]=="Билет на кейс"?"#4be0c8":"var(--mu)")+'">'+t[2]+'</small>'+(lk&&sd=="v"&&!B.vip?'<small>🔒 VIP</small>':'')+'</div>'}
 function tRow(kind,i,t,cnt,dn,id){var c=Math.min(t[1],cnt[t[0]]||0),done=c>=t[1],cl=dn[id];
- return '<div class="mrow'+(done&&!cl?' rdy':'')+'"><span class="e">'+t[3]+'</span><div class="tt">'+t[2]+'<small>'+f(c)+' / '+f(t[1])+' · +'+t[4]+' опыта</small><div class="tk2"><i style="width:'+(c/t[1]*100)+'%"></i></div></div>'+(cl?'<button class="b" disabled>✓</button>':done?'<button class="b" onclick="bpTask(\''+kind+'\','+i+')">Забрать</button>':'<button class="b off" disabled>'+Math.round(c/t[1]*100)+'%</button>')+'</div>'}
+ return '<div class="mrow'+(done&&!cl?' rdy':'')+'"><span class="e">'+t[3]+'</span><div class="tt">'+t[2]+'<small>'+(t[0]=="spent"?tn(c)+' / '+tn(t[1]):f(c)+' / '+f(t[1]))+' · +'+t[4]+' опыта</small><div class="tk2"><i style="width:'+(c/t[1]*100)+'%"></i></div></div>'+(cl?'<button class="b" disabled>✓</button>':done?'<button class="b" onclick="bpTask(\''+kind+'\','+i+')">Забрать</button>':'<button class="b off" disabled>'+Math.round(c/t[1]*100)+'%</button>')+'</div>'}
 
 
 function frameSheet(){var ini=($("pnm").textContent||"И").charAt(0).toUpperCase(),opts=[{id:"",n:"Без рамки",c:""}].concat(FR);
@@ -90,7 +90,7 @@ function seasonReset(old){
  S.tt=(TL[tt0]&&TL[tt0][2]())?tt0:0;
  save()}
 function seasonShow(){var n=S.sn;if(!n)return;
- $("rv").innerHTML='<div style="font-size:64px;margin-bottom:6px">🏁</div><div class="h" style="font-size:20px">Сезон '+n.s+' завершён</div><div class="at">Итоги: коллекция '+f(n.v)+' GRADE · уровень '+n.l+' · кейсов '+n.c+'</div><div class="sbox" style="text-align:left;margin:8px 0 12px"><div class="mu" style="line-height:1.6">Начался сезон '+(n.s+1)+' (14 дней).<br>Обнулены: баланс (снова 1 000), инвентарь, уровень, маркет, достижения, коллекции и Battle Pass.<br>Сохранены: рамки, титулы наград, GRADE Pass и настройки.</div></div><button class="go" style="width:100%;margin:0" onclick="seasonClose()">Начать сезон '+(n.s+1)+'</button>';
+ $("rv").innerHTML='<div style="font-size:64px;margin-bottom:6px">🏁</div><div class="h" style="font-size:20px">Сезон '+n.s+' завершён</div><div class="at">Итоги: коллекция '+tn(n.v)+' TON · уровень '+n.l+' · кейсов '+n.c+'</div><div class="sbox" style="text-align:left;margin:8px 0 12px"><div class="mu" style="line-height:1.6">Начался сезон '+(n.s+1)+' (14 дней).<br>Обнулены: баланс (снова 1 000), инвентарь, уровень, маркет, достижения, коллекции и Battle Pass.<br>Сохранены: рамки, титулы наград, GRADE Pass и настройки.</div></div><button class="go" style="width:100%;margin:0" onclick="seasonClose()">Начать сезон '+(n.s+1)+'</button>';
  $("rev").className="ov on"}
 function seasonClose(){S.sn=null;closeRev();save();render();if(dlNext())setTimeout(dlOpen,350)}
 function seasonChk(){bpEns();if(S.sn&&!(typeof busy!="undefined"&&busy)&&!$("rev").classList.contains("on")&&!$("sheet").classList.contains("on")){render();seasonShow()}}

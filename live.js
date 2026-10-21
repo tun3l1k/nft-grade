@@ -45,11 +45,11 @@ function pvShield(l){return '<svg width="18" height="20" viewBox="0 0 24 26"><pa
 function pvTitle(P){var b=P.b;return b[3]>=6?"Легенда":b[1]>=80000?"Магнат":b[1]>=20000?"Коллекционер":b[2]>=3?"Везунчик":"Новичок"}
 function pvAgo(t){var m=Math.max(0,Math.round((Date.now()-t)/6e4));if(m<1)return"только что";if(m<60)return m+" мин назад";var h=Math.round(m/60);if(h<24)return h+" ч назад";return Math.round(h/24)+" дн назад"}
 function pvGift(x,P,focus){var n=!!x.up,c=n?BG[x.b]:"#7f91a4",h=hsh(x.from)%360;
- return '<div class="gc'+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')"><span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?'<span class="gn" style="background:'+c+'">#'+x.n+'</span>':'')+(n?mimg(x,60):gimg(x.g,60))+'<small>'+(x.id==focus?"только что":f(pr(x)))+'</small></div>'}
+ return '<div class="gc'+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')"><span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?'<span class="gn" style="background:'+c+'">#'+x.n+'</span>':'')+(n?mimg(x,60):gimg(x.g,60))+'<small>'+(x.id==focus?"только что":tn(pr(x)))+'</small></div>'}
 function pvBody(){var P=getP(PVU),el=$("pvbody");if(!P||!el)return;
  var a=P.gifts.slice().sort(function(p,q){return(q.id==PVF)-(p.id==PVF)||pr(q)-pr(p)});
  el.innerHTML=PVT==1?'<div class="grid pvg">'+a.map(function(x){return pvGift(x,P,PVF)}).join("")+'</div>'
-  :P.gifts.slice().sort(function(p,q){return q.d-p.d}).slice(0,25).map(function(x){var g=G[x.g];return '<div class="pvd" onclick="pvItem('+x.id+')"><div style="width:34px">'+(x.up?mimg(x,32):gimg(x.g,32))+'</div><div><b>'+g[0]+(x.up?" #"+x.n:"")+'</b><span>выпал из кейса</span></div><em>'+f(pr(x))+'<small>'+pvAgo(x.d)+'</small></em></div>'}).join("");
+  :P.gifts.slice().sort(function(p,q){return q.d-p.d}).slice(0,25).map(function(x){var g=G[x.g];return '<div class="pvd" onclick="pvItem('+x.id+')"><div style="width:34px">'+(x.up?mimg(x,32):gimg(x.g,32))+'</div><div><b>'+g[0]+(x.up?" #"+x.n:"")+'</b><span>выпал из кейса</span></div><em>'+tn(pr(x))+'<small>'+pvAgo(x.d)+'</small></em></div>'}).join("");
  document.querySelectorAll("#pvt button").forEach(function(b,i){b.classList.toggle("on",i+1==PVT)})}
 function pvTab(n){PVT=n;pvBody()}
 function pvSoon(t){toast(t||"Недоступно в демо")}
@@ -64,13 +64,13 @@ function pvRender(){var P=getP(PVU),b=P.b,u=PVU,h=hsh(u)%360,val=P.val(),nft=P.g
  +'<button class="pvsend" onclick="pvSend()">Отправить подарок</button>'
  +'<div class="pvm">'+PV_ICO.cup.replace(/20/g,'16')+'Титул: '+pvTitle(P)+' <span>· '+place+'-е место ›</span></div>'
  +'<div class="pvc">'+(P.bio?'<div class="r"><div class="k">о себе</div><div class="pvv">'+P.bio+'</div></div>':'')+'<div class="r"><div class="k">имя пользователя</div><div class="pvv bl2">@'+u+'</div><span class="pvq">'+PV_ICO.qr+'</span></div><div class="r"><div class="k">день рождения</div><div class="pvv">'+P.bd[0]+' '+mo[P.bd[1]]+'</div></div></div>'
- +'<div class="pvk"><div class="w">'+ic("coin",18)+f(val)+'<small>GRADE · коллекция</small></div>'
+ +'<div class="pvk"><div class="w">'+ic("coin",18)+tn(val)+'<small>TON · коллекция</small></div>'
  +[[P.gifts.length,"Подарков"],[nft,"NFT"],[rare,"Редких"],[b[2],"Уровень"],[f(P.cases),"Кейсов"],[P.wins+"/"+P.ups,"Апгрейды"]].map(function(x){return '<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("")+'</div>'
  +'<div class="pvt" id="pvt"><button onclick="pvTab(1)">Подарки '+top+'</button><button onclick="pvTab(2)">Дропы</button></div><div id="pvbody"></div>';
  pvBody();bindEdge()}
 function pvItem(id){var q=PI[id];if(!q)return;var u=q[0],it=q[1],g=G[it.g],sp=supply(it.g),own=pvAv(u,22,11)+pvName(u),h;shown=null;
  if(it.up)h=nftHead(it).replace(/<span class="bpill">.*?<\/span>/,"")+'<div class="tbl">'+nftRows(it,own)+tbr("От",it.from)+tbr("Дата",fdt(it.d))+'</div>';
- else h='<div class="nfi" style="height:120px">'+gimg(it.g,112)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="at" style="text-align:center;padding:0 10px">Подарок игрока '+pvName(u)+'</div><div class="tbl">'+tbr("Владелец",own)+tbr("От",it.from)+tbr("Дата",fdt(it.d))+tbr("Стоимость",ic("coin",14)+f(g[3]))+tbr("Наличие",f(sp[0]-sp[1])+" из "+f(sp[0]))+tbr("Статус","Неуникальный")+'</div>';
+ else h='<div class="nfi" style="height:120px">'+gimg(it.g,112)+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="at" style="text-align:center;padding:0 10px">Подарок игрока '+pvName(u)+'</div><div class="tbl">'+tbr("Владелец",own)+tbr("От",it.from)+tbr("Дата",fdt(it.d))+tbr("Стоимость",ic("coin",14)+tn(g[3]))+tbr("Наличие",f(sp[0]-sp[1])+" из "+f(sp[0]))+tbr("Статус","Неуникальный")+'</div>';
  $("sh").innerHTML=h+'<button class="go gh" style="margin:0;width:100%" onclick="closeSh()">Закрыть</button>';$("sheet").className="ov end on"}
 
 /* ---- push-анимация и свайп назад (слева направо, как в Telegram) ---- */
