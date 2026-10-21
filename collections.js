@@ -40,11 +40,11 @@ function ctTg(u){if(busy)return;var n=ctIds().length;if(!CT[u]&&n>=10){toast("М
 function rCt(){var a=S.inv.slice().sort(function(x,y){return pr(y)-pr(x)}),n=ctIds().length,V=ctSum();
  $("ctg").innerHTML=a.map(function(x){return tile(x,CT[x.u]?" on":"","ctTg("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет подарков. Откройте кейс.</p>';
  var ac=$("ctact");ac.style.display=n?"block":"none";
- ac.innerHTML='<div class="srow" style="justify-content:center;margin-bottom:6px"><span>Выбрано '+n+' / 10 · '+f(V)+' GRADE</span></div><div class="odds" style="margin-bottom:8px"><span style="color:var(--rd)">70% дешевле</span><span style="color:var(--bl)">25% чуть дороже</span><span style="color:#ffd54a">5% намного дороже</span></div><div class="bar"><button class="go gh" onclick="CT={};rCt()">Сбросить</button><button class="go" '+(n<3||busy?'disabled ':'')+'onclick="ctGo()">'+(n<3?'Нужно ещё '+(3-n):'Заключить')+'</button></div>'}
+ ac.innerHTML='<div class="srow" style="justify-content:center;margin-bottom:6px"><span>Выбрано '+n+' / 10 · '+tn(V)+' TON</span></div><div class="odds" style="margin-bottom:8px"><span style="color:var(--rd)">70% дешевле</span><span style="color:var(--bl)">25% чуть дороже</span><span style="color:#ffd54a">5% намного дороже</span></div><div class="bar"><button class="go gh" onclick="CT={};rCt()">Сбросить</button><button class="go" '+(n<3||busy?'disabled ':'')+'onclick="ctGo()">'+(n<3?'Нужно ещё '+(3-n):'Заключить')+'</button></div>'}
 function ctGo(){var ids=ctIds();if(busy||ids.length<3||ids.length>10)return;busy=1;var V=ctSum(),g=ctRoll(V),it=mkItem(g),used=ids.map(function(x){return x.u});
  $("rv").innerHTML='<div class="shake">📜</div><div class="mu">Заключаем контракт…</div>';$("rev").className="ov on";sfx("tick");
  setTimeout(function(){S.inv=S.inv.filter(function(x){return used.indexOf(x.u)<0});S.inv.push(it);S.st.contr=(S.st.contr||0)+1;bpAdd("contracts",1);CT={};
   var rs=G[g][2],v=pr(it),good=v>=V;sfx(good?(rs>=2?"r3":"win"):"r0");if(good)burst(rs>=2?60:30,["#ffd54a","#2aabee","#fff"]);
   var l0=lvl();S.xp+=8;if(lvl()>l0)toast("Новый уровень: "+lvl());
-  $("rv").innerHTML=big(it)+'<div class="at">'+atxt(it)+' · '+f(v)+' GRADE<br>Вложено: '+f(V)+' GRADE · '+(good?'<span style="color:var(--gr)">выгодно</span>':'<span style="color:var(--rd)">дешевле</span>')+'</div><button class="go" onclick="closeRev()">Забрать</button>';
+  $("rv").innerHTML=big(it)+'<div class="at">'+atxt(it)+' · '+tn(v)+' TON<br>Вложено: '+tn(V)+' TON · '+(good?'<span style="color:var(--gr)">выгодно</span>':'<span style="color:var(--rd)">дешевле</span>')+'</div><button class="go" onclick="closeRev()">Забрать</button>';
   busy=0;save();render()},1400)}

@@ -8,12 +8,14 @@ module.exports = function (env) {
 
   // ---------- Каталог подарков и кейсов из файлов игры (чтобы админ выбирал названия, а не номера) ----------
   const cat = { gifts: [], cases: [] };
+  let TONR = 0.0112;
   try {
     const ctx = { console: { log() {}, warn() {} }, localStorage: { getItem() { return null; }, setItem() {} }, window: {}, document: { getElementById() { return null; } } };
     vm.createContext(ctx);
     for (const f of ['config.js', 'data.js', 'models.js', 'prices.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx, { filename: f });
     cat.gifts = ctx.G.map((g, i) => ({ i, name: g[0], emoji: g[1], price: g[3], up: !!g[4], hidden: !!g[6] }));
     cat.cases = ctx.CS.map((c, i) => ({ i, name: c.n, emoji: c.e, price: c.p }));
+    if (ctx.TONR) TONR = ctx.TONR;
     cat.gm = ctx.GM || {}; cat.bn = ctx.BN || []; cat.bp = ctx.BP || []; cat.pool = ctx.PPOOL || []; cat.sp = ctx.SP || [];
     const ps = fs.readFileSync(path.join(__dirname, 'profile.js'), 'utf8'), ti = ps.indexOf('var TL=');
     cat.titles = ti < 0 ? [] : [...ps.slice(ti, ps.indexOf('];', ti)).matchAll(/\["([^"]+)","[^"]*",function/g)].map(m => m[1]);
@@ -24,6 +26,8 @@ module.exports = function (env) {
   const search = (list, q) => { q = String(q).trim().toLowerCase(); if (!q) return []; const ex = list.filter(x => x.name.toLowerCase() === q); return ex.length ? ex : list.filter(x => x.name.toLowerCase().includes(q)).slice(0, 8); };
 
   const fmt = n => Math.round(n).toLocaleString('ru-RU');
+  const tn = u => { const t = u * TONR; return (t >= 100 ? Math.round(t).toLocaleString('ru-RU') : t >= 10 ? t.toFixed(1) : t.toFixed(2)).replace(/\.0+$|(\.\d)0$/, '$1') + ' TON'; };
+  const tnIn = s => { const t = Number(String(s).replace(/\s/g, '').replace(',', '.')); if (!isFinite(t) || t <= 0) return null; return Math.max(1, Math.round(t / TONR)); };
   const ST = {};            // состояние диалога по id админа: что бот сейчас ждёт текстом
   const pendingBc = {};     // рассылка, ожидающая подтверждения
   const audit = (a, t) => { db.audit.push({ ts: Date.now(), a, t: String(t).slice(0, 200) }); db.audit = db.audit.slice(-300); saveDb(); };
@@ -54,7 +58,7 @@ module.exports = function (env) {
     if (p.used && p.used[uid]) return 'Вы уже активировали этот промокод.';
     if (p.left <= 0) return 'Промокод закончился.';
     p.left--; (p.used = p.used || {})[uid] = 1; (db.grants[uid] = db.grants[uid] || []).push(['coin', p.coin]); saveDb();
-    return '🎟 Промокод принят: +' + fmt(p.coin) + ' GRADE. Откройте игру, начисление придёт само.';
+    return '🎟 Промокод принят: +' + tn(p.coin) + '. Откройте игру, начисление придёт само.';
   };
 
   // ---------- Вспомогательное ----------
@@ -83,12 +87,12 @@ module.exports = function (env) {
     stats: () => {
       const now = Date.now(), us = Object.values(db.users), act = d => us.filter(x => now - x.l < d * 864e5).length;
       const rev = db.sales.filter(x => !x.refunded).reduce((t, x) => t + x.st, 0);
-      const top = Object.values(db.scores).sort((p, q) => q.v - p.v).slice(0, 3).map(x => esc(x.n) + ' ' + fmt(x.v)).join(', ') || '-';
+      const top = Object.values(db.scores).sort((p, q) => q.v - p.v).slice(0, 3).map(x => esc(x.n) + ' ' + tn(x.v)).join(', ') || '-';
       const eds = Object.keys(db.ed).length, sold = Object.keys(db.ed).reduce((s, n) => s + taken(n), 0);
       return { text: '<b>📊 Статистика</b>\nИгроков: ' + us.length + '\nАктивны за 24 ч: ' + act(1) + ', за 7 дней: ' + act(7) + '\nПокупок: ' + db.sales.length + ', выручка: ' + rev + ' ⭐\nЗабанено: ' + Object.keys(db.banned).length + '\nЛимиток: ' + eds + ', выпущено номеров: ' + sold + '\nТоп по коллекции: ' + top, kb: [[B('↻ Обновить', 'a:stats')], back()] };
     },
     pl: () => ({ text: '<b>👥 Игроки</b>', kb: [[B('🔎 Найти игрока', 'a:pfind')], [B('🏆 Топ-10 по коллекции', 'a:ptop'), B('🚫 Бан-лист', 'a:pban')], back()] }),
-    ptop: () => ({ text: '<b>🏆 Топ-10 по коллекции</b>\n' + (Object.entries(db.scores).sort((p, q) => q[1].v - p[1].v).slice(0, 10).map(([id, x], i) => (i + 1) + '. ' + esc(x.n) + ' · ' + fmt(x.v) + ' · <code>' + id + '</code>').join('\n') || 'Пока пусто.'), kb: [back('pl')] }),
+    ptop: () => ({ text: '<b>🏆 Топ-10 по коллекции</b>\n' + (Object.entries(db.scores).sort((p, q) => q[1].v - p[1].v).slice(0, 10).map(([id, x], i) => (i + 1) + '. ' + esc(x.n) + ' · ' + tn(x.v) + ' · <code>' + id + '</code>').join('\n') || 'Пока пусто.'), kb: [back('pl')] }),
     pban: () => ({ text: '<b>🚫 Бан-лист</b>\n' + (Object.keys(db.banned).map(id => '<code>' + id + '</code> ' + esc((db.users[id] || {}).n || '')).join('\n') || 'Пусто.'), kb: [back('pl')] }),
     pu: id => {
       const f = db.users[id]; if (!f) return { text: 'Игрок не найден.', kb: [back('pl')] };
@@ -97,18 +101,18 @@ module.exports = function (env) {
         kb: [[B('💰 Монеты', 'a:gc:' + id), B('🎁 Подарок', 'a:gg:' + id)], [B('📦 Кейс', 'a:gk:' + id), B('💎 Лимитка', 'a:gl:' + id)], [B('🎨 NFT с параметрами', 'a:glm:n:' + id + ':0'), B('🏷 Титул', 'a:tt:' + id)], [B('✉️ Написать', 'a:gm:' + id), B(db.banned[id] ? '✅ Разбанить' : '🚫 Забанить', 'a:gb:' + id)], back('pl')] };
     },
     l: () => {
-      const rows = Object.entries(db.ed).sort((a, b) => a[1].id - b[1].id).map(([nm, e]) => [B((e.on ? '▶ ' : '⏸ ') + nm + ' · ' + taken(nm) + '/' + e.total + ' · ' + fmt(e.price), 'a:le:' + e.id)]);
+      const rows = Object.entries(db.ed).sort((a, b) => a[1].id - b[1].id).map(([nm, e]) => [B((e.on ? '▶ ' : '⏸ ') + nm + ' · ' + taken(nm) + '/' + e.total + ' · ' + tn(e.price), 'a:le:' + e.id)]);
       return { text: '<b>💎 Лимитированные выпуски</b>\nПродаются во вкладке «Лимитки» маркета как обычные неулучшенные подарки с закреплённым номером. Номер выдаётся один раз на всех игроков.\n' + (rows.length ? '' : '\nПока ни одного выпуска.'), kb: rows.concat([[B('➕ Новый выпуск', 'a:ln')], back()]) };
     },
     le: id => {
       const nm = Object.keys(db.ed).find(n => db.ed[n].id == id); if (!nm) return { text: 'Выпуск не найден.', kb: [back('l')] };
       const e = db.ed[nm], t = taken(nm);
-      return { text: '💎 <b>' + esc(nm) + '</b>\nТираж: ' + fmt(e.total) + '\nВыпущено: ' + fmt(t) + ' · осталось ' + fmt(e.total - t) + '\nЦена: ' + fmt(e.price) + ' GRADE\nСтатус: ' + (e.on ? '▶ в продаже' : '⏸ на паузе') + '\nСоздан: ' + iso(e.ts),
+      return { text: '💎 <b>' + esc(nm) + '</b>\nТираж: ' + fmt(e.total) + '\nВыпущено: ' + fmt(t) + ' · осталось ' + fmt(e.total - t) + '\nЦена: ' + tn(e.price) + '\nСтатус: ' + (e.on ? '▶ в продаже' : '⏸ на паузе') + '\nСоздан: ' + iso(e.ts),
         kb: [[B('💰 Цена', 'a:lp:' + id), B('📦 Тираж', 'a:lt:' + id)], [B(e.on ? '⏸ Пауза' : '▶ В продажу', 'a:lo:' + id), B('📣 Объявить', 'a:la:' + id)], [t ? B('🗑 Удалить (нельзя: есть проданные)', 'a:l') : B('🗑 Удалить', 'a:ld:' + id)], back('l')] };
     },
     m: () => ({ text: '<b>🛠 Технический перерыв</b>\nСтатус: ' + (db.maint.on ? '🔴 включён' : '🟢 выключен') + '\nТекст для игроков: ' + esc(db.maint.msg || 'Мы обновляем игру. Скоро вернёмся.') + '\n\nАдминистраторы заходят в игру и во время перерыва.', kb: [[B(db.maint.on ? '🟢 Выключить' : '🔴 Включить', 'a:mt')], [B('✏️ Изменить текст', 'a:mm')], back()] }),
     c: () => {
-      const rows = Object.entries(db.promos).map(([code, p]) => [B('🎟 ' + code + ' · +' + fmt(p.coin) + ' · осталось ' + p.left, 'a:cd:' + code)]);
+      const rows = Object.entries(db.promos).map(([code, p]) => [B('🎟 ' + code + ' · +' + tn(p.coin) + ' · осталось ' + p.left, 'a:cd:' + code)]);
       return { text: '<b>🎟 Промокоды</b>\nИгрок вводит <code>/promo КОД</code> в боте и получает монеты. Нажмите на промокод, чтобы удалить.', kb: rows.concat([[B('➕ Создать', 'a:cn')], back()]) };
     },
     j: () => ({ text: '<b>📜 Журнал действий</b>\n' + (db.audit.slice(-10).reverse().map(x => iso(x.ts).slice(5) + ' · ' + x.a + ' · ' + esc(x.t)).join('\n') || 'Пусто.'), kb: [back()] }),
@@ -136,7 +140,7 @@ module.exports = function (env) {
     if (act === 'le') return show(ctx, S.le(arg));
     if (act === 'pfind' || act === 'g') return ask(ctx, uid, { a: 'find' }, 'Пришлите @ник или числовой ID игрока.\nИгрок должен хотя бы раз открыть бота или игру.');
     if (act === 'gb') { if (db.banned[arg]) delete db.banned[arg]; else db.banned[arg] = 1; audit(uid, 'ban toggle ' + arg); return show(ctx, S.pu(arg)); }
-    if (act === 'gc') return ask(ctx, uid, { a: 'coin', u: arg }, 'Сколько GRADE начислить? Число от 1 до 1 000 000.');
+    if (act === 'gc') return ask(ctx, uid, { a: 'coin', u: arg }, 'Сколько TON начислить? Например 5 или 0.5.');
     if (act === 'gg') return ask(ctx, uid, { a: 'gift', u: arg }, 'Название подарка (можно часть названия), например: Plush Pepe');
     if (act === 'gk') return ask(ctx, uid, { a: 'case', u: arg }, 'Название кейса (можно часть названия), например: Diamond');
     if (act === 'gm') return ask(ctx, uid, { a: 'msg', u: arg }, 'Текст сообщения игроку:');
@@ -151,13 +155,13 @@ module.exports = function (env) {
     if (act === 'gq') { const c = cat.cases[arg2]; if (!c) return; grant(arg, ['cn', c.name], 'кейс «' + c.name + '»'); audit(uid, 'give case ' + c.name + ' -> ' + arg); return show(ctx, { text: '✅ Выдан кейс «' + esc(c.name) + '» игроку ' + arg + '.', kb: [back('pu:' + arg)] }); }
     // лимитки
     if (act === 'ln') return ask(ctx, uid, { a: 'newname' }, 'Какой подарок выпускаем? Название (можно часть), например: Plush Pepe\nПодойдут только подарки, которые можно улучшить.');
-    if (act === 'lp') return ask(ctx, uid, { a: 'price', id: arg }, 'Новая цена в GRADE (число):');
+    if (act === 'lp') return ask(ctx, uid, { a: 'price', id: arg }, 'Новая цена в TON (например 12.5):');
     if (act === 'lt') return ask(ctx, uid, { a: 'total', id: arg }, 'Новый тираж (число). Меньше уже выпущенного поставить нельзя.');
     if (act === 'lo') { const nm = Object.keys(db.ed).find(n => db.ed[n].id == arg); if (nm) { db.ed[nm].on = !db.ed[nm].on; audit(uid, 'edition ' + nm + (db.ed[nm].on ? ' on' : ' off')); } return show(ctx, S.le(arg)); }
     if (act === 'ld') { const nm = Object.keys(db.ed).find(n => db.ed[n].id == arg); if (nm && !taken(nm)) { delete db.ed[nm]; delete db.lim[nm]; audit(uid, 'edition delete ' + nm); } return show(ctx, S.l()); }
     if (act === 'la') {
       const nm = Object.keys(db.ed).find(n => db.ed[n].id == arg); if (!nm) return; const e = db.ed[nm];
-      pendingBc[uid] = { text: '💎 <b>Новый лимитированный выпуск!</b>\n\n' + esc(nm) + '\nТираж: ' + fmt(e.total) + '\nЦена: ' + fmt(e.price) + ' GRADE\n\nУспей купить во вкладке «Лимитки» на маркете. Номер получишь уникальный, когда улучшишь подарок.', play: true };
+      pendingBc[uid] = { text: '💎 <b>Новый лимитированный выпуск!</b>\n\n' + esc(nm) + '\nТираж: ' + fmt(e.total) + '\nЦена: ' + tn(e.price) + '\n\nУспей купить во вкладке «Лимитки» на маркете. Номер получишь уникальный, когда улучшишь подарок.', play: true };
       return show(ctx, { text: 'Отправить объявление ' + Object.keys(db.users).length + ' игрокам?\n\n' + pendingBc[uid].text, kb: [[B('✅ Отправить', 'a:bgo'), B('✖ Отмена', 'a:x')]] });
     }
     // рассылка
@@ -197,7 +201,7 @@ module.exports = function (env) {
       const f = findUser(txt); if (!f) return again('Игрок не найден. Он должен хотя бы раз открыть бота или игру. Пришлите ещё раз или отмените.'), true;
       delete ST[uid]; await show(ctx, screens.pu(f.id)); return true;
     }
-    if (st.a === 'coin') { const v = num(1, 1e6); if (!v) return again('Нужно число от 1 до 1 000 000.'), true; delete ST[uid]; grant(st.u, ['coin', v], fmt(v) + ' GRADE'); audit(uid, 'give coin ' + v + ' -> ' + st.u); await show(ctx, { text: '✅ Начислено ' + fmt(v) + ' GRADE игроку ' + st.u + '.', kb: [back('pu:' + st.u)] }); return true; }
+    if (st.a === 'coin') { const v = tnIn(txt); if (!v || v > 1e8) return again('Нужно число TON, например 5 или 0.5.'), true; delete ST[uid]; grant(st.u, ['coin', v], tn(v)); audit(uid, 'give coin ' + v + ' -> ' + st.u); await show(ctx, { text: '✅ Начислено ' + tn(v) + ' игроку ' + st.u + '.', kb: [back('pu:' + st.u)] }); return true; }
     if (st.a === 'gift' || st.a === 'case') {
       const isG = st.a === 'gift', r = isG ? search(cat.gifts.filter(g => !g.hidden), txt) : search(cat.cases, txt);
       if (!r.length) return again('Не нашёл. Попробуйте другое название или отмените.'), true;
@@ -208,19 +212,19 @@ module.exports = function (env) {
     if (st.a === 'mmsg') { db.maint.msg = txt.slice(0, 300); delete ST[uid]; audit(uid, 'maint msg'); await show(ctx, screens.m()); return true; }
     if (st.a === 'newname') {
       const r = pickGift(txt); if (!r.length) return again('Не нашёл подходящий подарок (нужен такой, что можно улучшить). Попробуйте другое название.'), true;
-      delete ST[uid]; await show(ctx, { text: 'Выберите подарок:', kb: r.map(x => [B(x.emoji + ' ' + x.name + ' · база ' + fmt(x.price), 'a:np:' + x.i)]).concat([[B('✖ Отмена', 'a:x')]]) }); return true;
+      delete ST[uid]; await show(ctx, { text: 'Выберите подарок:', kb: r.map(x => [B(x.emoji + ' ' + x.name + ' · база ' + tn(x.price), 'a:np:' + x.i)]).concat([[B('✖ Отмена', 'a:x')]]) }); return true;
     }
-    if (st.a === 'newtotal') { const v = num(1, 100000); if (!v) return again('Тираж: число от 1 до 100 000.'), true; const t = taken(st.name); if (v < t) return again('Уже выпущено ' + t + ', тираж не может быть меньше.'), true; ST[uid] = { a: 'newprice', name: st.name, total: v, base: st.base }; await show(ctx, { text: 'Цена одного подарка в GRADE.\nБаза подарка: ' + fmt(st.base) + '. Подсказка: ' + fmt(st.base * 1.15) + ' (база +15%).', kb: [[B('✖ Отмена', 'a:x')]] }); return true; }
+    if (st.a === 'newtotal') { const v = num(1, 100000); if (!v) return again('Тираж: число от 1 до 100 000.'), true; const t = taken(st.name); if (v < t) return again('Уже выпущено ' + t + ', тираж не может быть меньше.'), true; ST[uid] = { a: 'newprice', name: st.name, total: v, base: st.base }; await show(ctx, { text: 'Цена одного подарка в TON.\nБаза подарка: ' + tn(st.base) + '. Подсказка: ' + tn(st.base * 1.15) + ' (база +15%).', kb: [[B('✖ Отмена', 'a:x')]] }); return true; }
     if (st.a === 'newprice') {
-      const v = num(1, 1e8); if (!v) return again('Цена: число от 1.'), true; delete ST[uid];
+      const v = tnIn(txt); if (!v) return again('Цена: число TON, например 12.5.'), true; delete ST[uid];
       const id = ++db.edn; db.ed[st.name] = { id, total: st.total, price: v, on: true, ts: Date.now() }; audit(uid, 'edition create ' + st.name + ' x' + st.total + ' @' + v);
-      await show(ctx, { text: '✅ Выпуск создан и уже в продаже: <b>' + esc(st.name) + '</b>, тираж ' + fmt(st.total) + ', цена ' + fmt(v) + '.', kb: [[B('📣 Объявить игрокам', 'a:la:' + id)], [B('Открыть выпуск', 'a:le:' + id)], back('l')] }); return true;
+      await show(ctx, { text: '✅ Выпуск создан и уже в продаже: <b>' + esc(st.name) + '</b>, тираж ' + fmt(st.total) + ', цена ' + tn(v) + '.', kb: [[B('📣 Объявить игрокам', 'a:la:' + id)], [B('Открыть выпуск', 'a:le:' + id)], back('l')] }); return true;
     }
-    if (st.a === 'price') { const v = num(1, 1e8); if (!v) return again('Цена: число от 1.'), true; const nm = Object.keys(db.ed).find(n => db.ed[n].id == st.id); if (nm) { db.ed[nm].price = v; audit(uid, 'edition price ' + nm + ' ' + v); } delete ST[uid]; await show(ctx, screens.le(st.id)); return true; }
+    if (st.a === 'price') { const v = tnIn(txt); if (!v) return again('Цена: число TON, например 12.5.'), true; const nm = Object.keys(db.ed).find(n => db.ed[n].id == st.id); if (nm) { db.ed[nm].price = v; audit(uid, 'edition price ' + nm + ' ' + v); } delete ST[uid]; await show(ctx, screens.le(st.id)); return true; }
     if (st.a === 'total') { const nm = Object.keys(db.ed).find(n => db.ed[n].id == st.id), v = num(1, 100000); if (!nm || !v) return again('Тираж: число от 1 до 100 000.'), true; if (v < taken(nm)) return again('Уже выпущено ' + taken(nm) + ', тираж не может быть меньше.'), true; db.ed[nm].total = v; audit(uid, 'edition total ' + nm + ' ' + v); delete ST[uid]; await show(ctx, screens.le(st.id)); return true; }
-    if (st.a === 'pcode') { const c = txt.toUpperCase(); if (!/^[A-Z0-9_]{3,20}$/.test(c)) return again('Код: латиница, цифры и _, 3–20 символов.'), true; if (db.promos[c]) return again('Такой код уже есть.'), true; ST[uid] = { a: 'pcoin', code: c }; await show(ctx, { text: 'Сколько GRADE даёт код?', kb: [[B('✖ Отмена', 'a:x')]] }); return true; }
-    if (st.a === 'pcoin') { const v = num(1, 1e6); if (!v) return again('Число от 1 до 1 000 000.'), true; ST[uid] = { a: 'puses', code: st.code, coin: v }; await show(ctx, { text: 'Сколько раз можно активировать (всего игроков)?', kb: [[B('✖ Отмена', 'a:x')]] }); return true; }
-    if (st.a === 'puses') { const v = num(1, 1e6); if (!v) return again('Число от 1.'), true; db.promos[st.code] = { coin: st.coin, left: v, used: {}, ts: Date.now() }; audit(uid, 'promo create ' + st.code); delete ST[uid]; await show(ctx, { text: '✅ Промокод <code>' + st.code + '</code>: +' + fmt(st.coin) + ' GRADE, активаций ' + fmt(v) + '. Игроки вводят: /promo ' + st.code, kb: [back('c')] }); return true; }
+    if (st.a === 'pcode') { const c = txt.toUpperCase(); if (!/^[A-Z0-9_]{3,20}$/.test(c)) return again('Код: латиница, цифры и _, 3–20 символов.'), true; if (db.promos[c]) return again('Такой код уже есть.'), true; ST[uid] = { a: 'pcoin', code: c }; await show(ctx, { text: 'Сколько TON даёт код? Например 2 или 0.5.', kb: [[B('✖ Отмена', 'a:x')]] }); return true; }
+    if (st.a === 'pcoin') { const v = tnIn(txt); if (!v) return again('Число TON, например 2 или 0.5.'), true; ST[uid] = { a: 'puses', code: st.code, coin: v }; await show(ctx, { text: 'Сколько раз можно активировать (всего игроков)?', kb: [[B('✖ Отмена', 'a:x')]] }); return true; }
+    if (st.a === 'puses') { const v = num(1, 1e6); if (!v) return again('Число от 1.'), true; db.promos[st.code] = { coin: st.coin, left: v, used: {}, ts: Date.now() }; audit(uid, 'promo create ' + st.code); delete ST[uid]; await show(ctx, { text: '✅ Промокод <code>' + st.code + '</code>: +' + tn(st.coin) + ', активаций ' + fmt(v) + '. Игроки вводят: /promo ' + st.code, kb: [back('c')] }); return true; }
     return false;
   }
 
@@ -232,7 +236,7 @@ module.exports = function (env) {
   const modeCb = (mode, uid, g) => mode === 'e' ? 'a:np:' + g.i : mode === 'g' ? 'a:gp:' + uid + ':' + g.i : 'a:nbg:' + uid + ':' + g.i;
   const giftList = (mode, uid, page, pool) => {
     pool = pool || giftPool(mode); const pages = Math.max(1, Math.ceil(pool.length / GP)); page = Math.max(0, Math.min(page, pages - 1));
-    const rows = pool.slice(page * GP, page * GP + GP).map(g => [B(g.emoji + ' ' + g.name + ' · ' + fmt(g.price) + (mode === 'e' ? '' : '') + (db.ed[g.name] ? ' 💎' : ''), modeCb(mode, uid, g))]);
+    const rows = pool.slice(page * GP, page * GP + GP).map(g => [B(g.emoji + ' ' + g.name + ' · ' + tn(g.price) + (mode === 'e' ? '' : '') + (db.ed[g.name] ? ' 💎' : ''), modeCb(mode, uid, g))]);
     const nav = []; if (page > 0) nav.push(B('‹', 'a:glm:' + mode + ':' + uid + ':' + (page - 1))); nav.push(B((page + 1) + '/' + pages, 'a:noop')); if (page < pages - 1) nav.push(B('›', 'a:glm:' + mode + ':' + uid + ':' + (page + 1)));
     return { text: '<b>' + modeTitle[mode] + '</b>\n' + (mode === 'e' ? 'Показаны подарки, которые можно улучшить и у которых ещё нет выпуска. 💎 помечены те, у кого выпуск уже есть.\n' : '') + 'Всего: ' + pool.length, kb: rows.concat([nav, [B('🔎 Искать по названию', 'a:gls:' + mode + ':' + uid)], back(mode === 'e' ? 'l' : 'pu:' + uid)]) };
   };

@@ -8,12 +8,12 @@ function rts(n){rt=n;lbT=0;lbSync();rPro()}
 function rPro(){try{rGifts()}catch(e){}rPf();var v=cv(),rare=S.st.leg+S.inv.filter(function(x){return G[x.g][2]>=2}).length;
  var A=[["Первый кейс","Откройте кейс",S.st.cases>=1],["Коллекционер","10 подарков в инвентаре",S.inv.length>=10],["Богач","Коллекция дороже 80 000",v>=80000],["Топ-находка","Выбейте NFT из топ-класса",S.st.leg>=1],["Удачливый","Выиграйте апгрейд",S.st.wins>=1],["Торговец","Совершите сделку",S.hist.length>=1]];
  $("ptt").textContent="в сети · "+TL[S.tt||0][0];$("plv").textContent=lvl();rAv();$("ttl").innerHTML=TL.map(function(t,i){var ok=t[2]()||(S.tg||[]).indexOf(i)>=0;return '<button class="chip'+((S.tt||0)==i?" on":"")+'" style="'+(ok?"":"opacity:.45")+'" onclick="setTl('+i+')">'+(ok?"":"🔒 ")+t[0]+"</button>"}).join("");
- $("pst").innerHTML=[[f(v),"Коллекция"],[S.inv.length,"Подарков"],[S.st.cases,"Кейсов"]].map(function(x){return '<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("");
+ $("pst").innerHTML=[[tn(v),"Коллекция"],[S.inv.length,"Подарков"],[S.st.cases,"Кейсов"]].map(function(x){return '<div>'+x[0]+'<small>'+x[1]+'</small></div>'}).join("");
  try{rAch();rCols()}catch(e){}
  var pp=profPending(),nb=$("pnb");nb.style.display=pp?"flex":"none";nb.innerHTML=pp?'<span>Можно забрать: '+[achPend()?achPend()+' '+pl(achPend(),'достижение','достижения','достижений'):'',setPend()?setPend()+' '+pl(setPend(),'коллекция','коллекции','коллекций'):''].filter(Boolean).join(' · ')+'</span><span>›</span>':'';
  document.querySelectorAll("#rch .chip").forEach(function(b,i){b.classList.toggle("on",i+1==rt)});
  var L=(RL||BT.concat([["Вы",v,lvl(),rare]])).slice().sort(function(a,b){return b[rt]-a[rt]});
- $("rl").innerHTML=L.map(function(x,i){return '<div class="rk'+(x[0]=="Вы"?' me':'')+'"><span>'+(i+1)+'</span><span>'+x[0]+'</span><span>'+f(x[rt])+'</span></div>'}).join("")}
+ $("rl").innerHTML=L.map(function(x,i){return '<div class="rk'+(x[0]=="Вы"?' me':'')+'"><span>'+(i+1)+'</span><span>'+x[0]+'</span><span>'+(rt==1?tn(x[rt]):f(x[rt]))+'</span></div>'}).join("")}
 
 var TL=[["Новичок","стартовый",function(){return 1}],["Везунчик","достигните 3 уровня",function(){return lvl()>=3}],["Коллекционер","коллекция от 20 000",function(){return cv()>=20000}],["Магнат","коллекция от 80 000",function(){return cv()>=80000}],["Торговец","3 сделки на маркете",function(){return S.hist.length>=3}],["Легенда","выбейте NFT из топ-класса",function(){return S.st.leg>=1}],["Ветеран BP","награда Battle Pass (FREE, ур. 15)",function(){return !!(S.ttu&&S.ttu.v)}],["Элита BP","награда Battle Pass VIP (ур. 14)",function(){return !!(S.ttu&&S.ttu.e)}],["Чемпион сезона","награда Battle Pass VIP (ур. 24)",function(){return !!(S.ttu&&S.ttu.c)}],["Охотник за NFT","достижение «Топ-находка»",function(){return !!(S.ttu&&S.ttu.t1)}],["Постоянный игрок","достижение «Неделя подряд»",function(){return !!(S.ttu&&S.ttu.t2)}],["Коллектор","коллекция «Топ NFT»",function(){return !!(S.ttu&&S.ttu.s1)}]];
 function setTl(i){if(TL[i][2]()||(S.tg||[]).indexOf(i)>=0){S.tt=i;save();rPro()}else toast("Откроется: "+TL[i][1])}
@@ -31,7 +31,7 @@ function livePush(u,g){LF.unshift([u,g]);if(LF.length>30)LF.pop();rLive(1)}
 setInterval(function(){var d=lfRand();livePush(d[0],d[1])},3500);
 function lvt(){var I=lvInfo();toast("Опыт: "+I[1]+" / "+I[2])}
 function topup(){shopGo()}
-function rTop(){var I=lvInfo(),p=I[1]/I[2]*100;$("lv").innerHTML='<span class="shd" style="height:28px;min-width:26px;font-size:14px">'+lvl()+'</span><div style="flex:1;min-width:0"><div class="lvt">Уровень · '+I[1]+' / '+I[2]+' XP</div><div class="lvl"><i style="width:'+p+'%"></i></div></div>';$("bal").innerHTML=ic("coin",18)+" "+f(S.bal)+'<button class="pl" onclick="topup()">+</button>'}
+function rTop(){var I=lvInfo(),p=I[1]/I[2]*100;$("lv").innerHTML='<span class="shd" style="height:28px;min-width:26px;font-size:14px">'+lvl()+'</span><div style="flex:1;min-width:0"><div class="lvt">Уровень · '+I[1]+' / '+I[2]+' XP</div><div class="lvl"><i style="width:'+p+'%"></i></div></div>';$("bal").innerHTML=ic("coin",18)+" "+tn(S.bal)+'<button class="pl" onclick="topup()">+</button>'}
 function render(){rCt();updSeen();rBp();rDl();rShop();rTop();rHome();rInv();rUp();rMk();rPro();rCat();rNav()}
 var ACC=[["Синий","#2aabee","#1d8fd6"],["Фиолетовый","#8b7bff","#6a4fe0"],["Мятный","#1fb99d","#13866f"],["Розовый","#ec5f9e","#c93a7c"],["Оранжевый","#f08a24","#cf6a0c"]];
 function applySet(){var t=S.set,d=document.documentElement.style,a=ACC[t.acc]||ACC[0];d.setProperty("--bs",t.bs);d.setProperty("--cols",t.cols);d.setProperty("--bl",a[1]);d.setProperty("--bl2",a[2]);
@@ -46,11 +46,11 @@ function sRow(ico,t,sub,ctl,cls,oc){return '<div class="sr'+(cls?' '+cls:'')+'"'
 function sSw(k){return '<button class="sw'+(S.set[k]?' on':'')+'" onclick="tgS(\''+k+'\')"><i></i></button>'}
 function sSeg(k,o){return '<div class="seg">'+o.map(function(x){return '<button class="'+(S.set[k]==x[1]?'on':'')+'" onclick="setS(\''+k+'\','+x[1]+')">'+x[0]+'</button>'}).join("")+'</div>'}
 var ARW='<span class="mu" style="font-size:22px">›</span>';
-var DISC='<ul><li>GRADE и подарки в игре виртуальные и не имеют денежной стоимости.</li><li>Вывод в Stars, TON, деньги или в аккаунт Telegram невозможен.</li><li>Покупки за Stars это покупка игрового контента. По вопросам оплаты пишите в поддержку.</li><li>Шансы выпадения показаны в каждом кейсе.</li><li>Игра только для 18+. Играйте ответственно.</li></ul>';
+var DISC='<ul><li>Баланс в TON и подарки в игре виртуальные: это игровые единицы, цены показаны по курсу Fragment для ориентира. Денежной стоимости они не имеют.</li><li>Вывод в Stars, TON, деньги или в аккаунт Telegram невозможен, реальные TON игра не принимает.</li><li>Покупки за Stars это покупка игрового контента. По вопросам оплаты пишите в поддержку.</li><li>Шансы выпадения показаны в каждом кейсе.</li><li>Игра только для 18+. Играйте ответственно.</li></ul>';
 function openTg(u){try{var w=tgW();if(w&&w.openTelegramLink){w.openTelegramLink(u);return}}catch(e){}window.open(u,"_blank")}
 function rSet(){var b=$("sbody");if(!b)return;var B=bpEns(),el=Math.min(1,Math.max(0,1-(B.end-Date.now())/(BPSD*864e5))),h='';
  h+='<div class="sn"><div class="r1"><span>Сезон '+B.s+'</span><span>осталось '+bpLeft(B)+'</span></div><div class="pb"><i style="width:'+Math.round(el*100)+'%"></i></div><div class="mu">Сезон длится 14 дней. После него баланс, инвентарь, уровень, маркет, достижения и Battle Pass обнуляются. Остаются рамки, титулы наград, GRADE Pass и настройки.</div></div>';
- if((S.sh||[]).length)h+=sGrp("Прошлые сезоны")+'<div class="sc">'+S.sh.map(function(x){return sRow("🏁","Сезон "+x.s,"Коллекция "+f(x.v)+" · ур. "+x.l+" · кейсов "+x.c)}).join("")+'</div>';
+ if((S.sh||[]).length)h+=sGrp("Прошлые сезоны")+'<div class="sc">'+S.sh.map(function(x){return sRow("🏁","Сезон "+x.s,"Коллекция "+tn(x.v)+" · ур. "+x.l+" · кейсов "+x.c)}).join("")+'</div>';
  h+=sGrp("Интерфейс")+'<div class="sc">'+
   sRow("🔘","Размер кнопок","","","wrap")+sSeg("bs",[["Малые",.9],["Средние",1],["Большие",1.15]]).replace('<div class="seg">','<div class="seg sx">')+
   sRow("▦","Подарков в ряду","в инвентаре и контрактах","","wrap")+sSeg("cols",[["3",3],["4",4],["5",5]]).replace('<div class="seg">','<div class="seg sx">')+
@@ -66,7 +66,7 @@ function rSet(){var b=$("sbody");if(!b)return;var B=bpEns(),el=Math.min(1,Math.m
   sRow("✨","Эффекты и анимации","конфетти и мигающие подсказки",sSw("fx"))+'</div>';
  h+=sGrp("Помощь")+'<div class="sc">'+
   sRow("📖","Показать обучение","",'<span class="mu" style="font-size:22px">›</span>',"tap","tab(0);tutStep(0)")+
-  sRow("🤝","Пригласить друга","300 GRADE вам и другу",'<span class="mu" style="font-size:22px">›</span>',"tap","invite()")+sRow("💬","Поддержка","написать боту, ответим в этом чате",ARW,"tap","openTg(CFG.SUPPORT)")+sRow("👥","Группа NFT GRADE","новости, вопросы и общение",ARW,"tap","openTg(CFG.GROUP)")+'</div>';
+  sRow("🤝","Пригласить друга",tnu(300)+" вам и другу",'<span class="mu" style="font-size:22px">›</span>',"tap","invite()")+sRow("💬","Поддержка","написать боту, ответим в этом чате",ARW,"tap","openTg(CFG.SUPPORT)")+sRow("👥","Группа NFT GRADE","новости, вопросы и общение",ARW,"tap","openTg(CFG.GROUP)")+'</div>';
  h+=sGrp("Важно знать")+'<div class="sc dis">'+DISC+'</div>';
  b.innerHTML=h}
 

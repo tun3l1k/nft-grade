@@ -32,6 +32,6 @@ function tutStep(i){if(i>=TUT.length){tutDone();return}var t=TUT[i];
  $("rv").innerHTML='<div style="font-size:72px;margin-bottom:6px">'+t[0]+'</div><div class="h" style="font-size:20px">'+t[1]+'</div><div class="at">'+t[2]+'</div><div class="tdots">'+TUT.map(function(x,k){return '<i class="'+(k==i?'on':'')+'"></i>'}).join("")+'</div><button class="go" onclick="tutStep('+(i+1)+')">'+(i==TUT.length-1?"Начать игру":"Далее")+'</button>'+(i<TUT.length-1?'<button class="go gh" onclick="tutDone()">Пропустить</button>':'');
  $("rev").className="ov on"}
 function tutDone(){S.tut=1;if(!S.tutg){S.tutg=1;S.tix=S.tix||{};S.tix[2]=(S.tix[2]||0)+1;toast("Билет на кейс «Старт» получен")}closeRev();save();render();if(dlNext())setTimeout(dlOpen,350)}
-function boot2(){if(S.mg){toast("Сердце убрано из игры: возврат +"+f(S.mg));S.mg=0;save()}if(S.sn)seasonShow();else if(!S.tut)tutStep(0);else if(dlNext())setTimeout(dlOpen,350)}
+function boot2(){if(S.mg){toast("Сердце убрано из игры: возврат +"+tn(S.mg));S.mg=0;save()}if(S.sn)seasonShow();else if(!S.tut)tutStep(0);else if(dlNext())setTimeout(dlOpen,350)}
 function rNav(){var n0=(dlNext()?1:0)+bpPending()+freeRdy(),n4=(typeof profPending=="function"?profPending():0),bs=document.querySelectorAll(".nav button");
  [[0,n0],[4,n4]].forEach(function(x){var b=bs[x[0]];if(!b)return;var d=b.querySelector(".dot");if(x[1]){if(!d){d=document.createElement("span");d.className="dot";b.appendChild(d)}d.textContent=x[1]}else if(d)d.remove()})}

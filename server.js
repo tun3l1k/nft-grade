@@ -8,12 +8,14 @@ if (!BOT_TOKEN || !WEBHOOK_SECRET) { console.error('Нужны BOT_TOKEN и WEBH
 if (!ADMINS.length) console.warn('ADMIN_IDS не задан: админ-команды никому не доступны. Свой ID покажет /id в боте.');
 
 // Каталог. Цены (Stars) задаются ТОЛЬКО здесь: клиенту доверять нельзя.
+let TONR = 0.0112;
+try { TONR = +/var TONR\s*=\s*([0-9.]+)/.exec(fs.readFileSync(path.join(__dirname, 'config.js'), 'utf8'))[1] || TONR; } catch (e) {}
 const ITEMS = {
-  p50:   { title: '500 GRADE',    st: 50 },
-  p150:  { title: '1 650 GRADE',  st: 150 },
-  p500:  { title: '6 000 GRADE',  st: 500 },
-  p1500: { title: '20 000 GRADE', st: 1500 },
-  pass:  { title: 'GRADE Pass · 30 дней', st: 199 },
+  p50:   { title: '0.56 TON',    st: 50 },
+  p150:  { title: '1.85 TON',  st: 150 },
+  p500:  { title: '6.72 TON',  st: 500 },
+  p1500: { title: '22.4 TON', st: 1500 },
+  pass:  { title: 'Grade Pass · 30 дней', st: 199 },
   bpvip: { title: 'Battle Pass VIP', st: 599 },
   bplvl: { title: '+1 уровень Battle Pass', st: 60 },
   f1:    { title: 'Рамка «Неон»',   st: 50 },
@@ -89,7 +91,7 @@ async function admin(m, cmd) {
     if (!a[0] || !['coin', 'gift', 'case'].includes(kind) || (!byName && (!Number.isInteger(v) || v < 0)) || (kind === 'coin' && (v < 1 || v > 1e6))) return say('Формат: /give @ник|id coin|gift|case число или название\nПримеры: /give @nick coin 1000, /give @nick gift Plush Pepe');
     if (!f) return say('Игрок не найден. Он должен хотя бы раз написать боту или открыть игру.');
     (db.grants[f.id] = db.grants[f.id] || []).push(byName ? [kind === 'gift' ? 'gn' : 'cn', nm] : [kind, v]); saveDb();
-    const what = kind === 'coin' ? v + ' GRADE' : byName ? (kind === 'gift' ? 'подарок ' : 'кейс ') + nm : (kind === 'gift' ? 'подарок №' : 'кейс №') + v;
+    const what = kind === 'coin' ? (+(v * TONR).toFixed(2)) + ' TON' : byName ? (kind === 'gift' ? 'подарок ' : 'кейс ') + nm : (kind === 'gift' ? 'подарок №' : 'кейс №') + v;
     tg('sendMessage', { chat_id: f.id, text: '🎁 Вам начислено от администрации: ' + what + '. Откройте игру, начисление придёт само.' });
     return say('Готово. ' + esc(f.n) + ' (' + f.id + ') получит ' + what + ': сразу, если игра открыта (до 30 сек), или при следующем входе.');
   }

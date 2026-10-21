@@ -19,7 +19,7 @@ function rUp(){var s=usum();if(mx&&s>0)T=near(s*mx,s);else if(T!=null&&!cchance(
  $("pct").textContent=ch.toFixed(1)+" %";var sb=$("sub");sb.textContent=!ch?"—":ch>=60?"Высокий шанс":ch>=30?"Средний шанс":"Низкий шанс";sb.className="sub "+(ch>=50?"s":"r");arc(ch/100);
  var g=$("ugo");g.disabled=!!busy||!ch;g.textContent=!s?"Выберите свои подарки":T==null?"Нет подходящей цели":"Улучшить";
  var inf='';
- if(T!=null&&s)inf+='<div class="srow"><span>Вложено</span><b>'+f(s)+'</b></div><div class="srow"><span>Цель: '+G[T][1]+' '+G[T][0]+'</span><b>≈ '+f(tv(T))+'</b></div><div class="srow"><span>Шанс успеха</span><b style="color:var(--gr)">'+ch.toFixed(2)+' %</b></div><div class="srow"><span>Шанс неудачи</span><b style="color:var(--rd)">'+(100-ch).toFixed(2)+' %</b></div>';
+ if(T!=null&&s)inf+='<div class="srow"><span>Вложено</span><b>'+tn(s)+'</b></div><div class="srow"><span>Цель: '+G[T][1]+' '+G[T][0]+'</span><b>≈ '+tn(tv(T))+'</b></div><div class="srow"><span>Шанс успеха</span><b style="color:var(--gr)">'+ch.toFixed(2)+' %</b></div><div class="srow"><span>Шанс неудачи</span><b style="color:var(--rd)">'+(100-ch).toFixed(2)+' %</b></div>';
  $("uinfo").style.display=inf?"block":"none";
  $("uinfo").innerHTML=inf;
  $("umine").innerHTML=S.inv.filter(upOk).sort(function(x,y){return pr(y)-pr(x)}).map(function(x){return tile(x,U[x.u]?" on":"","tu("+x.u+")")}).join("")||'<p class="note" style="grid-column:1/4">Нет подходящих подарков. В апгрейд идут NFT и неулучшенные подарки, которые можно улучшить. Обычные подарки не участвуют.</p>';
