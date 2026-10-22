@@ -69,23 +69,31 @@ body.pvon{overflow:hidden}
 .mfb{flex:0 0 auto;height:44px;border:0;border-radius:14px;background:var(--p2);color:var(--tx);padding:0 14px;font-weight:600;font-size:14px}
 .mfb.on{background:var(--bl);color:#fff}
 .mstat{display:flex;justify-content:space-between;gap:10px;padding:0 14px 8px;color:var(--mu);font-size:12px}
-.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 84px}
-.mc{position:relative;overflow:hidden;border-radius:18px;padding:8px 10px 10px;display:flex;flex-direction:column;gap:2px;text-align:center;cursor:pointer;background:radial-gradient(circle at 50% 30%,var(--c),color-mix(in srgb,var(--c) 28%,#0e1621) 96%)}
-.mc .mpt{position:absolute;inset:0;font-style:normal;font-size:15px;line-height:26px;letter-spacing:10px;color:#fff;opacity:.12;overflow:hidden;word-break:break-all;text-align:left;pointer-events:none}
-.mc>*:not(.mpt){position:relative}
-.mtop{display:flex;justify-content:space-between;align-items:flex-start;min-height:26px;gap:4px}
-.mbds{display:flex;flex-wrap:wrap;gap:3px;text-align:left}
-.mbd{font-size:9.5px;font-weight:800;letter-spacing:.3px;border-radius:7px;padding:3px 6px;background:rgba(0,0,0,.4);color:#fff}
+.mg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px 84px}
+.mc{position:relative;overflow:hidden;border-radius:20px;aspect-ratio:.74;min-height:0;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#fff;background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--c) 70%,#fff 30%) 0,var(--c) 45%,color-mix(in srgb,var(--c) 62%,#000) 100%)}
+.mc .mpt{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.mc .mpt u{position:absolute;text-decoration:none;transform:translate(-50%,-50%);line-height:1;filter:grayscale(1) brightness(1.7)}
+.mc>*:not(.mpt){position:relative;z-index:1}
+.mc .mfv{position:absolute;left:7px;top:7px;border:0;background:rgba(0,0,0,.18);color:#fff;border-radius:50%;width:24px;height:24px;display:grid;place-items:center;padding:0;opacity:.92}
+.mc .mfv.fav,.mc .mfv.on{background:rgba(255,213,74,.9);color:#4a3600}
+.mc .mrb{position:absolute;top:0;right:0;width:62px;height:62px;overflow:hidden;pointer-events:none}
+.mc .mrb b{position:absolute;top:11px;right:-24px;width:84px;text-align:center;transform:rotate(45deg);background:rgba(0,0,0,.26);font-size:10px;font-weight:700;line-height:15px;color:#fff;letter-spacing:.2px}
+.mc .mim{margin-top:16px;height:84px;width:100%;display:grid;place-items:center;flex:0 0 auto}
+.mc .mn{font-weight:600;font-size:10.5px;line-height:1.2;opacity:.9;max-width:92%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.mc .mbds{position:absolute;left:7px;top:36px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;z-index:2}
+.mbd{font-size:8px;font-weight:800;letter-spacing:.3px;border-radius:6px;padding:1.5px 4px;background:rgba(0,0,0,.4);color:#fff;white-space:nowrap}
 .mbd.lim{background:#ffd54a;color:#3a2a00}
-.mfv{flex:0 0 auto;border:0;background:rgba(0,0,0,.28);color:#fff;border-radius:50%;width:28px;height:28px;display:grid;place-items:center;padding:0}
-.mfv.on{color:#ffd54a}
-.mc .mim{height:78px;display:grid;place-items:center}
-.mc .mn{font-weight:700;font-size:14px;line-height:1.2}
-.mc .mn b{color:rgba(255,255,255,.6);font-weight:600;font-size:12px}
-.mc .ms{font-size:11px;color:rgba(255,255,255,.74);min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mc .mb{margin-top:6px;border:0;border-radius:12px;height:34px;font-weight:700;font-size:13px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;gap:4px}
-.mc .mb.pri{background:rgba(0,0,0,.42)}
-.mc .mb:disabled{opacity:.55}
+.mc .mb{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);border:0;border-radius:16px;height:26px;padding:0 11px;font-weight:700;font-size:12px;background:color-mix(in srgb,var(--c) 52%,#000);color:#fff;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;box-shadow:0 0 0 1px rgba(255,255,255,.08) inset}
+.mc .mb:disabled{opacity:.6}
+.mc .mim .nfi{display:block}
+.tgf{display:flex;gap:8px;overflow-x:auto;padding:0 12px 12px;scrollbar-width:none}.tgf::-webkit-scrollbar{display:none}
+.tgc{flex:0 0 auto;height:40px;border:0;border-radius:20px;background:var(--p2);color:var(--tx);padding:0 16px;font-weight:600;font-size:15px;display:flex;align-items:center;gap:6px;white-space:nowrap;max-width:60vw;overflow:hidden}
+.tgc.on{background:var(--bl);color:#fff}.tgc .mcv{opacity:.75;flex:0 0 auto}
+.mpl{max-height:58vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin:0 -4px}
+.mpo{display:flex;align-items:center;gap:10px;border:0;background:transparent;color:var(--tx);text-align:left;font-size:16px;padding:11px 8px;border-radius:12px;width:100%}
+.mpo span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mpo small{color:var(--mu);font-size:13px}
+.mpo.on{background:var(--p2);color:var(--bl);font-weight:700}
+.mpw{width:20px;height:20px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 1px rgba(255,255,255,.15) inset}
 .lbar{height:6px;border-radius:4px;background:rgba(0,0,0,.35);margin:4px 4px 0;overflow:hidden}
 .lbar i{display:block;height:100%;background:#ffd54a;border-radius:4px}
 /* Анимация модели (Lottie из .tgs): поверх картинки, пока не загрузилась, остаётся картинка */
@@ -100,3 +108,9 @@ body.pvon{overflow:hidden}
 .upg button.on{background:var(--bl);border-color:var(--bl)}.upg button:disabled{opacity:.35}.upg{align-items:center;gap:14px}.upn{font-weight:700;min-width:64px;text-align:center}
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .lstrip{cursor:pointer;color:var(--bl);font-weight:700}
+
+.mg.lg{grid-template-columns:1fr 1fr}
+.mc.lc{aspect-ratio:auto;padding:10px 10px 12px;text-align:center}
+.mc.lc .mbds{position:static;flex-direction:row;justify-content:center;margin:0 0 2px}.mc.lc .mim{margin-top:2px;height:80px}.mc.lc .mn{font-size:13px;margin-top:2px}
+.mc.lc .ms{font-size:11px;color:rgba(255,255,255,.78);margin-top:2px}.mc.lc .lbar{width:100%;margin:6px 0 0}
+.mc.lc .mb{position:static;transform:none;width:100%;margin-top:8px;font-size:13px;height:32px}
