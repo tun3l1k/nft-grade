@@ -659,9 +659,9 @@ function vib(){if(!S.set.vib)return;try{var h=window.Telegram&&Telegram.WebApp&&
 document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("button"))vib()});
 function toast(t){var d=$("toast");d.textContent=t;d.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){d.style.display="none"},2500)}
 function tile(it,cls,oc,inf){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";
- return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(ismono(it)?' mono':'')+'">'+(n?mimg(it,52):gimg(it.g,52))+'</b><small>'+g[0]+(n?' #'+it.n:'')+'</small><em>'+tn(pr(it))+'</em></div>'}
+ return '<div class="t'+cls+(n?' nf':'')+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'">'+(n?'<div class="mpt">'+patLayer(PS(it.g,it.s))+'</div><div class="mrb"><b>#'+it.n+'</b></div>':'')+(inf?'<span class="inf" onclick="event.stopPropagation();sheet('+it.u+')">i</span>':'')+'<b class="im'+(ismono(it)?' mono':'')+'">'+(n?mimg(it,52):gimg(it.g,52))+'</b><small>'+g[0]+'</small><em>'+tn(pr(it))+'</em></div>'}
 function gtile(i,cls,oc){var g=G[i],n=g[4],c=n?BG[i%5]:"#7f91a4";return '<div class="t'+cls+'" style="--rc:'+c+';--bg2:'+(n?c:"#2b3a4b")+'" onclick="'+oc+'"><b class="im">'+gimg(i,52)+'</b><small>'+g[0]+'</small><em>'+(n?"≈ ":"")+tn(n?tv(i):g[3])+'</em></div>'}
-function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+(n?mimg(it,108):gimg(it.g,108))+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
+function big(it){var g=G[it.g],n=!!it.up,c=n?BG[it.b]:"#7f91a4";return '<div class="bigc'+(n?' nf':'')+'" style="--rc:'+c+';background:linear-gradient(160deg,'+(n?c:"#2b3a4b")+',#0e1621)">'+(n?'<div class="mpt">'+patLayer(PS(it.g,it.s))+'</div>':'')+(n?mimg(it,108):gimg(it.g,108))+'</div><div class="h" style="font-size:22px">'+g[0]+'</div><div class="h" style="color:'+c+'">'+(n?"NFT":"Подарок")+'</div>'}
 function atxt(it){return it.up?"Номер #"+it.n+" · "+mname(it)+" · "+BN[it.b]+" · "+PN(it.g,it.s):"Подарок · можно улучшить"}
 function atb(it){function r(l,nm,p,m){return '<div class="srow" style="margin:6px 0"><span>'+l+'</span><span>'+nm+' · '+p+'% <small style="display:inline;color:var(--mu)">×'+m.toFixed(2)+'</small></span></div>'}
  return '<div class="sbox" style="margin:8px 0">'+r("Модель",mname(it),mpct(it),mmul(it))+r("Фон",BN[it.b],BP[it.b],1+PRM.b[it.b])+r("Узор",PN(it.g,it.s),SP[it.s],1+PRM.s[it.s])+'<div class="srow" style="margin:6px 0"><span>Номер</span><span>#'+it.n+(nbe(it.n)?' · '+nbe(it.n)[0]:'')+' <small style="display:inline;color:var(--mu)">×'+nmul(it.n,nmax(it.g)).toFixed(2)+'</small></span></div></div>'}
@@ -1266,7 +1266,7 @@ function rAv(){TGU=tgUser();var a=$("av"),u=TGU||{},n=((u.first_name||"")+" "+(u
  var fr=FR.filter(function(x){return x.id==S.frame})[0];a.style.border=fr?"3px solid transparent":"";a.style.background=fr?"linear-gradient(#202b38,#202b38) padding-box,linear-gradient(135deg,"+fr.c+") border-box":"";
  var ph=u.photo_url||"";if(a.dataset.ph!==ph||!a.firstChild){a.dataset.ph=ph;a.textContent=n.charAt(0).toUpperCase();if(ph){var im=new Image();im.onload=function(){if(a.dataset.ph===ph){a.textContent="";a.appendChild(im)}};im.src=ph}}}
 var EYE='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>';
-function gcard(x){var n=!!x.up,c=n?BG[x.b]:"#7f91a4";return '<div class="gc" style="--rc:'+c+'" onclick="sheet('+x.u+')"><span class="gb"'+(n?' style="background:'+c+'"':'')+'>'+(n?"#"+x.n:"🎁")+'</span>'+(x.hid?'<span class="gey">'+EYE+'</span>':'')+(n?mimg(x,76):gimg(x.g,76))+'<small>'+tn(pr(x))+'</small></div>'}
+function gcard(x){var n=!!x.up,c=n?BG[x.b]:"#7f91a4";return '<div class="gc'+(n?' nf':'')+'" style="--rc:'+c+'" onclick="sheet('+x.u+')">'+(n?'<div class="mpt">'+patLayer(PS(x.g,x.s))+'</div><div class="mrb"><b>#'+x.n+'</b></div>':'<span class="gb">🎁</span>')+(x.hid?'<span class="gey">'+EYE+'</span>':'')+(n?mimg(x,76):gimg(x.g,76))+'<small>'+tn(pr(x))+'</small></div>'}
 function rGifts(){var a=S.inv.slice().sort(function(p,q){return(q.d||0)-(p.d||0)||q.u-p.u});$("pgc").textContent=a.length+" шт. · "+tn(cv())+" TON";$("pgf").innerHTML=a.map(gcard).join("")||'<p class="note" style="grid-column:1/4">Подарков пока нет</p>'}
 function sendSheet(u){var v=$("gu")?$("gu").value:"";if(u!=null)sendU=u;var a=S.inv.slice().sort(function(x,y){return pr(y)-pr(x)});if(!a.length){toast("Подарков пока нет");return}
  $("sh").innerHTML='<div class="h" style="font-size:20px;margin-bottom:6px">Отправить подарок</div><div class="mu" style="margin-bottom:8px">Выберите подарок и укажите @username</div><div class="grid" style="padding:0;max-height:300px;overflow:auto">'+a.map(function(x){return tile(x,x.u==sendU?" on":"","sendSheet("+x.u+")")}).join("")+'</div><div class="rowb" style="gap:8px;margin:12px 0 0"><input class="gi" id="gu" placeholder="@username" autocapitalize="off" autocorrect="off" value="'+v+'"><button class="b" onclick="sendGo()">Отправить</button></div>';$("sheet").className="ov end on"}
@@ -1390,6 +1390,23 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .mc.lc .mbds{position:static;flex-direction:row;justify-content:center;margin:0 0 2px}.mc.lc .mim{margin-top:2px;height:80px}.mc.lc .mn{font-size:13px;margin-top:2px}
 .mc.lc .ms{font-size:11px;color:rgba(255,255,255,.78);margin-top:2px}.mc.lc .lbar{width:100%;margin:6px 0 0}
 .mc.lc .mb{position:static;transform:none;width:100%;margin-top:8px;font-size:13px;height:32px}
+/* единый вид NFT везде (профиль, инвентарь, апгрейд, лента): как на маркете */
+.nf{border:0!important;color:#fff;background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--rc) 70%,#fff 30%) 0,var(--rc) 45%,color-mix(in srgb,var(--rc) 62%,#000) 100%)!important}
+.nf>.mpt{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.nf .mpt u{position:absolute;text-decoration:none;transform:translate(-50%,-50%);line-height:1;filter:grayscale(1) brightness(1.7)}
+.nf .mrb{position:absolute;top:0;right:0;width:58px;height:58px;overflow:hidden;pointer-events:none;z-index:2}
+.nf .mrb b{position:absolute;display:block;top:10px;right:-24px;width:80px;text-align:center;transform:rotate(45deg);background:rgba(0,0,0,.26);font-size:9.5px;font-weight:700;line-height:14px;color:#fff;letter-spacing:.2px}
+.nf svg,.nf .im{position:relative;z-index:1}
+.t.nf small{color:rgba(255,255,255,.92);text-shadow:0 1px 2px rgba(0,0,0,.3);font-weight:600}
+.t.nf em{display:inline-block;margin-top:3px;padding:3px 9px;border-radius:12px;background:color-mix(in srgb,var(--rc) 52%,#000);color:#fff;font-size:11px}
+.t.nf{border-radius:20px}.t.nf.on{box-shadow:0 0 0 3px rgba(255,255,255,.55)}
+.t.sm.nf .mrb{width:50px;height:50px}.t.sm.nf .mrb b{top:8px;right:-22px;width:70px;font-size:7.5px;line-height:11px}.t.sm.nf em{color:#fff!important;opacity:.9}
+.gc.nf small{color:#fff;background:color-mix(in srgb,var(--rc) 52%,#000);padding:3px 10px;border-radius:12px;bottom:8px;font-size:11px}
+.gc.nf{border-radius:20px}.gc.nf svg{margin-bottom:14px}
+.pvg .gc.nf small{font-size:10px;padding:2px 8px;bottom:6px}
+.gc.nf .gs{z-index:2}
+.bigc.nf{overflow:hidden;position:relative;border:0}.bigc.nf svg{position:relative;z-index:1}
+.bigc.nf .mpt u{filter:grayscale(1) brightness(1.7)}
 </style>
 <script>
 /* ===== профиль игрока из ленты live ===== */
@@ -1418,7 +1435,7 @@ function mkLive(u,g){var it=pvItemMk(Math.random,g,"NFT GRADE",Date.now());var P
 LF.forEach(function(d,i){d[2]=mkLive(d[0],d[1]);d[2].d=Date.now()-i*95000});
 livePush=function(u,g){var it=mkLive(u,g);LF.unshift([u,g,it]);if(LF.length>30)LF.pop();rLive(1)};
 function tileH(d,an){var g=G[d[1]],it=d[2],up=it&&it.up,c=up?BG[it.b]:(g[4]?BG[d[1]%5]:"#7f91a4");
- return '<div class="t sm'+(an?" nw":"")+'" data-u="'+d[0]+'" data-i="'+(it?it.id:0)+'" onclick="liveTap(this)" style="--rc:'+c+';--bg2:'+(up?c:BG[d[1]%5])+'">'+(up?'<i class="pt">'+Array(40).join(PS(it.g,it.s)+" ")+'</i>':'')+'<b'+(ismono(it)?' class="mono"':'')+'>'+(up?mimg(it,34):gimg(d[1],34))+'</b><small>'+g[0]+'</small><em style="font-size:10px;color:var(--mu)">'+(d[0]=="вы"?"вы":"@"+d[0])+'</em></div>'}
+ return '<div class="t sm'+(up?' nf':'')+(an?" nw":"")+'" data-u="'+d[0]+'" data-i="'+(it?it.id:0)+'" onclick="liveTap(this)" style="--rc:'+c+';--bg2:'+(up?c:BG[d[1]%5])+'">'+(up?'<div class="mpt">'+patLayer(PS(it.g,it.s))+'</div><div class="mrb"><b>#'+it.n+'</b></div>':'')+'<b'+(ismono(it)?' class="mono"':'')+'>'+(up?mimg(it,34):gimg(d[1],34))+'</b><small>'+g[0]+'</small><em style="font-size:10px;color:var(--mu)">'+(d[0]=="вы"?"вы":"@"+d[0])+'</em></div>'}
 rLive=function(an){var fd=$("feed");if(!fd)return;
  if(an&&fd.children.length&&LF.length){var sl=fd.scrollLeft;fd.insertAdjacentHTML("afterbegin",tileH(LF[0],1));while(fd.children.length>20)fd.removeChild(fd.lastChild);if(sl>4)fd.scrollLeft=sl+94}
  else fd.innerHTML=LF.slice(0,20).map(function(d){return tileH(d,0)}).join("")};
@@ -1439,7 +1456,7 @@ function pvShield(l){return '<svg width="18" height="20" viewBox="0 0 24 26"><pa
 function pvTitle(P){var b=P.b;return b[3]>=6?"Легенда":b[1]>=80000?"Магнат":b[1]>=20000?"Коллекционер":b[2]>=3?"Везунчик":"Новичок"}
 function pvAgo(t){var m=Math.max(0,Math.round((Date.now()-t)/6e4));if(m<1)return"только что";if(m<60)return m+" мин назад";var h=Math.round(m/60);if(h<24)return h+" ч назад";return Math.round(h/24)+" дн назад"}
 function pvGift(x,P,focus){var n=!!x.up,c=n?BG[x.b]:"#7f91a4",h=hsh(x.from)%360;
- return '<div class="gc'+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')"><span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?'<span class="gn" style="background:'+c+'">#'+x.n+'</span>':'')+(n?mimg(x,60):gimg(x.g,60))+'<small>'+(x.id==focus?"только что":tn(pr(x)))+'</small></div>'}
+ return '<div class="gc'+(n?' nf':'')+(x.id==focus?" nw2":"")+'" style="--rc:'+c+'" onclick="pvItem('+x.id+')">'+(n?'<div class="mpt">'+patLayer(PS(x.g,x.s))+'</div><div class="mrb"><b>#'+x.n+'</b></div>':'')+'<span class="gs" style="background:linear-gradient(135deg,hsl('+h+' 70% 56%),hsl('+(h+55)+' 70% 42%))">'+x.from.charAt(0).toUpperCase()+'</span>'+(n?mimg(x,60):gimg(x.g,60))+'<small>'+(x.id==focus?"только что":tn(pr(x)))+'</small></div>'}
 function pvBody(){var P=getP(PVU),el=$("pvbody");if(!P||!el)return;
  var a=P.gifts.slice().sort(function(p,q){return(q.id==PVF)-(p.id==PVF)||pr(q)-pr(p)});
  el.innerHTML=PVT==1?'<div class="grid pvg">'+a.map(function(x){return pvGift(x,P,PVF)}).join("")+'</div>'
